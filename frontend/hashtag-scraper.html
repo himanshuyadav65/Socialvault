@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <script>
+    const t = localStorage.getItem("socialvault_theme") || "dark";
+    document.documentElement.setAttribute("data-theme", t);
+  </script>
+  <title>Instagram Hashtag Scraper & Analytics — SocialVault</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./style.css">
+
+  <style>
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .spin-icon {
+      animation: spin 0.8s linear infinite;
+    }
+    /* Tool Page Specific Modern Styling (Dual Theme Adaptive) */
+    .hs-page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    [data-theme="dark"] .hs-page-wrapper {
+      background: radial-gradient(circle at 15% 15%, rgba(147, 51, 234, 0.22) 0%, transparent 40%),
+                  radial-gradient(circle at 85% 35%, rgba(236, 72, 153, 0.18) 0%, transparent 45%),
+                  radial-gradient(circle at 50% 70%, rgba(147, 51, 234, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 90%, rgba(234, 88, 12, 0.15) 0%, transparent 45%),
+                  #080c16 !important;
+      color: #f8fafc !important;
+    }
+
+    [data-theme="light"] .hs-page-wrapper {
+      background: radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
+                  radial-gradient(circle at 85% 35%, rgba(168, 85, 247, 0.1) 0%, transparent 45%),
+                  #f8fafc !important;
+      color: #0f172a !important;
+    }
+
+    .hs-container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+      width: 100%;
+    }
+
+    .hs-hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .hs-tool-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: rgba(236, 72, 153, 0.15);
+      border: 1px solid rgba(236, 72, 153, 0.35);
+      color: #f472b6;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .hs-headline {
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      line-height: 1.15;
+    }
+
+    [data-theme="dark"] .hs-headline {
+      color: #ffffff !important;
+    }
+
+    [data-theme="light"] .hs-headline {
+      color: #0f172a !important;
+    }
+
+    .hs-subhead {
+      font-size: 16px;
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    [data-theme="dark"] .hs-subhead {
+      color: #94a3b8 !important;
+    }
+
+    [data-theme="light"] .hs-subhead {
+      color: #475569 !important;
+    }
+
+    /* Scraper Search Bar */
+    .hs-search-box {
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 36px;
+    }
+
+    [data-theme="dark"] .hs-search-box {
+      background: rgba(15, 23, 42, 0.75) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45) !important;
+      backdrop-filter: blur(16px);
+    }
+
+    [data-theme="light"] .hs-search-box {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .hs-form {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .hs-input-wrap {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .hs-hash-prefix {
+      position: absolute;
+      left: 18px;
+      font-size: 20px;
+      font-weight: 800;
+      color: #ec4899;
+      pointer-events: none;
+    }
+
+    .hs-input {
+      width: 100%;
+      height: 56px;
+      padding: 0 20px 0 42px;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    [data-theme="dark"] .hs-input {
+      background: #090e1a !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    }
+
+    [data-theme="light"] .hs-input {
+      background: #f1f5f9 !important;
+      color: #0f172a !important;
+      border: 1.5px solid #cbd5e1 !important;
+    }
+
+    .hs-input:focus {
+      border-color: #ec4899;
+      box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.25);
+    }
+
+    .rd-paste-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(236, 72, 153, 0.12);
+      color: #df367c;
+      border: 1px solid rgba(236, 72, 153, 0.25);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .rd-paste-btn:hover {
+      background: #ec4899;
+      color: #fff;
+    }
+
+    .btn-clear-active {
+      background: rgba(239, 68, 68, 0.18) !important;
+      color: #fca5a5 !important;
+      border-color: rgba(239, 68, 68, 0.4) !important;
+    }
+
+    .btn-clear-active:hover {
+      background: #ef4444 !important;
+      color: #ffffff !important;
+      border-color: #ef4444 !important;
+    }
+
+    .hs-btn-submit {
+      height: 56px;
+      padding: 0 28px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #df367c, #9333ea);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .hs-btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(223, 54, 124, 0.35);
+    }
+
+    [data-theme="dark"] .hs-card,
+    [data-theme="dark"] .hs-stat-card,
+    [data-theme="dark"] .hs-creator-card,
+    [data-theme="dark"] .hs-related-card {
+      background: rgba(15, 23, 42, 0.85) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      color: #ffffff !important;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5) !important;
+    }
+
+    [data-theme="light"] .hs-card,
+    [data-theme="light"] .hs-stat-card,
+    [data-theme="light"] .hs-creator-card,
+    [data-theme="light"] .hs-related-card {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      color: #0f172a !important;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.06) !important;
+    }
+
+    /* Results Area */
+    .hs-results-section {
+      animation: fadeIn 0.35s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hs-card {
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+
+    .hs-metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 860px) {
+      .hs-metric-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hs-metric-grid {
+        grid-template-columns: 1fr;
+      }
+      .hs-form {
+        flex-direction: column;
+      }
+      .hs-btn-submit {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    .hs-stat-box {
+      border-radius: 14px;
+      padding: 18px;
+      text-align: left;
+    }
+
+    [data-theme="dark"] .hs-stat-box {
+      background: rgba(255, 255, 255, 0.04) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+
+    [data-theme="light"] .hs-stat-box {
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+    }
+
+    .hs-stat-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    [data-theme="dark"] .hs-stat-title {
+      color: #94a3b8 !important;
+    }
+
+    [data-theme="light"] .hs-stat-title {
+      color: #64748b !important;
+    }
+
+    .hs-stat-val {
+      font-size: 24px;
+      font-weight: 900;
+    }
+
+    [data-theme="dark"] .hs-stat-val {
+      color: #ffffff !important;
+    }
+
+    [data-theme="light"] .hs-stat-val {
+      color: #0f172a !important;
+    }
+
+    [data-theme="dark"] #resTagTitle {
+      color: #ffffff !important;
+    }
+
+    [data-theme="light"] #resTagTitle {
+      color: #0f172a !important;
+    }
+
+    [data-theme="dark"] .hs-cloud-header h3 {
+      color: #ffffff !important;
+    }
+
+    [data-theme="light"] .hs-cloud-header h3 {
+      color: #0f172a !important;
+    }
+
+    /* Tag Cloud */
+    .hs-cloud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .hs-cloud-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    [data-theme="dark"] .hs-cloud-pill {
+      background: rgba(236, 72, 153, 0.16) !important;
+      border: 1px solid rgba(236, 72, 153, 0.35) !important;
+      color: #f472b6 !important;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    [data-theme="dark"] .hs-cloud-pill:hover {
+      background: #ec4899 !important;
+      color: #ffffff !important;
+      transform: translateY(-2px);
+    }
+
+    [data-theme="light"] .hs-cloud-pill {
+      background: #fdf2f8 !important;
+      border: 1px solid #fbcfe8 !important;
+      color: #db2777 !important;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    [data-theme="light"] .hs-cloud-pill:hover {
+      background: #db2777 !important;
+      color: #ffffff !important;
+      transform: translateY(-2px);
+    }
+
+    /* Creator Badge */
+    [data-theme="dark"] .hs-creator-badge {
+      background: rgba(236, 72, 153, 0.12) !important;
+      border: 1px solid rgba(236, 72, 153, 0.35) !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3) !important;
+    }
+    [data-theme="dark"] .hs-author-handle {
+      color: #ffffff !important;
+    }
+    [data-theme="dark"] .hs-author-name {
+      color: #cbd5e1 !important;
+    }
+
+    [data-theme="light"] .hs-creator-badge {
+      background: #fdf2f8 !important;
+      border: 1px solid #fbcfe8 !important;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
+    }
+    [data-theme="light"] .hs-author-handle {
+      color: #0f172a !important;
+    }
+    [data-theme="light"] .hs-author-name {
+      color: #475569 !important;
+    }
+
+    /* Tip Box */
+    [data-theme="dark"] .hs-tip-box {
+      background: rgba(236, 72, 153, 0.08) !important;
+      border: 1px dashed rgba(236, 72, 153, 0.35) !important;
+    }
+    [data-theme="dark"] .hs-tip-title {
+      color: #ffffff !important;
+    }
+    [data-theme="dark"] .hs-tip-desc {
+      color: #cbd5e1 !important;
+    }
+
+    [data-theme="light"] .hs-tip-box {
+      background: #fdf2f8 !important;
+      border: 1px dashed #f472b6 !important;
+    }
+    [data-theme="light"] .hs-tip-title {
+      color: #831843 !important;
+    }
+    [data-theme="light"] .hs-tip-desc {
+      color: #475569 !important;
+    }
+
+    .hs-copy-btn {
+      background: #22c55e;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .hs-copy-btn:hover {
+      background: #16a34a;
+      transform: translateY(-1px);
+    }
+
+    [data-theme="dark"] .hs-csv-btn {
+      background: rgba(255, 255, 255, 0.1) !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      color: #ffffff !important;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    [data-theme="dark"] .hs-csv-btn:hover {
+      border-color: #ec4899 !important;
+      color: #ec4899 !important;
+    }
+
+    [data-theme="light"] .hs-csv-btn {
+      background: #f1f5f9 !important;
+      border: 1px solid #cbd5e1 !important;
+      color: #0f172a !important;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    [data-theme="light"] .hs-csv-btn:hover {
+      background: #e2e8f0 !important;
+      border-color: #db2777 !important;
+      color: #db2777 !important;
+    }
+
+    /* Toast Notification */
+    #hsToast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 9999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #hsToast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="hs-page-wrapper">
+
+    <!-- Top Navigation Bar -->
+    <nav class="it-navbar">
+      <div class="it-nav-container">
+        
+        <!-- Logo -->
+        <a href="./index.html" class="it-brand-logo">
+          <div class="it-logo-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <span class="it-brand-title"><span class="it-title-pink">Social</span><span class="it-title-orange">Vault</span></span>
+        </a>
+
+        <!-- Center Links -->
+        <ul class="it-nav-menu">
+          <li><a href="./index.html" class="it-nav-item">Home</a></li>
+          <li><a href="./features.html" class="it-nav-item">Features</a></li>
+          <li><a href="./faq.html" class="it-nav-item">FAQ</a></li>
+        </ul>
+
+        <!-- Right Side -->
+        <div class="it-nav-actions">
+          <button id="themeToggleBtn" class="it-theme-toggle-btn" title="Toggle Theme">
+            <span id="themeIcon">☼</span>
+          </button>
+
+          <!-- Google Sign-In Button Container -->
+          <div id="googleAuthBtnWrapper">
+            <button type="button" id="googleSignInBtn" class="it-google-signin-btn" style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:middle;">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              Sign in with Google
+            </button>
+          </div>
+
+          <!-- Logged In User Profile Menu -->
+          <div id="loggedInUserMenu" class="hidden" style="position:relative;">
+            <div id="userProfileChip" style="display:flex; align-items:center; gap:8px; padding:4px 12px 4px 6px; border-radius:30px; cursor:pointer;">
+              <img id="userAvatarImg" src="" alt="Avatar" style="width:26px; height:26px; border-radius:50%; object-fit:cover; display:none;">
+              <div id="userAvatarPlaceholder" style="width:26px; height:26px; border-radius:50%; background:#9333ea; color:white; font-size:11px; font-weight:800; display:grid; place-items:center;">U</div>
+              <span id="userDisplayName" style="font-size:12px; font-weight:700; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">User</span>
+              <span style="font-size:10px; color:#cbd5e1;">▼</span>
+            </div>
+
+            <!-- Profile Dropdown -->
+            <div id="userProfileDropdown" class="hidden" style="position:absolute; top:42px; right:0; width:230px; border-radius:14px; padding:14px; z-index:1000; text-align:left;">
+              <div style="padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:10px;">
+                <strong id="dropdownUserName" style="font-size:13px; display:block;">User</strong>
+                <div id="dropdownUserEmail" style="font-size:11px; word-break:break-all; margin-top:2px;">user@gmail.com</div>
+              </div>
+              <button type="button" id="googleSignOutBtn" style="width:100%; background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:8px; font-size:12px; font-weight:700; cursor:pointer;">
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- Main Tool Container -->
+    <main class="hs-container">
+      
+      <!-- Hero -->
+      <div class="hs-hero">
+        <div class="hs-tool-pill">
+          <span>⚡ Live Hashtag Extraction Node</span>
+        </div>
+        <h1 class="hs-headline">
+          Instagram <span class="it-title-pink">Hashtag Scraper</span> &amp; Explorer
+        </h1>
+        <p class="hs-subhead">
+          Analyze total post volumes, viral velocity, competition difficulty, and extract high-reach hashtag sets to boost your organic impressions.
+        </p>
+      </div>
+
+      <!-- Search Input Card -->
+      <div class="hs-search-box">
+        <form id="hashtagForm" class="hs-form">
+          <div class="hs-input-wrap" style="position:relative; flex:1;">
+            <input 
+              type="text" 
+              id="hashtagInput" 
+              class="hs-input" 
+              style="padding: 0 95px 0 20px;"
+              placeholder="Paste Instagram Reel or Post link" 
+              autocomplete="off" 
+              required
+              oninput="updatePasteBtnState('hashtagInput', 'pasteHsBtn')"
+            />
+            <button type="button" id="pasteHsBtn" class="rd-paste-btn" onclick="handlePasteOrClear('hashtagInput', 'pasteHsBtn')">Paste</button>
+          </div>
+          <button type="submit" id="scrapeBtn" class="hs-btn-submit">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <span>Extract Hashtags</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Alert / Notice Box -->
+      <div id="notFoundAlert" class="hidden hs-card" style="margin-bottom:24px; text-align:left;"></div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="hidden" style="text-align:center; padding:50px 20px;">
+        <div style="width:48px; height:48px; border:4px solid rgba(236,72,153,0.2); border-top-color:#ec4899; border-radius:50%; margin:0 auto 16px; animation:spin 0.8s linear infinite;"></div>
+        <h3 style="font-size:22px; font-weight:800; color:var(--text-heading, #ffffff) !important; margin-bottom:6px;">Please wait...</h3>
+        <p style="font-size:14px; color:var(--text-muted, #94a3b8) !important;">Extracting Hashtags, Post Velocity &amp; Viral Tag Clusters...</p>
+      </div>
+
+      <!-- Results Section -->
+      <div id="resultsSection" class="hs-results-section hidden">
+        
+        <!-- Header Overview Card -->
+        <div class="hs-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom:24px; padding-bottom:18px; border-bottom:1px solid rgba(255,255,255,0.1);">
+            <div>
+              <span id="resTargetType" style="font-size:12px; font-weight:800; color:#c084fc; text-transform:uppercase; letter-spacing:1px;">Extracted Hashtags</span>
+              <h2 id="resTagTitle" class="hs-res-tag-title" style="font-size:32px; font-weight:900; margin-top:4px;">#reels</h2>
+              <!-- Creator Profile Badge with DP & Username -->
+              <div id="reelAuthorBadge" class="hidden hs-creator-badge" style="display:flex; align-items:center; gap:12px; margin-top:10px; padding:6px 16px 6px 6px; border-radius:30px; width:fit-content;">
+                <!-- DP / Avatar -->
+                <div style="position:relative; width:40px; height:40px; border-radius:50%; overflow:hidden; border:2px solid #ec4899; flex-shrink:0; background:rgba(255,255,255,0.05);">
+                  <img id="reelAuthorAvatarImg" src="" alt="DP" referrerpolicy="no-referrer" style="width:100%; height:100%; object-fit:cover; display:block;" onerror="this.style.display='none'; document.getElementById('reelAuthorAvatarFallback').style.display='grid';">
+                  <div id="reelAuthorAvatarFallback" style="width:100%; height:100%; background:linear-gradient(135deg, #ec4899, #9333ea); color:#fff; font-size:14px; font-weight:800; display:none; place-items:center;">C</div>
+                </div>
+                <div style="text-align:left;">
+                  <div style="display:flex; align-items:center; gap:6px;">
+                    <strong id="reelAuthorHandleText" class="hs-author-handle" style="font-size:14px; font-weight:800;">@creator</strong>
+                    <span style="background:rgba(34,197,94,0.2); color:#16a34a; font-size:10px; font-weight:800; padding:1px 5px; border-radius:4px;">VERIFIED</span>
+                  </div>
+                  <span id="reelAuthorNameText" class="hs-author-name" style="font-size:11px; font-weight:600; display:block;">Creator Profile</span>
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <span id="resCompBadge" style="background:rgba(34,197,94,0.15); color:#16a34a; border:1px solid rgba(34,197,94,0.3); font-size:12px; font-weight:800; padding:6px 14px; border-radius:8px;">
+                Competition: High
+              </span>
+              <span id="resViralScore" style="background:rgba(236,72,153,0.15); color:#db2777; border:1px solid rgba(236,72,153,0.3); font-size:12px; font-weight:800; padding:6px 14px; border-radius:8px;">
+                Viral Score: 96% 🔥
+              </span>
+            </div>
+          </div>
+
+          <!-- 4 Metrics -->
+          <div class="hs-metric-grid">
+            <div class="hs-stat-box">
+              <div class="hs-stat-title">Total Post Volume</div>
+              <div class="hs-stat-val" id="mPostVolume">48.2M</div>
+            </div>
+            <div class="hs-stat-box">
+              <div class="hs-stat-title">Avg Likes / Post</div>
+              <div class="hs-stat-val" id="mAvgLikes">14.8K</div>
+            </div>
+            <div class="hs-stat-box">
+              <div class="hs-stat-title">Avg Comments</div>
+              <div class="hs-stat-val" id="mAvgComments">380</div>
+            </div>
+            <div class="hs-stat-box">
+              <div class="hs-stat-title">Post Velocity</div>
+              <div class="hs-stat-val" id="mPostVelocity">120/hr</div>
+            </div>
+          </div>
+
+          <!-- Related Viral Cluster -->
+          <div class="hs-cloud-header">
+            <div>
+              <h3 class="hs-cluster-title" style="font-size:20px; font-weight:800;">Extracted Hashtag Set &amp; Viral Cluster</h3>
+              <p class="hs-cluster-subtitle" style="font-size:13px;">Click any individual hashtag to copy, or copy all at once</p>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button type="button" class="hs-copy-btn" id="copyAllTagsBtn">
+                <span>Copy All Tags 📋</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="hs-cloud-grid" id="tagCloudBox">
+            <!-- Tags dynamically populated here -->
+          </div>
+
+          <!-- Extracted Post Card Preview (Caption Text, Photo/Video & Download Button) -->
+          <div id="hsPostCard" class="hidden" style="margin-bottom:28px; padding:22px; border-radius:18px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1);">
+            <div id="hsCaptionText" style="font-size:15px; color:var(--text-heading); margin-bottom:18px; white-space:pre-wrap; line-height:1.6; font-weight:500;"></div>
+            
+            <div id="hsMediaContainer" style="margin-bottom:18px; border-radius:16px; overflow:hidden; max-height:520px; background:#000; display:flex; align-items:center; justify-content:center;">
+              <img id="hsPostImg" src="" alt="Post Photo Preview" referrerpolicy="no-referrer" style="width:100%; max-height:520px; object-fit:cover; border-radius:16px; display:block;" />
+              <video id="hsPostVid" controls playsinline style="width:100%; max-height:520px; display:none; border-radius:16px;"></video>
+            </div>
+
+            <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+              <a id="hsDownloadBtn" href="#" target="_blank" class="hs-copy-btn" style="text-decoration:none; background:linear-gradient(135deg, #ec4899, #833ab4); padding:12px 24px; font-size:14px; font-weight:800; border-radius:12px; display:inline-flex; align-items:center; gap:8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                <span>Download Photo (HD Quality)</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Pro Tip Box -->
+          <div class="hs-tip-box" style="border-radius:14px; padding:16px 20px; display:flex; gap:14px; align-items:flex-start;">
+            <span style="font-size:22px;">💡</span>
+            <div>
+              <strong class="hs-tip-title" style="font-size:14px; display:block; margin-bottom:4px;">Algorithm Growth Tip</strong>
+              <span class="hs-tip-desc" style="font-size:13px; line-height:1.5;">
+                Copy and paste these high-engagement hashtags into your Reel caption or first comment to maximize explore feed ranking and non-follower impressions.
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- 3 Feature Highlight Boxes -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:20px; max-width:960px; margin:36px auto 0; width:100%;">
+        <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
+          <div style="font-size:28px; margin-bottom:8px;">🚀</div>
+          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Live Volume &amp; Velocity</strong>
+          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Real-time post count metrics, estimated reach volume, and hourly viral velocity tracking.</span>
+        </div>
+        <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
+          <div style="font-size:28px; margin-bottom:8px;">🎯</div>
+          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Smart Tag Clusters</strong>
+          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Generate high-engagement related hashtag sets to boost organic reach and explore ranking.</span>
+        </div>
+        <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
+          <div style="margin-bottom:12px; display:flex; justify-content:center; color:#38bdf8;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Instant Data Export</strong>
+          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Download comprehensive analytics, tag metrics, and rich datasets directly to your device for further research.</span>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Toast -->
+    <div id="hsToast">
+      <span>✅</span>
+      <span id="hsToastText">Tags copied to clipboard!</span>
+    </div>
+
+  </div>
+
+  <style>
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+
+  <script>
+    // Hashtag Scraping Logic
+    const hashtagForm = document.getElementById('hashtagForm');
+    const hashtagInput = document.getElementById('hashtagInput');
+    const scrapeBtn = document.getElementById('scrapeBtn');
+    const loadingState = document.getElementById('loadingState');
+    const resultsSection = document.getElementById('resultsSection');
+    const notFoundAlert = document.getElementById('notFoundAlert');
+    const copyAllTagsBtn = document.getElementById('copyAllTagsBtn');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+
+    let currentTags = [];
+
+    function showToast(msg) {
+      const toast = document.getElementById('hsToast');
+      const toastText = document.getElementById('hsToastText');
+      if (toast && toastText) {
+        toastText.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2500);
+      }
+    }
+
+    function updatePasteBtnState(inputId = 'hashtagInput', btnId = 'pasteHsBtn') {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!input || !btn) return;
+      const hasText = input.value.trim().length > 0;
+      if (hasText) {
+        btn.innerHTML = '✕ Clear';
+        btn.classList.add('btn-clear-active');
+        btn.title = 'Clear / Cut link';
+      } else {
+        btn.innerHTML = 'Paste';
+        btn.classList.remove('btn-clear-active');
+        btn.title = 'Paste from clipboard';
+      }
+    }
+
+    async function handlePasteOrClear(inputId = 'hashtagInput', btnId = 'pasteHsBtn') {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!input) return;
+      if (input.value.trim().length > 0) {
+        input.value = '';
+        input.focus();
+        updatePasteBtnState(inputId, btnId);
+        showToast('Link cleared');
+      } else {
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text) {
+            input.value = text.trim();
+            updatePasteBtnState(inputId, btnId);
+            showToast('Link pasted from clipboard!');
+          }
+        } catch (err) {
+          showToast('Please paste the link manually.');
+        }
+      }
+    }
+
+    window.quickSearch = function(tag) {
+      hashtagInput.value = tag;
+      doScrape(tag);
+    };
+
+    hashtagForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const val = hashtagInput.value.trim();
+      if (val) doScrape(val);
+    });
+
+    async function doScrape(inputVal) {
+      const raw = inputVal.trim();
+      if (!raw) return;
+
+      const originalBtnHtml = scrapeBtn.innerHTML;
+      notFoundAlert.classList.add('hidden');
+      notFoundAlert.style.display = 'none';
+      resultsSection.classList.add('hidden');
+      resultsSection.style.display = 'none';
+      loadingState.classList.remove('hidden');
+      loadingState.style.display = 'block';
+
+      scrapeBtn.disabled = true;
+      scrapeBtn.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="spin-icon">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-opacity="0.25"></circle>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-linecap="round"></path>
+        </svg>
+        <span>Extracting Hashtags...</span>
+      `;
+
+      const isUrl = raw.startsWith('http://') || raw.startsWith('https://') || raw.includes('www.') || raw.includes('.com') || raw.includes('.co/');
+      const isIgDomain = raw.includes('instagram.com') || raw.includes('instagr.am');
+      const isIgPost = raw.includes('/reel/') || raw.includes('/p/') || raw.includes('/tv/') || raw.includes('/reels/');
+      const isStory = raw.includes('/stories/') && !raw.includes('/stories/highlights/');
+      const isHighlight = raw.includes('/s/') || raw.includes('/stories/highlights/') || raw.includes('/highlights/');
+
+      // 1. Wrong / Malformed non-Instagram link
+      if (isUrl && (!isIgDomain || (!isIgPost && !isStory && !isHighlight && !raw.includes('/explore/tags/')))) {
+        showToast("❌ Invalid / Wrong Link Entered!");
+        notFoundAlert.innerHTML = `
+          <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
+            <span style="font-size:26px;">❌</span>
+            <div>
+              <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">Invalid / Wrong Link Entered</strong>
+              <span style="font-size:13.5px; color:#fca5a5; line-height:1.6;">The URL you entered is not a valid Instagram Reel, Post, or Hashtag link. Please check your link and paste a valid Instagram URL (e.g., https://www.instagram.com/reel/... or https://www.instagram.com/p/...).</span>
+            </div>
+          </div>
+        `;
+        notFoundAlert.style.background = 'rgba(239, 68, 68, 0.16)';
+        notFoundAlert.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+        notFoundAlert.classList.remove('hidden');
+        notFoundAlert.style.display = 'block';
+        resultsSection.classList.add('hidden');
+        resultsSection.style.display = 'none';
+        loadingState.classList.add('hidden');
+        loadingState.style.display = 'none';
+        scrapeBtn.disabled = false;
+        scrapeBtn.innerHTML = originalBtnHtml;
+        return;
+      }
+
+      if (isStory || isHighlight) {
+        showToast("⚠️ Story/Highlight link detected!");
+        resultsSection.innerHTML = `
+          <div class="hs-card" style="background:rgba(245, 158, 11, 0.16) !important; border:1px solid rgba(245, 158, 11, 0.4) !important;">
+            <div style="display:flex; align-items:center; gap:12px; text-align:left;">
+              <span style="font-size:26px;">#️⃣</span>
+              <div>
+                <strong style="font-size:15px; display:block; color:#fbbf24; margin-bottom:4px;">Instagram Story or Highlight Link Detected</strong>
+                <span style="font-size:13px; color:#fde68a; line-height:1.5;">Hashtag Scraper is designed for analyzing hashtag post volumes &amp; viral clusters. Please enter a hashtag (e.g. #travel) or a public Instagram Reel/Post link.</span>
+              </div>
+            </div>
+          </div>
+        `;
+        resultsSection.classList.remove('hidden');
+        resultsSection.style.display = 'block';
+        loadingState.classList.add('hidden');
+        loadingState.style.display = 'none';
+        scrapeBtn.disabled = false;
+        scrapeBtn.innerHTML = originalBtnHtml;
+        return;
+      }
+
+      try {
+        const apiBase = (window.location.protocol === 'file:' || (window.location.port !== '3000' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
+          ? 'http://localhost:3000'
+          : (window.location.port === '3000' ? '' : 'http://localhost:3000');
+
+        const res = await fetch(`${apiBase}/api/analysis/hashtag`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tag: raw, url: raw })
+        });
+
+        let data;
+        try {
+          data = await res.json();
+        } catch (jsonErr) {
+          throw new Error("⚠️ Server Error: Could not parse response. Please ensure Express server is running on http://localhost:3000.");
+        }
+
+        if (res.status === 403 || data.status === 'error' || data.isPrivate || (data.error && data.error.toLowerCase().includes('private'))) {
+          showToast(data.error || "🔒 Private Account / Invalid Link: Hashtags cannot be extracted.");
+          notFoundAlert.innerHTML = `
+            <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
+              <span style="font-size:26px;">🔒</span>
+              <div>
+                <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">Private Account or Invalid Link Detected</strong>
+                <span style="font-size:13.5px; color:#fca5a5; line-height:1.6;">${data.error || 'This Instagram reel or post is from a Private account or the link is broken. Hashtags cannot be extracted from private profiles due to Instagram privacy settings. Please paste a link from a Public account.'}</span>
+              </div>
+            </div>
+          `;
+          notFoundAlert.style.background = 'rgba(239, 68, 68, 0.16)';
+          notFoundAlert.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+          notFoundAlert.classList.remove('hidden');
+          notFoundAlert.style.display = 'block';
+          resultsSection.classList.add('hidden');
+          resultsSection.style.display = 'none';
+          return;
+        }
+
+        if (res.ok && data.status === "success") {
+          renderResults(data);
+          resultsSection.classList.remove('hidden');
+          resultsSection.style.display = 'block';
+        } else {
+          showToast(data.error || "❌ Post Not Found: Please check the link and ensure the post is public.");
+        }
+      } catch (err) {
+        showToast("❌ Error extracting hashtags. Please ensure the link or tag is valid.");
+      } finally {
+        loadingState.classList.add('hidden');
+        loadingState.style.display = 'none';
+        scrapeBtn.disabled = false;
+        scrapeBtn.innerHTML = originalBtnHtml;
+      }
+    }
+
+    function generateMockHashtagData(raw) {
+      const isReel = raw.includes('instagram.com/reel/') || raw.includes('instagram.com/p/');
+      const clean = raw.replace(/^https?:\/\/(www\.)?instagram\.com\/(reel|p)\//, '').replace(/[^a-zA-Z0-9_]/g, '').slice(0, 10) || 'reels';
+      const hash = Array.from(clean).reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      
+      const commonTags = [
+        "reels", "viral", "explorepage", "trending", "instareels",
+        "reelsinstagram", "fyp", "foryou", "contentcreator", "creator",
+        "aesthetic", "lifestyle", "cinematic", "viralvideo", "daily"
+      ];
+
+      const relatedTags = commonTags.map(t => `#${t}`);
+
+      return {
+        isReel: isReel,
+        tag: isReel ? `#reels_${clean.slice(0, 5)}` : `#${clean}`,
+        postCount: "48,200,000",
+        avgLikes: "34,500",
+        avgComments: "640",
+        viralScore: "96%",
+        competition: "High",
+        postFrequency: "180 posts/hour",
+        relatedTags
+      };
+    }
+
+    function renderResults(data) {
+      document.getElementById('resTagTitle').textContent = data.tag;
+      document.getElementById('resCompBadge').textContent = `Competition: ${data.competition || 'High'}`;
+      document.getElementById('resViralScore').textContent = `Viral Score: ${data.viralScore || '95%'} 🔥`;
+      
+      const authorBadge = document.getElementById('reelAuthorBadge');
+      const targetType = document.getElementById('resTargetType');
+      const hsPostCard = document.getElementById('hsPostCard');
+      const hsCaptionText = document.getElementById('hsCaptionText');
+      const hsPostImg = document.getElementById('hsPostImg');
+      const hsPostVid = document.getElementById('hsPostVid');
+      const hsDownloadBtn = document.getElementById('hsDownloadBtn');
+
+      if (data.isReel && data.reelInfo) {
+        targetType.textContent = "Extracted from Reel & Post";
+        if (authorBadge) {
+          authorBadge.style.display = 'flex';
+          authorBadge.classList.remove('hidden');
+        }
+        const authorHandle = data.reelInfo.author || '@creator';
+        const authorName = data.reelInfo.authorName || authorHandle.replace('@', '');
+        document.getElementById('reelAuthorHandleText').textContent = authorHandle;
+        document.getElementById('reelAuthorNameText').textContent = authorName;
+
+        const initials = authorHandle.replace('@', '').slice(0, 2).toUpperCase() || 'CR';
+        const fallback = document.getElementById('reelAuthorAvatarFallback');
+        const img = document.getElementById('reelAuthorAvatarImg');
+        if (fallback) fallback.textContent = initials;
+
+        if (data.reelInfo.profilePicUrl && img) {
+          const rawPic = data.reelInfo.profilePicUrl;
+          img.referrerPolicy = "no-referrer";
+          img.onerror = function() {
+            if (fallback) {
+              img.style.display = 'none';
+              fallback.style.display = 'grid';
+            }
+          };
+          img.src = rawPic;
+          img.style.display = 'block';
+          if (fallback) fallback.style.display = 'none';
+        } else {
+          if (img) img.style.display = 'none';
+          if (fallback) fallback.style.display = 'grid';
+        }
+
+        // Render Extracted Post Card Preview
+        if (hsPostCard) {
+          hsPostCard.classList.remove('hidden');
+          hsPostCard.style.display = 'block';
+          if (hsCaptionText) hsCaptionText.textContent = data.reelInfo.caption || data.reelInfo.text || '';
+          
+          const mediaUrl = data.reelInfo.displayUrl || data.reelInfo.videoUrl || '';
+          const isVid = Boolean(data.reelInfo.isVideo || (data.reelInfo.videoUrl && data.reelInfo.videoUrl.includes('.mp4')));
+
+          if (isVid && hsPostVid) {
+            hsPostVid.src = data.reelInfo.videoUrl;
+            hsPostVid.style.display = 'block';
+            if (hsPostImg) hsPostImg.style.display = 'none';
+          } else if (hsPostImg) {
+            const proxiedImg = mediaUrl.startsWith('http') ? `/api/stream?url=${encodeURIComponent(mediaUrl)}` : mediaUrl;
+            hsPostImg.src = proxiedImg;
+            hsPostImg.style.display = 'block';
+            if (hsPostVid) hsPostVid.style.display = 'none';
+          }
+
+          if (hsDownloadBtn) {
+            const dlHandle = authorHandle.replace('@', '').trim();
+            const dlFileName = isVid ? `instagram_video_${dlHandle}_1080p.mp4` : `instagram_photo_${dlHandle}_HD.jpg`;
+            hsDownloadBtn.href = `/api/stream?url=${encodeURIComponent(mediaUrl)}&filename=${encodeURIComponent(dlFileName)}`;
+            hsDownloadBtn.download = dlFileName;
+            hsDownloadBtn.querySelector('span').textContent = isVid ? 'Download Video (1080p MP4)' : 'Download Photo (HD Quality)';
+          }
+        }
+      } else {
+        targetType.textContent = "Extracted Hashtags";
+        if (authorBadge) {
+          authorBadge.style.display = 'none';
+          authorBadge.classList.add('hidden');
+        }
+        if (hsPostCard) {
+          hsPostCard.style.display = 'none';
+          hsPostCard.classList.add('hidden');
+        }
+      }
+
+      document.getElementById('mPostVolume').textContent = data.postCount;
+      document.getElementById('mAvgLikes').textContent = data.avgLikes;
+      document.getElementById('mAvgComments').textContent = data.avgComments;
+      document.getElementById('mPostVelocity').textContent = data.postFrequency;
+
+      currentTags = data.relatedTags || [];
+      const cloudBox = document.getElementById('tagCloudBox');
+      cloudBox.innerHTML = '';
+
+      currentTags.forEach(t => {
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.className = 'hs-cloud-pill';
+        pill.innerHTML = `<span>${t}</span>`;
+        pill.onclick = () => {
+          navigator.clipboard.writeText(t);
+          showToast(`Copied ${t} to clipboard!`);
+        };
+        cloudBox.appendChild(pill);
+      });
+    }
+
+    copyAllTagsBtn?.addEventListener('click', () => {
+      if (currentTags.length > 0) {
+        const tagText = currentTags.join(' ');
+        navigator.clipboard.writeText(tagText);
+        showToast('All hashtags copied to clipboard!');
+      }
+    });
+
+    exportCsvBtn?.addEventListener('click', () => {
+      if (currentTags.length === 0) return;
+      const tag = document.getElementById('resTagTitle').textContent;
+      const rows = [
+        ["Hashtag", "Target Niche", "Scraped Timestamp"],
+        ...currentTags.map(t => [t, tag, new Date().toISOString()])
+      ];
+      const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `instagram_hashtags_${tag.replace('#','')}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast('CSV report downloaded!');
+    });
+
+    // Check if query param exists in URL, otherwise keep page clean with simple searchbar
+    window.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryTag = urlParams.get('tag');
+      if (queryTag) {
+        hashtagInput.value = queryTag;
+        doScrape(queryTag);
+      }
+    });
+  </script>
+  <script src="./auth-shared.js"></script>
+</body>
+</html>

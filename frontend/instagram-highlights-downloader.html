@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <script>
+    const t = localStorage.getItem("socialvault_theme") || "dark";
+    document.documentElement.setAttribute("data-theme", t);
+  </script>
+  <title>Instagram Highlights Downloader (1080p HD) - SocialVault</title>
+  <meta name="description" content="Download Instagram Profile Highlights, Featured Stories, and Video Albums in original 1080p Full HD anonymously without login.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./style.css">
+
+  <style>
+    .hl-page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    [data-theme="dark"] .hl-page-wrapper {
+      background: radial-gradient(circle at 15% 15%, rgba(147, 51, 234, 0.22) 0%, transparent 40%),
+                  radial-gradient(circle at 85% 35%, rgba(236, 72, 153, 0.18) 0%, transparent 45%),
+                  radial-gradient(circle at 50% 70%, rgba(234, 88, 12, 0.15) 0%, transparent 50%),
+                  #080c16 !important;
+      color: #f8fafc !important;
+    }
+
+    [data-theme="light"] .hl-page-wrapper {
+      background: radial-gradient(circle at 15% 15%, rgba(147, 51, 234, 0.08) 0%, transparent 40%),
+                  radial-gradient(circle at 85% 35%, rgba(236, 72, 153, 0.08) 0%, transparent 45%),
+                  #f8fafc !important;
+      color: #0f172a !important;
+    }
+
+    .hl-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+      width: 100%;
+    }
+
+    .hl-hero {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .hl-headline {
+      font-size: 44px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      line-height: 1.15;
+    }
+
+    .hl-gradient-text {
+      background: linear-gradient(135deg, #a855f7, #ec4899, #f97316);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hl-subhead {
+      font-size: 16px;
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    [data-theme="dark"] .hl-subhead { color: #94a3b8 !important; }
+    [data-theme="light"] .hl-subhead { color: #475569 !important; }
+
+    .hl-search-card {
+      border-radius: 22px;
+      padding: 26px;
+      margin-bottom: 36px;
+    }
+
+    [data-theme="dark"] .hl-search-card {
+      background: rgba(15, 23, 42, 0.75) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45) !important;
+      backdrop-filter: blur(16px);
+    }
+
+    [data-theme="light"] .hl-search-card {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .hl-input-row {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .hl-input-box {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .hl-input-box svg {
+      position: absolute;
+      left: 16px;
+      color: #94a3b8;
+    }
+
+    .hl-input {
+      width: 100%;
+      padding: 16px 95px 16px 48px;
+      border-radius: 14px;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    [data-theme="dark"] .hl-input {
+      background: #090e1a !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    }
+
+    [data-theme="light"] .hl-input {
+      background: #f1f5f9 !important;
+      color: #0f172a !important;
+      border: 1.5px solid #cbd5e1 !important;
+    }
+
+    .hl-input:focus {
+      border-color: #a855f7 !important;
+      box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25) !important;
+    }
+
+    .btn-paste {
+      position: absolute;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #cbd5e1;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-paste:hover {
+      background: #a855f7;
+      color: #fff;
+    }
+
+    .hl-btn {
+      padding: 16px 32px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 15px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      box-shadow: 0 4px 18px rgba(168, 85, 247, 0.35);
+    }
+
+    .hl-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(168, 85, 247, 0.5);
+    }
+
+    /* Highlight Albums Horizontal Selector */
+    .albums-wrapper {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding: 8px 4px 16px;
+      margin-bottom: 24px;
+      scroll-behavior: smooth;
+    }
+
+    .album-bubble {
+      flex: 0 0 86px;
+      width: 86px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      padding: 6px 4px;
+      border-radius: 16px;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .album-bubble-ring {
+      width: 72px;
+      height: 72px;
+      min-width: 72px;
+      min-height: 72px;
+      flex-shrink: 0;
+      aspect-ratio: 1 / 1;
+      border-radius: 50%;
+      padding: 3px;
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.25s ease;
+    }
+
+    .album-bubble:hover .album-bubble-ring {
+      transform: scale(1.06);
+    }
+
+    .album-bubble.active .album-bubble-ring {
+      box-shadow: 0 0 0 3px #a855f7;
+    }
+
+    .album-bubble-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      aspect-ratio: 1 / 1;
+      border: 2px solid #080c16;
+      background: #1e293b;
+      display: block;
+    }
+
+    .album-title {
+      color: var(--text-heading, #ffffff);
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 4px;
+      max-width: 80px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+      text-align: center;
+    }
+
+    /* Result Preview Container */
+    .result-container {
+      display: none;
+      border-radius: 24px;
+      padding: 32px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    [data-theme="dark"] .result-container {
+      background: rgba(15, 23, 42, 0.8) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    }
+
+    [data-theme="light"] .result-container {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .media-box {
+      border-radius: 18px;
+      overflow: hidden;
+      background: #000;
+      position: relative;
+      aspect-ratio: 9 / 16;
+      max-height: 500px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .media-box video, .media-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .btn-dl-main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      color: #fff;
+      text-decoration: none;
+      padding: 16px 24px;
+      border-radius: 14px;
+      font-size: 1.02rem;
+      font-weight: 700;
+      box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.4);
+      transition: all 0.25s ease;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .btn-dl-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px -5px rgba(168, 85, 247, 0.6);
+    }
+
+    .loading-state {
+      display: none;
+      text-align: center;
+      padding: 50px 20px;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3.5px solid rgba(168, 85, 247, 0.2);
+      border-top-color: #a855f7;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 18px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      display: none;
+    }
+
+    @media (max-width: 820px) {
+      .result-grid { grid-template-columns: 1fr; }
+      .hl-headline { font-size: 30px; }
+      .hl-input-row { flex-direction: column; }
+      .hl-btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="hl-page-wrapper">
+
+    <!-- Top Navigation Bar -->
+    <nav class="it-navbar">
+      <div class="it-nav-container">
+        
+        <a href="./index.html" class="it-brand-logo">
+          <div class="it-logo-icon" style="background: linear-gradient(135deg, #a855f7, #ec4899);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <span class="it-brand-title"><span class="it-title-pink">Social</span><span class="it-title-orange">Vault</span></span>
+        </a>
+
+        <ul class="it-nav-menu">
+          <li><a href="./index.html" class="it-nav-item">Home</a></li>
+          <li><a href="./features.html" class="it-nav-item active">Features</a></li>
+          <li><a href="./faq.html" class="it-nav-item">FAQ</a></li>
+        </ul>
+
+        <div class="it-nav-actions">
+          <button id="themeToggleBtn" class="it-theme-toggle-btn" title="Toggle Theme">
+            <span id="themeIcon">☼</span>
+          </button>
+
+          <div id="googleAuthBtnWrapper">
+            <button type="button" id="googleSignInBtn" class="it-google-signin-btn" style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:middle;">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              Sign in with Google
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="hl-container">
+      <div class="hl-hero">
+        <h1 class="hl-headline">
+          Instagram Highlights <span class="hl-gradient-text">Downloader</span>
+        </h1>
+        <p class="hl-subhead">
+          Download Instagram profile highlights, featured story albums, and videos in original 1080p Full HD anonymously without login.
+        </p>
+      </div>
+
+      <!-- Search Form Card -->
+      <div class="hl-search-card">
+        <form id="hlForm" onsubmit="handleExtract(event); return false;">
+          <div class="hl-input-row">
+            <div class="hl-input-box">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <input type="text" id="hlInput" class="hl-input" placeholder="Enter Instagram username or Highlight URL..." required autocomplete="off">
+              <button type="button" id="btnPaste" class="btn-paste" onclick="pasteClipboard('hlInput')">Paste</button>
+            </div>
+            <button type="submit" class="hl-btn" id="btnExtract">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Highlights
+            </button>
+          </div>
+        </form>
+
+        <!-- Error Alert Banner -->
+        <div id="errorAlert" style="display: none; margin-top: 20px; padding: 14px 18px; border-radius: 14px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; font-size: 0.9rem;"></div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-state">
+        <div class="spinner"></div>
+        <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 6px;">Scraping Highlights Data...</h3>
+        <p style="font-size: 0.88rem; color: #94a3b8;">Fetching real Instagram profile highlights. Please wait...</p>
+      </div>
+
+      <!-- Result Container -->
+      <div id="resultContainer" class="result-container">
+        
+        <!-- Creator Header -->
+        <div style="display:flex; align-items:center; gap:14px; margin-bottom:24px; padding-bottom:18px; border-bottom:1px solid rgba(255,255,255,0.1);">
+          <img id="creatorAvatar" src="" alt="Profile" style="width:56px; height:56px; border-radius:50%; object-fit:cover; border:2px solid #a855f7; background:#1e293b;">
+          <div>
+            <h3 id="creatorName" style="font-size:1.25rem; font-weight:800; margin-bottom:2px;">Instagram Creator</h3>
+            <span id="creatorHandle" style="font-size:0.9rem; color:#a855f7; font-weight:600;">@username</span>
+          </div>
+        </div>
+
+        <!-- Highlight Albums Horizontal List -->
+        <h4 style="font-size:0.92rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:12px;">Select Highlight Album:</h4>
+        <div id="albumsWrapper" class="albums-wrapper"></div>
+
+        <!-- Selected Album Media Grid & Player -->
+        <div class="result-grid" style="margin-top:24px;">
+          
+          <!-- Media Player Box -->
+          <div class="media-box">
+            <video id="resultVideo" controls playsinline></video>
+            <img id="resultImage" style="display: none;" alt="Highlight">
+          </div>
+
+          <!-- Controls & Information -->
+          <div>
+            <div style="margin-bottom: 20px;">
+              <span id="itemBadge" style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 9999px; background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3); color: #c084fc; font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">
+                Highlight 1 of 1
+              </span>
+              <h3 id="albumTitle" style="font-size: 1.35rem; font-weight: 800; margin-bottom: 6px;">Featured Highlight Album</h3>
+              <p style="font-size: 0.9rem; color: #94a3b8; line-height: 1.4;">Uncompressed 1080p HD media stream ready for direct download to device.</p>
+            </div>
+
+            <!-- Item Selector Buttons -->
+            <div id="itemNavControls" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px;"></div>
+
+            <button id="btnDownloadDirect" class="btn-dl-main" onclick="downloadCurrentMedia()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Highlight (HD)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Feature Highlight Boxes -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:20px; max-width:960px; margin:36px auto 0; width:100%;">
+        <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
+          <div style="font-size:28px; margin-bottom:8px;">📁</div>
+          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Permanent Highlights Access</strong>
+          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Download archived Instagram Highlights and story albums in original high definition quality.</span>
+        </div>
+        <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
+          <div style="font-size:28px; margin-bottom:8px;">🗂️</div>
+          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Multi-Story Album Support</strong>
+          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Seamlessly parse and browse complete highlight albums with full-screen slide navigation.</span>
+        </div>
+        <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
+          <div style="font-size:28px; margin-bottom:8px;">⚡</div>
+          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Fast Direct Download</strong>
+          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Instant high-bandwidth CDN download without requiring Instagram account credentials.</span>
+        </div>
+      </div>
+
+    </main>
+
+    <footer style="margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.08); padding: 30px 20px; text-align: center; font-size: 14px; color: #64748b;">
+      <p>&copy; 2026 SocialVault Inc. All rights reserved. Free, anonymous Instagram media tools.</p>
+    </footer>
+  </div>
+
+  <div id="toast" class="toast-msg"></div>
+
+  <script>
+    let currentHighlightsData = null;
+    let selectedAlbumIdx = 0;
+    let selectedItemIdx = 0;
+
+    function toggleHlCookies() {
+      const wrap = document.getElementById('cookiesInputWrap');
+      const icon = document.getElementById('cookiesToggleIcon');
+      if (wrap) {
+        const isHidden = wrap.style.display === 'none' || !wrap.style.display;
+        wrap.style.display = isHidden ? 'block' : 'none';
+        if (icon) icon.textContent = isHidden ? '▲' : '▼';
+      }
+    }
+
+    async function pasteClipboard(inputId = 'hlInput') {
+      const inputEl = document.getElementById(inputId);
+      if (!inputEl) return;
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text && text.trim()) {
+          inputEl.value = text.trim();
+          inputEl.scrollLeft = 0;
+          showToast('📋 Link pasted from clipboard!');
+        } else {
+          showToast('Clipboard is empty');
+        }
+      } catch (err) {
+        showToast('Please allow clipboard access or press Ctrl+V');
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
+    function getApiBase() {
+      return (window.location.protocol === 'file:' || (window.location.port !== '3000' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
+        ? 'http://localhost:3000'
+        : (window.location.port === '3000' ? '' : 'http://localhost:3000');
+    }
+
+    function getProxiedMediaUrl(rawUrl) {
+      if (!rawUrl) return `https://ui-avatars.com/api/?name=Highlight&background=9333EA&color=fff&bold=true`;
+      if (rawUrl.startsWith('data:image') || rawUrl.includes('ui-avatars.com') || rawUrl.includes('unsplash.com')) return rawUrl;
+      const base = getApiBase();
+      return `${base}/api/analysis/proxy-media?url=${encodeURIComponent(rawUrl)}`;
+    }
+
+    async function handleExtract(e) {
+      e.preventDefault();
+      const input = document.getElementById('hlInput').value.trim();
+      if (!input) return;
+
+      const errorAlert = document.getElementById('errorAlert');
+      const loadingState = document.getElementById('loadingState');
+      const resultContainer = document.getElementById('resultContainer');
+      const btnExtract = document.getElementById('btnExtract');
+
+      // Strict Link Validation: Restrict Reel, Post, 24h Story, Hashtag, and Gibberish links
+      const isUrl = input.includes('http://') || input.includes('https://') || input.includes('www.') || input.includes('.com') || input.includes('/') || input.includes('instagr.am');
+      const isIgDomain = input.includes('instagram.com') || input.includes('instagr.am');
+      const cleanUser = input.replace(/^@/, '').trim().toLowerCase();
+      const isGibberish = !isUrl && (/[bcdfghjklmnpqrstvwxyz]{6,}/i.test(cleanUser) || cleanUser.length > 25);
+
+      if ((isUrl && !isIgDomain) || isGibberish) {
+        showToast("❌ Invalid / Wrong Link or Username");
+        errorAlert.innerHTML = `
+          <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
+            <span style="font-size:26px;">❌</span>
+            <div>
+              <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">Invalid / Wrong Link or Username Entered</strong>
+              <span style="font-size:13.5px; color:#fca5a5; line-height:1.6;">The input "${input}" is not a valid Instagram username or Highlight URL. Please check for typos and enter a valid Instagram username (e.g. @username) or a public Highlight URL.</span>
+            </div>
+          </div>
+        `;
+        errorAlert.style.background = 'rgba(239, 68, 68, 0.16)';
+        errorAlert.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+        errorAlert.style.display = 'block';
+        resultContainer.style.display = 'none';
+        return;
+      }
+
+      const isHighlightUrl = input.includes('/s/') || input.includes('highlight') || input.includes('/stories/highlights/');
+      const isReelOrPost = !isHighlightUrl && (input.includes('/reel/') || input.includes('/p/') || input.includes('/tv/'));
+      const isLiveStory = !isHighlightUrl && input.includes('/stories/') && !input.includes('/stories/highlights/');
+      const isHashtag = input.includes('#') || input.includes('/explore/tags/');
+
+      if (isReelOrPost) {
+        errorAlert.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; text-align:left; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:26px;">🎬</span>
+              <div>
+                <strong style="font-size:15px; display:block; color:#fbbf24; margin-bottom:4px;">Instagram Reel &amp; Post Link Detected</strong>
+                <span style="font-size:13px; color:#fde68a; line-height:1.5;">This downloader can download Profile Highlights. To download Reels, Photos, IGTV &amp; Posts, please open our dedicated Reel &amp; Post Downloader page.</span>
+              </div>
+            </div>
+            <a href="./reel-downloader.html" style="background:#f59e0b; color:#1e1b4b; padding:10px 18px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; white-space:nowrap; display:inline-block;">Open Reel &amp; Post Downloader →</a>
+          </div>
+        `;
+        errorAlert.style.background = 'rgba(245, 158, 11, 0.16)';
+        errorAlert.style.border = '1px solid rgba(245, 158, 11, 0.4)';
+        errorAlert.style.display = 'block';
+        return;
+      }
+
+      if (isLiveStory) {
+        errorAlert.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; text-align:left; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:26px;">📖</span>
+              <div>
+                <strong style="font-size:15px; display:block; color:#fbbf24; margin-bottom:4px;">Instagram 24h Live Story Link Detected</strong>
+                <span style="font-size:13px; color:#fde68a; line-height:1.5;">This downloader can download Profile Highlights. To download 24h Live Stories, please open our dedicated Story Downloader page.</span>
+              </div>
+            </div>
+            <a href="./instagram-story-downloader.html" style="background:#f59e0b; color:#1e1b4b; padding:10px 18px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; white-space:nowrap; display:inline-block;">Open Story Downloader →</a>
+          </div>
+        `;
+        errorAlert.style.background = 'rgba(245, 158, 11, 0.16)';
+        errorAlert.style.border = '1px solid rgba(245, 158, 11, 0.4)';
+        errorAlert.style.display = 'block';
+        return;
+      }
+
+      if (isHashtag) {
+        errorAlert.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; text-align:left; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:26px;">#️⃣</span>
+              <div>
+                <strong style="font-size:15px; display:block; color:#fbbf24; margin-bottom:4px;">Instagram Hashtag Detected</strong>
+                <span style="font-size:13px; color:#fde68a; line-height:1.5;">To analyze and scrape Instagram Hashtags, please open our dedicated Hashtag Scraper page.</span>
+              </div>
+            </div>
+            <a href="./hashtag-scraper.html" style="background:#f59e0b; color:#1e1b4b; padding:10px 18px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; white-space:nowrap; display:inline-block;">Open Hashtag Scraper →</a>
+          </div>
+        `;
+        errorAlert.style.background = 'rgba(245, 158, 11, 0.16)';
+        errorAlert.style.border = '1px solid rgba(245, 158, 11, 0.4)';
+        errorAlert.style.display = 'block';
+        return;
+      }
+
+      errorAlert.style.display = 'none';
+      resultContainer.style.display = 'none';
+      loadingState.style.display = 'block';
+      btnExtract.disabled = true;
+
+      try {
+        const apiBase = getApiBase();
+        const cookiesVal = document.getElementById('hlCookiesInput') ? document.getElementById('hlCookiesInput').value.trim() : '';
+
+        const res = await fetch(`${apiBase}/api/analysis/instagram-highlights`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: input, cookies: cookiesVal })
+        });
+
+        let data;
+        try {
+          data = await res.json();
+        } catch (jsonErr) {
+          throw new Error("⚠️ Server Error: Could not parse response. Please ensure Express server is running on http://localhost:3000.");
+        }
+
+        if (!res.ok || data.status === 'error' || data.isPrivate) {
+          const errType = data.error_type || (data.isPrivate ? 'private_account' : 'general_error');
+          let alertTitle = '⚠️ Download Notice';
+          let alertIcon = '⚠️';
+          let alertColor = '#f87171';
+
+          if (errType === 'private_account') {
+            alertTitle = '🔒 Private Account Detected';
+            alertIcon = '🔒';
+          } else if (errType === 'cookie_required') {
+            alertTitle = '🔑 Instagram Cookie / Authentication Required';
+            alertIcon = '🔑';
+            alertColor = '#fbbf24';
+            const wrap = document.getElementById('cookiesInputWrap');
+            const icon = document.getElementById('cookiesToggleIcon');
+            if (wrap) wrap.style.display = 'block';
+            if (icon) icon.textContent = '▲';
+          } else if (errType === 'invalid_link') {
+            alertTitle = '❌ Invalid or Expired Highlight Link';
+            alertIcon = '❌';
+          }
+
+          errorAlert.innerHTML = `
+            <div style="display:flex; align-items:flex-start; gap:12px; text-align:left;">
+              <span style="font-size:24px;">${alertIcon}</span>
+              <div>
+                <strong style="font-size:15px; display:block; color:${alertColor}; margin-bottom:4px;">${alertTitle}</strong>
+                <span style="font-size:13px; color:#fca5a5; line-height:1.5;">${data.error || 'Unable to fetch highlight media. Please check the link or try again.'}</span>
+              </div>
+            </div>
+          `;
+          errorAlert.style.background = 'rgba(239, 68, 68, 0.16)';
+          errorAlert.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+          errorAlert.style.display = 'block';
+          return;
+        }
+
+        if (!res.ok || data.status !== 'success' || !data.highlights || data.highlights.length === 0) {
+          throw new Error(data.error || 'No public highlights found for this account.');
+        }
+
+        currentHighlightsData = data;
+        selectedAlbumIdx = 0;
+        selectedItemIdx = 0;
+        renderHighlightsData(data);
+      } catch (err) {
+        const isPriv = err.message && err.message.toLowerCase().includes('private');
+        errorAlert.innerHTML = `
+          <div style="display:flex; align-items:flex-start; gap:12px; text-align:left;">
+            <span style="font-size:24px;">${isPriv ? '🔒' : '⚠️'}</span>
+            <div>
+              <strong style="font-size:15px; display:block; color:${isPriv ? '#f87171' : '#fbbf24'}; margin-bottom:4px;">${isPriv ? 'Private Account' : 'Highlights Notice'}</strong>
+              <span style="font-size:13px; color:${isPriv ? '#fca5a5' : '#fef08a'}; line-height:1.5;">${err.message || 'Unable to extract highlights. Please verify the username is public.'}</span>
+            </div>
+          </div>
+        `;
+        errorAlert.style.background = isPriv ? 'rgba(239, 68, 68, 0.16)' : 'rgba(245, 158, 11, 0.16)';
+        errorAlert.style.border = isPriv ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(245, 158, 11, 0.4)';
+        errorAlert.style.display = 'block';
+      } finally {
+        loadingState.style.display = 'none';
+        btnExtract.disabled = false;
+      }
+    }
+
+    function renderHighlightsData(data) {
+      const resultContainer = document.getElementById('resultContainer');
+      const creatorAvatar = document.getElementById('creatorAvatar');
+      const creatorName = document.getElementById('creatorName');
+      const creatorHandle = document.getElementById('creatorHandle');
+      const albumsWrapper = document.getElementById('albumsWrapper');
+
+      creatorName.textContent = data.authorName || data.username;
+      creatorHandle.textContent = data.author || `@${data.username}`;
+      creatorAvatar.src = getProxiedMediaUrl(data.authorPic);
+
+      // Render Album Circles
+      albumsWrapper.innerHTML = '';
+      data.highlights.forEach((album, idx) => {
+        const bubble = document.createElement('div');
+        bubble.className = `album-bubble ${idx === selectedAlbumIdx ? 'active' : ''}`;
+        bubble.onclick = () => selectAlbum(idx);
+        const coverSrc = getProxiedMediaUrl(album.coverUrl);
+        bubble.innerHTML = `
+          <div class="album-bubble-ring">
+            <img class="album-bubble-img" src="${coverSrc}" alt="${album.title}" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(album.title)}&background=9333EA&color=fff&bold=true';">
+          </div>
+          <span class="album-title" style="color:var(--text-heading, #ffffff); font-size:13px; font-weight:700; margin-top:4px;">${album.title}</span>
+        `;
+        albumsWrapper.appendChild(bubble);
+      });
+
+      selectAlbum(0);
+      resultContainer.style.display = 'block';
+      resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      showToast(`🎉 Found ${data.highlightsCount} Highlight albums!`);
+    }
+
+    function selectAlbum(albumIdx) {
+      selectedAlbumIdx = albumIdx;
+      selectedItemIdx = 0;
+
+      // Update active bubble
+      const bubbles = document.querySelectorAll('.album-bubble');
+      bubbles.forEach((b, idx) => {
+        if (idx === albumIdx) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+
+      const album = currentHighlightsData ? currentHighlightsData.highlights[albumIdx] : null;
+      if (album && album.id && album.items && album.items.length === 1 && String(album.items[0].id).includes('sub')) {
+        const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : '';
+        fetch(`${apiBase}/api/analysis/instagram-highlights`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: `https://www.instagram.com/stories/highlights/${album.id}/` })
+        })
+        .then(res => res.json())
+        .then(resData => {
+          if (resData.highlights && resData.highlights[0] && resData.highlights[0].items) {
+            album.items = resData.highlights[0].items;
+            album.itemCount = resData.highlights[0].items.length;
+            renderSelectedItem();
+          }
+        })
+        .catch(err => console.error("Error loading album items:", err));
+      }
+
+      renderSelectedItem();
+    }
+
+    function renderSelectedItem() {
+      if (!currentHighlightsData || !currentHighlightsData.highlights[selectedAlbumIdx]) return;
+
+      const album = currentHighlightsData.highlights[selectedAlbumIdx];
+      const items = album.items || [];
+      const item = items[selectedItemIdx] || items[0];
+
+      const albumTitle = document.getElementById('albumTitle');
+      const itemBadge = document.getElementById('itemBadge');
+      const resultVideo = document.getElementById('resultVideo');
+      const resultImage = document.getElementById('resultImage');
+      const itemNavControls = document.getElementById('itemNavControls');
+
+      albumTitle.textContent = album.title;
+      itemBadge.textContent = `Item ${selectedItemIdx + 1} of ${items.length} (${item.duration})`;
+
+      const apiBase = getApiBase();
+      const mediaUrl = getProxiedMediaUrl(item.imageUrl || item.coverUrl || item.videoUrl);
+
+      if (item.type === 'video' && item.videoUrl) {
+        const vidProxied = item.videoUrl.startsWith('http') ? `${apiBase}/api/analysis/proxy-media?url=${encodeURIComponent(item.videoUrl)}` : item.videoUrl;
+        resultVideo.onerror = function() {
+          resultVideo.style.display = 'none';
+          resultImage.onerror = function() {
+            this.onerror = null;
+            this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(album.title)}&background=9333EA&color=fff&size=600&bold=true`;
+          };
+          resultImage.src = mediaUrl;
+          resultImage.style.display = 'block';
+        };
+        resultVideo.src = vidProxied;
+        resultVideo.style.display = 'block';
+        resultImage.style.display = 'none';
+      } else {
+        resultImage.onerror = function() {
+          this.onerror = null;
+          this.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(album.title)}&background=9333EA&color=fff&size=600&bold=true`;
+        };
+        resultImage.src = mediaUrl;
+        resultImage.style.display = 'block';
+        resultVideo.style.display = 'none';
+      }
+
+      // Render Item Nav Buttons
+      itemNavControls.innerHTML = '';
+      items.forEach((it, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.style.padding = '6px 14px';
+        btn.style.borderRadius = '10px';
+        btn.style.fontSize = '12px';
+        btn.style.fontWeight = '700';
+        btn.style.cursor = 'pointer';
+        btn.style.border = idx === selectedItemIdx ? '1px solid #a855f7' : '1px solid rgba(255,255,255,0.12)';
+        btn.style.background = idx === selectedItemIdx ? '#a855f7' : 'rgba(255,255,255,0.06)';
+        btn.style.color = '#fff';
+        btn.textContent = `Story ${idx + 1} (${it.type === 'video' ? '🎬 HD Video' : '📸 Photo'})`;
+        btn.onclick = () => {
+          selectedItemIdx = idx;
+          renderSelectedItem();
+        };
+        itemNavControls.appendChild(btn);
+      });
+    }
+
+    async function downloadCurrentMedia() {
+      if (!currentHighlightsData || !currentHighlightsData.highlights[selectedAlbumIdx]) {
+        showToast('No highlight media stream available to download.');
+        return;
+      }
+
+      const album = currentHighlightsData.highlights[selectedAlbumIdx];
+      const item = album.items?.[selectedItemIdx] || album.items?.[0];
+      if (!item) return;
+
+      const targetSrc = item.videoUrl || item.imageUrl || item.coverUrl;
+      const isVid = item.type === 'video';
+      const handle = (currentHighlightsData.username || 'creator').replace(/[@\s]/g, '_');
+      const filename = isVid ? `highlight_${handle}_clip${selectedItemIdx+1}_1080p.mp4` : `highlight_${handle}_clip${selectedItemIdx+1}_HD.jpg`;
+
+      showToast('Starting direct media stream download to device...');
+
+      const apiBase = (window.location.port === '3000' || (!window.location.port && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
+        ? ''
+        : 'http://localhost:3000';
+
+      const dlUrl = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent(targetSrc)}&filename=${encodeURIComponent(filename)}&type=${isVid ? 'video' : 'image'}`;
+
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = dlUrl;
+      a.setAttribute('download', filename);
+      a.setAttribute('target', '_self');
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+      }, 1000);
+    }
+  </script>
+</body>
+</html>

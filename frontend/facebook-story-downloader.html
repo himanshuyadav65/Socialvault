@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <script>
+    const t = localStorage.getItem("socialvault_theme") || "dark";
+    document.documentElement.setAttribute("data-theme", t);
+  </script>
+  <title>Facebook Story Downloader (HD Video & Photo) - SocialVault</title>
+  <meta name="description" content="Download Facebook Stories in full HD video and high-resolution photo anonymously without login in 1-Click.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./style.css">
+
+  <style>
+    .fb-page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    [data-theme="dark"] .fb-page-wrapper {
+      background: radial-gradient(circle at 15% 15%, rgba(24, 119, 242, 0.22) 0%, transparent 40%),
+                  radial-gradient(circle at 85% 35%, rgba(236, 72, 153, 0.18) 0%, transparent 45%),
+                  radial-gradient(circle at 50% 70%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 90%, rgba(147, 51, 234, 0.15) 0%, transparent 45%),
+                  #080c16 !important;
+      color: #f8fafc !important;
+    }
+
+    [data-theme="light"] .fb-page-wrapper {
+      background: radial-gradient(circle at 15% 15%, rgba(24, 119, 242, 0.08) 0%, transparent 40%),
+                  radial-gradient(circle at 85% 35%, rgba(59, 130, 246, 0.08) 0%, transparent 45%),
+                  #f8fafc !important;
+      color: #0f172a !important;
+    }
+
+    .fb-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+      width: 100%;
+    }
+
+    .fb-hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .fb-headline {
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      line-height: 1.15;
+    }
+
+    [data-theme="dark"] .fb-headline {
+      color: #ffffff !important;
+    }
+
+    [data-theme="light"] .fb-headline {
+      color: #0f172a !important;
+    }
+
+    .fb-gradient-text {
+      background: linear-gradient(135deg, #1877f2, #ec4899);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .fb-subhead {
+      font-size: 16px;
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    [data-theme="dark"] .fb-subhead {
+      color: #94a3b8 !important;
+    }
+
+    [data-theme="light"] .fb-subhead {
+      color: #475569 !important;
+    }
+
+    .fb-search-card {
+      border-radius: 22px;
+      padding: 26px;
+      margin-bottom: 36px;
+    }
+
+    [data-theme="dark"] .fb-search-card {
+      background: rgba(15, 23, 42, 0.75) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45) !important;
+      backdrop-filter: blur(16px);
+    }
+
+    [data-theme="light"] .fb-search-card {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    [data-theme="dark"] .fb-input {
+      background: #090e1a !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    }
+
+    [data-theme="light"] .fb-input {
+      background: #f1f5f9 !important;
+      color: #0f172a !important;
+      border: 1.5px solid #cbd5e1 !important;
+    }
+
+    [data-theme="dark"] .fb-story-card,
+    [data-theme="dark"] .fb-author-card,
+    [data-theme="dark"] .fb-instructions-card {
+      background: rgba(15, 23, 42, 0.75) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      color: #ffffff !important;
+    }
+
+    [data-theme="light"] .fb-story-card,
+    [data-theme="light"] .fb-author-card,
+    [data-theme="light"] .fb-instructions-card {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      color: #0f172a !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .fb-input-row {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .fb-input-box {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .fb-input-box svg {
+      position: absolute;
+      left: 16px;
+      color: #94a3b8;
+    }
+
+    .fb-input {
+      width: 100%;
+      padding: 16px 95px 16px 48px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: #090e1a;
+      color: #ffffff;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .fb-input:focus {
+      border-color: #1877f2;
+      box-shadow: 0 0 0 3px rgba(24, 119, 242, 0.25);
+    }
+
+    .btn-paste {
+      position: absolute;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      color: #cbd5e1;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-paste:hover {
+      background: #1877f2;
+      color: #fff;
+    }
+
+    .btn-clear-active {
+      background: rgba(239, 68, 68, 0.18) !important;
+      color: #fca5a5 !important;
+      border-color: rgba(239, 68, 68, 0.4) !important;
+    }
+
+    .btn-clear-active:hover {
+      background: #ef4444 !important;
+      color: #ffffff !important;
+      border-color: #ef4444 !important;
+    }
+
+    .fb-btn {
+      padding: 16px 32px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #1877f2, #9333ea);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 15px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      box-shadow: 0 4px 18px rgba(24, 119, 242, 0.35);
+    }
+
+    .fb-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(24, 119, 242, 0.5);
+    }
+
+    .fb-btn:disabled {
+      opacity: 0.8;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .spin-icon {
+      animation: fbSpin 0.75s linear infinite;
+    }
+
+    @keyframes fbSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Result Preview Card */
+    .result-container {
+      display: none;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+
+    .video-frame-box {
+      border-radius: 18px;
+      overflow: hidden;
+      background: #000;
+      position: relative;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      aspect-ratio: 9 / 16;
+      max-height: 520px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-frame-box video, .video-frame-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .quality-badge {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #38bdf8;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      z-index: 2;
+    }
+
+    .author-info-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .author-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 2px solid #1877F2;
+      object-fit: cover;
+      background: #1e293b;
+    }
+
+    [data-theme="dark"] .result-container {
+      background: rgba(15, 23, 42, 0.75) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    }
+
+    [data-theme="dark"] .author-details h3 {
+      color: #f8fafc !important;
+    }
+
+    [data-theme="dark"] .media-caption-box {
+      background: rgba(10, 15, 29, 0.6) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      color: #cbd5e1 !important;
+    }
+
+    [data-theme="dark"] .stat-pill {
+      background: rgba(255, 255, 255, 0.06) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: #94a3b8 !important;
+    }
+
+    [data-theme="dark"] .stat-pill strong {
+      color: #ffffff !important;
+    }
+
+    [data-theme="dark"] .btn-dl-sec {
+      background: rgba(255, 255, 255, 0.06) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      color: #cbd5e1 !important;
+    }
+
+    /* LIGHT THEME */
+    [data-theme="light"] .result-container {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    [data-theme="light"] .author-details h3 {
+      color: #0f172a !important;
+    }
+
+    [data-theme="light"] .media-caption-box {
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+      color: #1e293b !important;
+    }
+
+    [data-theme="light"] .stat-pill {
+      background: #f1f5f9 !important;
+      border: 1px solid #cbd5e1 !important;
+      color: #475569 !important;
+    }
+
+    [data-theme="light"] .stat-pill strong {
+      color: #0f172a !important;
+    }
+
+    [data-theme="light"] .btn-dl-sec {
+      background: #ffffff !important;
+      border: 1px solid #cbd5e1 !important;
+      color: #0f172a !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    [data-theme="light"] .btn-dl-sec:hover {
+      background: #eff6ff !important;
+      border-color: #3b82f6 !important;
+      color: #1d4ed8 !important;
+    }
+
+    .author-details h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .author-details p {
+      font-size: 0.85rem;
+      color: #38bdf8;
+      font-weight: 500;
+    }
+
+    .media-caption-box {
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      margin-bottom: 24px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .stats-badges {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 26px;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .action-buttons-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-dl-main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #1877f2, #9333ea);
+      color: #fff;
+      text-decoration: none;
+      padding: 16px 24px;
+      border-radius: 14px;
+      font-size: 1.02rem;
+      font-weight: 700;
+      box-shadow: 0 10px 25px -5px rgba(24, 119, 242, 0.4);
+      transition: all 0.25s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-dl-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px -5px rgba(24, 119, 242, 0.6);
+      color: #fff;
+    }
+
+    .btn-dl-sec {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      text-decoration: none;
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-size: 0.92rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .btn-dl-sec:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+    }
+
+    /* Loading Spinner */
+    .loading-state {
+      display: none;
+      text-align: center;
+      padding: 50px 20px;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3.5px solid rgba(24, 119, 242, 0.2);
+      border-top-color: #1877F2;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 18px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Toast */
+    .toast-msg {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(24, 119, 242, 0.4);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      display: none;
+      animation: toastIn 0.3s ease-out;
+    }
+
+    @keyframes toastIn {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @media (max-width: 820px) {
+      .result-grid { grid-template-columns: 1fr; }
+      .fb-headline { font-size: 28px; }
+      .fb-input-row { flex-direction: column; }
+      .fb-btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="fb-page-wrapper">
+
+    <!-- Top Navigation Bar -->
+    <nav class="it-navbar">
+      <div class="it-nav-container">
+        
+        <!-- Logo -->
+        <a href="./index.html" class="it-brand-logo">
+          <div class="it-logo-icon" style="background: linear-gradient(135deg, #06b6d4, #a855f7);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <span class="it-brand-title"><span class="it-title-pink">Social</span><span class="it-title-orange">Vault</span></span>
+        </a>
+
+        <!-- Center Links -->
+        <ul class="it-nav-menu">
+          <li><a href="./index.html" class="it-nav-item">Home</a></li>
+          <li><a href="./features.html" class="it-nav-item active">Features</a></li>
+          <li><a href="./faq.html" class="it-nav-item">FAQ</a></li>
+        </ul>
+
+        <!-- Right Side -->
+        <div class="it-nav-actions">
+          <button id="themeToggleBtn" class="it-theme-toggle-btn" title="Toggle Theme">
+            <span id="themeIcon">☼</span>
+          </button>
+
+          <!-- Google Sign-In Button Container -->
+          <div id="googleAuthBtnWrapper">
+            <button type="button" id="googleSignInBtn" class="it-google-signin-btn" style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:middle;">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              Sign in with Google
+            </button>
+          </div>
+
+          <!-- Logged In User Profile Menu -->
+          <div id="loggedInUserMenu" class="hidden" style="position:relative;">
+            <div id="userProfileChip" style="display:flex; align-items:center; gap:8px; padding:4px 12px 4px 6px; border-radius:30px; cursor:pointer;">
+              <img id="userAvatarImg" src="" alt="Avatar" style="width:26px; height:26px; border-radius:50%; object-fit:cover; display:none;">
+              <div id="userAvatarPlaceholder" style="width:26px; height:26px; border-radius:50%; background:#9333ea; color:white; font-size:11px; font-weight:800; display:grid; place-items:center;">U</div>
+              <span id="userDisplayName" style="font-size:12px; font-weight:700; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">User</span>
+              <span style="font-size:10px; color:#cbd5e1;">▼</span>
+            </div>
+
+            <!-- Profile Dropdown -->
+            <div id="userProfileDropdown" class="hidden" style="position:absolute; top:42px; right:0; width:230px; border-radius:14px; padding:14px; z-index:1000; text-align:left;">
+              <div style="padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:10px;">
+                <strong id="dropdownUserName" style="font-size:13px; display:block;">User</strong>
+                <div id="dropdownUserEmail" style="font-size:11px; word-break:break-all; margin-top:2px;">user@gmail.com</div>
+              </div>
+              <button type="button" id="googleSignOutBtn" style="width:100%; background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:8px; font-size:12px; font-weight:700; cursor:pointer;">
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="fb-container">
+      <div class="fb-hero">
+        <h1 class="fb-headline">
+          Facebook Story <span class="fb-gradient-text">Downloader</span>
+        </h1>
+        <p class="fb-subhead">
+          Download public Facebook Stories, Statuses, and Video clips anonymously in original HD without login.
+        </p>
+      </div>
+
+      <!-- Search Card -->
+      <div class="fb-search-card">
+        <form id="storyForm" onsubmit="handleExtract(event)">
+          <div class="fb-input-row">
+            <div class="fb-input-box">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <input type="url" id="fbUrl" class="fb-input" placeholder="Paste Facebook Story or Video URL..." required autocomplete="off" oninput="updatePasteBtnState('fbUrl', 'btnPasteCut')">
+              <button type="button" id="btnPasteCut" class="btn-paste" onclick="handlePasteOrClear('fbUrl', 'btnPasteCut')">Paste</button>
+            </div>
+            <button type="submit" class="fb-btn" id="btnExtract">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Story
+            </button>
+          </div>
+        </form>
+
+        <!-- Error Alert -->
+        <div id="errorAlert" style="display: none; margin-top: 20px; padding: 14px 18px; border-radius: 14px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; font-size: 0.9rem;"></div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-state">
+        <div class="spinner"></div>
+        <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--text-heading, #ffffff); margin-bottom: 6px;">Please wait...</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted, #94a3b8);">Extracting HD Media Stream from Facebook CDN...</p>
+      </div>
+
+      <!-- Result Card -->
+      <div id="resultContainer" class="result-container">
+        <div class="result-grid">
+          <!-- Media Preview Frame -->
+          <div class="video-frame-box" id="mediaBox">
+            <div class="quality-badge" id="badgeQuality">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+              1080p HD Story
+            </div>
+            <video id="resultVideo" controls playsinline></video>
+            <img id="resultImage" style="display: none;" alt="Cover">
+          </div>
+
+          <!-- Details & Download Controls -->
+          <div>
+            <div style="margin-bottom: 20px;">
+              <div style="display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 9999px; background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3); color: #3b82f6; font-size: 0.82rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                Media Ready
+              </div>
+              <h3 style="font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; color: var(--text-main, #ffffff);">Facebook Story Download</h3>
+              <p style="font-size: 0.9rem; color: #94a3b8; line-height: 1.4;">High-definition original quality media stream ready for instant anonymous download.</p>
+            </div>
+
+            <div class="stats-badges">
+              <div class="stat-pill">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Status: <strong id="postTime">Live Story</strong></span>
+              </div>
+              <div class="stat-pill">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Format: <strong id="mediaQuality">1080p HD Video</strong></span>
+              </div>
+            </div>
+
+            <div class="action-buttons-group">
+              <button id="btnDownloadDirect" class="btn-dl-main" onclick="downloadCurrentMedia()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download Story (HD)
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div id="toast" class="toast-msg"></div>
+
+  <script>
+    let currentData = null;
+
+    function updatePasteBtnState(inputId = 'fbUrl', btnId = 'btnPasteCut') {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!input || !btn) return;
+      const hasText = input.value.trim().length > 0;
+      if (hasText) {
+        btn.innerHTML = '✕ Clear';
+        btn.classList.add('btn-clear-active');
+        btn.title = 'Clear / Cut link';
+      } else {
+        btn.innerHTML = 'Paste';
+        btn.classList.remove('btn-clear-active');
+        btn.title = 'Paste from clipboard';
+      }
+    }
+
+    async function handlePasteOrClear(inputId = 'fbUrl', btnId = 'btnPasteCut') {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!input) return;
+      if (input.value.trim().length > 0) {
+        input.value = '';
+        input.focus();
+        updatePasteBtnState(inputId, btnId);
+        showToast('Link cleared');
+      } else {
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text) {
+            input.value = text.trim();
+            updatePasteBtnState(inputId, btnId);
+            showToast('URL pasted from clipboard!');
+          }
+        } catch (err) {
+          showToast('Please allow clipboard access or press Ctrl+V');
+        }
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3200);
+    }
+
+    async function handleExtract(e) {
+      e.preventDefault();
+      const urlInput = document.getElementById('fbUrl');
+      const url = urlInput.value.trim();
+      if (!url) return;
+
+      const errorAlert = document.getElementById('errorAlert');
+
+      // Validate Facebook Story URL format
+      const isFbUrl = url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.com');
+      if (!isFbUrl) {
+        errorAlert.textContent = '❌ Wrong Link: Please enter a valid public Facebook Story or Video URL (e.g. facebook.com/stories/...).';
+        errorAlert.style.display = 'block';
+        return;
+      }
+      const loadingState = document.getElementById('loadingState');
+      const resultContainer = document.getElementById('resultContainer');
+      const btnExtract = document.getElementById('btnExtract');
+
+      errorAlert.style.display = 'none';
+      resultContainer.style.display = 'none';
+      loadingState.style.display = 'block';
+      btnExtract.disabled = true;
+      btnExtract.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin-icon">
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
+        </svg>
+        <span>Extracting...</span>
+      `;
+
+      try {
+        const apiBase = (window.location.protocol === 'file:' || (window.location.port !== '3000' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
+          ? 'http://localhost:3000'
+          : (window.location.port === '3000' ? '' : 'http://localhost:3000');
+
+        const res = await fetch(`${apiBase}/api/analysis/facebook-story`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+
+        let data;
+        try {
+          data = await res.json();
+        } catch (jsonErr) {
+          throw new Error("⚠️ Server Error: Could not parse response. Please ensure Express server is running on http://localhost:3000.");
+        }
+
+        if (data.isStory) {
+          errorAlert.innerHTML = `
+            <div style="display:flex; align-items:flex-start; gap:12px; text-align:left;">
+              <span style="font-size:24px;">📖</span>
+              <div>
+                <strong style="font-size:15px; display:block; color:#60a5fa; margin-bottom:4px;">Facebook Stories Cannot Be Downloaded</strong>
+                <span style="font-size:13px; color:#93c5fd; line-height:1.5;">${data.error || 'Facebook Stories require login to view — even from public accounts. Stories are temporary (24h) content that cannot be accessed externally.'}</span>
+              </div>
+            </div>
+          `;
+          errorAlert.style.background = 'rgba(59, 130, 246, 0.16)';
+          errorAlert.style.border = '1px solid rgba(59, 130, 246, 0.4)';
+          errorAlert.style.display = 'block';
+          return;
+        }
+
+        if (res.status === 403 || data.isPrivate || (data.error && data.error.toLowerCase().includes('private'))) {
+          errorAlert.innerHTML = `
+            <div style="display:flex; align-items:flex-start; gap:12px; text-align:left;">
+              <span style="font-size:24px;">🔒</span>
+              <div>
+                <strong style="font-size:15px; display:block; color:#f87171; margin-bottom:4px;">Private Account Detected</strong>
+                <span style="font-size:13px; color:#fca5a5; line-height:1.5;">${data.error || 'This Facebook story or video is from a Private account or restricted group. Private media cannot be fetched or downloaded due to privacy settings. Please paste a link from a Public account.'}</span>
+              </div>
+            </div>
+          `;
+          errorAlert.style.background = 'rgba(239, 68, 68, 0.16)';
+          errorAlert.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+          errorAlert.style.display = 'block';
+          return;
+        }
+
+        if (!res.ok || data.status !== 'success') {
+          throw new Error(data.error || 'Failed to extract Facebook Story.');
+        }
+
+        currentData = data;
+        renderResult(data);
+      } catch (err) {
+        const isPriv = err.message && err.message.toLowerCase().includes('private');
+        errorAlert.innerHTML = `
+          <div style="display:flex; align-items:flex-start; gap:12px; text-align:left;">
+            <span style="font-size:24px;">${isPriv ? '🔒' : '⚠️'}</span>
+            <div>
+              <strong style="font-size:15px; display:block; color:${isPriv ? '#f87171' : '#fbbf24'}; margin-bottom:4px;">${isPriv ? 'Private Account' : 'Could Not Extract Media'}</strong>
+              <span style="font-size:13px; color:${isPriv ? '#fca5a5' : '#fef08a'}; line-height:1.5;">${err.message || 'Unable to extract story. Please ensure link is public and currently active.'}</span>
+            </div>
+          </div>
+        `;
+        errorAlert.style.background = isPriv ? 'rgba(239, 68, 68, 0.16)' : 'rgba(245, 158, 11, 0.16)';
+        errorAlert.style.border = isPriv ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(245, 158, 11, 0.4)';
+        errorAlert.style.display = 'block';
+      } finally {
+        loadingState.style.display = 'none';
+        btnExtract.disabled = false;
+        btnExtract.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Download Story</span>
+        `;
+      }
+    }
+
+    function renderResult(data) {
+      const resultContainer = document.getElementById('resultContainer');
+      const resultVideo = document.getElementById('resultVideo');
+      const resultImage = document.getElementById('resultImage');
+      const postTime = document.getElementById('postTime');
+      const mediaQuality = document.getElementById('mediaQuality');
+
+      if (postTime) postTime.textContent = data.timestamp || 'Live Story';
+      if (mediaQuality) mediaQuality.textContent = data.isVideo ? '1080p HD Video' : 'Full HD Photo';
+
+      if (data.isVideo && data.videoUrl) {
+        resultVideo.src = data.videoUrl;
+        resultVideo.style.display = 'block';
+        resultImage.style.display = 'none';
+      } else {
+        resultImage.src = data.coverUrl || data.imageUrl;
+        resultImage.style.display = 'block';
+        resultVideo.style.display = 'none';
+      }
+
+      resultContainer.style.display = 'block';
+      resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      showToast('🎉 Story media extracted successfully!');
+    }
+
+    async function downloadCurrentMedia() {
+      if (!currentData || (!currentData.videoUrl && !currentData.coverUrl)) {
+        showToast('No media stream available to download.');
+        return;
+      }
+
+      const targetSrc = currentData.videoUrl || currentData.coverUrl;
+      const isVid = currentData.isVideo;
+      const handle = (currentData.author || 'creator').replace(/[@\s]/g, '_');
+      const filename = isVid ? `facebook_story_${handle}_HD.mp4` : `facebook_story_${handle}_HD.jpg`;
+
+      showToast('Starting direct download to device...');
+
+      const apiBase = (window.location.port === '3000' || (!window.location.port && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
+        ? ''
+        : 'http://localhost:3000';
+
+      const dlUrl = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent(targetSrc)}&filename=${encodeURIComponent(filename)}&type=${isVid ? 'video' : 'image'}`;
+
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = dlUrl;
+      a.setAttribute('download', filename);
+      a.setAttribute('target', '_self');
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+      }, 1000);
+    }
+
+    function copyCaption() {
+      if (!currentData || !currentData.caption) return;
+      navigator.clipboard.writeText(currentData.caption);
+    }
+  </script>
+  <script src="./auth-shared.js"></script>
+</body>
+</html>

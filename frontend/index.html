@@ -1,0 +1,1596 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <script>
+    const t = localStorage.getItem("socialvault_theme") || "dark";
+    document.documentElement.setAttribute("data-theme", t);
+  </script>
+  <title>SocialVault — Real-Time Instagram Intelligence & Analysis Platform</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./style.css">
+
+  <style>
+    @keyframes comment3dVideoLoop {
+      0% { opacity: 1; transform: scale(1.0); }
+      28% { opacity: 1; transform: scale(1.08) translateY(-4px); }
+      33% { opacity: 0; transform: scale(1.1); }
+      34% { opacity: 0; transform: scale(1.0); }
+      61% { opacity: 1; transform: scale(1.08) translateX(4px); }
+      66% { opacity: 0; transform: scale(1.1); }
+      67% { opacity: 0; transform: scale(1.0); }
+      94% { opacity: 1; transform: scale(1.08) translateY(4px); }
+      100% { opacity: 1; transform: scale(1.0); }
+    }
+    @keyframes hashtag3dVideoLoop {
+      0% { opacity: 1; transform: scale(1.0); }
+      28% { opacity: 1; transform: scale(1.08) translateY(-4px); }
+      33% { opacity: 0; transform: scale(1.1); }
+      34% { opacity: 0; transform: scale(1.0); }
+      61% { opacity: 1; transform: scale(1.08) translateX(4px); }
+      66% { opacity: 0; transform: scale(1.1); }
+      67% { opacity: 0; transform: scale(1.0); }
+      94% { opacity: 1; transform: scale(1.08) translateY(4px); }
+      100% { opacity: 1; transform: scale(1.0); }
+    }
+    @keyframes story3dVideoLoop {
+      0% { opacity: 1; transform: scale(1.0); }
+      28% { opacity: 1; transform: scale(1.08) translateY(-4px); }
+      33% { opacity: 0; transform: scale(1.1); }
+      34% { opacity: 0; transform: scale(1.0); }
+      61% { opacity: 1; transform: scale(1.08) translateX(4px); }
+      66% { opacity: 0; transform: scale(1.1); }
+      67% { opacity: 0; transform: scale(1.0); }
+      94% { opacity: 1; transform: scale(1.08) translateY(4px); }
+      100% { opacity: 1; transform: scale(1.0); }
+    }
+    @keyframes pulseShield {
+      0% { transform: translateY(-50%) scale(1); filter: drop-shadow(0 0 10px rgba(192,132,252,0.6)); }
+      50% { transform: translateY(-50%) scale(1.08); filter: drop-shadow(0 0 22px rgba(192,132,252,0.95)); }
+      100% { transform: translateY(-50%) scale(1); filter: drop-shadow(0 0 10px rgba(192,132,252,0.6)); }
+    }
+    @keyframes reel3dVideoLoop {
+      0% { opacity: 1; transform: scale(1.0); }
+      28% { opacity: 1; transform: scale(1.08) translateY(-4px); }
+      33% { opacity: 0; transform: scale(1.1); }
+      34% { opacity: 0; transform: scale(1.0); }
+      61% { opacity: 1; transform: scale(1.08) translateX(-4px); }
+      66% { opacity: 0; transform: scale(1.1); }
+      67% { opacity: 0; transform: scale(1.0); }
+      94% { opacity: 1; transform: scale(1.08) translateY(4px); }
+      100% { opacity: 1; transform: scale(1.0); }
+    }
+    @keyframes hashtag3dVideoLoop {
+      0% { opacity: 0; transform: scale(1.0); }
+      4% { opacity: 1; transform: scale(1.02); }
+      29% { opacity: 1; transform: scale(1.07) translateY(-3px); }
+      33% { opacity: 0; transform: scale(1.09); }
+      100% { opacity: 0; transform: scale(1.0); }
+    }
+    @keyframes fbScraperLoop {
+      0%, 45% { opacity: 1; transform: scale(1.0); }
+      50%, 95% { opacity: 0; transform: scale(1.04); }
+      100% { opacity: 1; transform: scale(1.0); }
+    }
+    @keyframes fbScraperLoop2 {
+      0%, 45% { opacity: 0; transform: scale(1.04); }
+      50%, 95% { opacity: 1; transform: scale(1.0); }
+      100% { opacity: 0; transform: scale(1.04); }
+    }
+    @keyframes fbReelLoop {
+      0%, 45% { opacity: 1; transform: scale(1.0); }
+      50%, 95% { opacity: 0; transform: scale(1.04); }
+      100% { opacity: 1; transform: scale(1.0); }
+    }
+    @keyframes fbReelLoop2 {
+      0%, 45% { opacity: 0; transform: scale(1.04); }
+      50%, 95% { opacity: 1; transform: scale(1.0); }
+      100% { opacity: 0; transform: scale(1.04); }
+    }
+    @keyframes yt3FrameLoop {
+      0% { opacity: 0; transform: scale(1.0); }
+      4% { opacity: 1; transform: scale(1.02); }
+      29% { opacity: 1; transform: scale(1.06) translateY(-2px); }
+      33% { opacity: 0; transform: scale(1.08); }
+      100% { opacity: 0; transform: scale(1.0); }
+    }
+    @keyframes reel3dMotion {
+      0% { transform: scale(1.0) translateY(0); }
+      50% { transform: scale(1.06) translateY(-5px); }
+      100% { transform: scale(1.0) translateY(0); }
+    }
+    @keyframes floatHeart {
+      0% { transform: translateY(0) scale(0.7); opacity: 0; }
+      40% { opacity: 1; }
+      100% { transform: translateY(-45px) scale(1.3); opacity: 0; }
+    }
+    @keyframes pulsePlay {
+      0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 15px rgba(245,96,64,0.7); }
+      50% { transform: translate(-50%, -50%) scale(1.18); box-shadow: 0 0 32px rgba(245,96,64,1); }
+      100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 15px rgba(245,96,64,0.7); }
+    }
+    @keyframes reelProgressBar {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    /* GLOBAL AMBIENT VLOGGER / CREATOR BACKGROUND (FULL PAGE) */
+    body {
+      background-color: #0b0f19 !important;
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(236, 72, 153, 0.18) 0%, transparent 55%),
+        radial-gradient(circle at 85% 25%, rgba(147, 51, 234, 0.2) 0%, transparent 45%),
+        radial-gradient(circle at 15% 55%, rgba(59, 130, 246, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 80% 75%, rgba(236, 72, 153, 0.16) 0%, transparent 50%),
+        radial-gradient(circle at 20% 95%, rgba(147, 51, 234, 0.18) 0%, transparent 50%) !important;
+      background-attachment: fixed !important;
+      background-size: cover !important;
+    }
+
+    [data-theme="light"] body {
+      background-color: #f8f9fb !important;
+      background-image: radial-gradient(circle at 10% 20%, rgba(244, 114, 182, 0.15) 0%, rgba(253, 242, 248, 0.5) 40%, #fdfbfc 100%) !important;
+      background-attachment: scroll !important;
+    }
+    
+    /* PREMIUM HERO SECTION STYLES */
+    .premium-hero {
+      position: relative;
+      min-height: 85vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 60px 20px;
+      text-align: center;
+    }
+    .premium-hero-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 50%, rgba(147, 51, 234, 0.15) 0%, transparent 40%),
+                  radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 40%);
+      z-index: 0;
+      animation: ambientGlow 15s ease-in-out infinite alternate;
+    }
+    @keyframes ambientGlow {
+      0% { transform: scale(1); filter: hue-rotate(0deg); }
+      100% { transform: scale(1.1); filter: hue-rotate(30deg); }
+    }
+    .premium-hero-content {
+      position: relative;
+      z-index: 10;
+      max-width: 900px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .premium-badge-pill {
+      background: var(--bg-card, rgba(255, 255, 255, 0.08));
+      border: 1px solid var(--border-color, rgba(255, 255, 255, 0.15));
+      backdrop-filter: blur(10px);
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-heading);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm, 0 4px 15px rgba(0,0,0,0.1));
+      animation: floatBadge 3s ease-in-out infinite;
+    }
+    @keyframes floatBadge {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    .premium-title {
+      font-size: clamp(3rem, 6vw, 5.5rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 24px;
+      color: var(--text-heading);
+    }
+    .premium-title-gradient {
+      background: linear-gradient(135deg, #f472b6, #c084fc, #60a5fa);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-size: 200% auto;
+      animation: shimmerText 5s linear infinite;
+    }
+    @keyframes shimmerText {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+    .premium-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 700px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+      font-weight: 500;
+    }
+    .premium-search-container {
+      width: 100%;
+      max-width: 700px;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 8px;
+      display: flex;
+      gap: 8px;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05) inset;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .premium-search-container:focus-within {
+      border-color: rgba(192, 132, 252, 0.5);
+      box-shadow: 0 25px 50px -12px rgba(192, 132, 252, 0.2), 0 0 0 1px rgba(192,132,252,0.2) inset;
+    }
+    .premium-search-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: white;
+      font-size: 16px;
+      padding: 0 20px;
+      font-family: 'Inter', sans-serif;
+    }
+    .premium-search-input::placeholder {
+      color: #64748b;
+    }
+    .premium-search-btn {
+      background: linear-gradient(135deg, #ec4899, #9333ea);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.4);
+    }
+    .premium-search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px -5px rgba(236, 72, 153, 0.6);
+    }
+    .premium-floating-icon {
+      position: absolute;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      z-index: 5;
+    }
+    .fi-1 { top: 15%; left: 5%; animation: floatSlow 6s ease-in-out infinite; }
+    .fi-2 { top: 20%; right: 5%; animation: floatSlow 7s ease-in-out infinite reverse; }
+    .fi-3 { bottom: 15%; left: 10%; animation: floatSlow 8s ease-in-out infinite 1s; }
+    .fi-4 { bottom: 20%; right: 10%; animation: floatSlow 6.5s ease-in-out infinite 0.5s; }
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(2deg); }
+    }
+    .premium-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 50px;
+      border-top: 1px solid var(--border-color);
+      padding-top: 30px;
+    }
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .stat-number {
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--text-heading);
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+    @keyframes cardFadeInUp {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    .premium-features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      width: 100%;
+      margin-top: 40px;
+    }
+    .premium-feature-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 24px;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow-sm);
+      opacity: 0;
+      animation: cardFadeInUp 0.6s ease-out forwards;
+    }
+    .premium-feature-card:nth-child(1) { animation-delay: 0.1s; }
+    .premium-feature-card:nth-child(2) { animation-delay: 0.2s; }
+    .premium-feature-card:nth-child(3) { animation-delay: 0.3s; }
+    .premium-feature-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 15px 30px rgba(236, 72, 153, 0.15);
+      border-color: var(--primary-pink);
+    }
+    
+    @keyframes iconPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    .feature-icon-wrapper {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 8px;
+      animation: iconPulse 3s ease-in-out infinite;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .fi-insta { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+    .fi-fb { background: #1877f2; }
+    .fi-yt { background: #ff0000; }
+    .feature-card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-heading);
+      margin-bottom: 2px;
+    }
+    .feature-card-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+  </style>
+
+  <!-- Google Identity Services SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+
+
+  <!-- ==========================================================================
+       VIEW 1: LANDING PAGE
+       ========================================================================== -->
+  <div id="landingPageView">
+    
+    <!-- Top Navigation Bar (Exact Screenshot Match) -->
+    <nav class="it-navbar">
+      <div class="it-nav-container">
+        
+        <!-- Logo -->
+        <a href="#" class="it-brand-logo">
+          <div class="it-logo-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <span class="it-brand-title"><span class="it-title-pink">Social</span><span class="it-title-orange">Vault</span></span>
+        </a>
+
+        <!-- Center Links -->
+        <ul class="it-nav-menu">
+          <li><a href="./index.html" class="it-nav-item active">Home</a></li>
+          <li><a href="./features.html" class="it-nav-item">Features</a></li>
+          <li><a href="./faq.html" class="it-nav-item">FAQ</a></li>
+        </ul>
+
+        <!-- Right Side -->
+        <div class="it-nav-actions">
+          <button id="themeToggleBtn" class="it-theme-toggle-btn" title="Toggle Theme">
+            <span id="themeIcon">☼</span>
+          </button>
+
+          <!-- Google Sign-In Button Container -->
+          <div id="googleAuthBtnWrapper">
+            <button type="button" id="googleSignInBtn" class="it-google-signin-btn" style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:middle;">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              Sign in with Google
+            </button>
+          </div>
+
+          <!-- Hidden Native Google GSI button mount target -->
+          <div id="g_id_onload" style="display:none;"></div>
+
+          <!-- Logged In User Profile Menu -->
+          <div id="loggedInUserMenu" class="hidden" style="position:relative;">
+            <div id="userProfileChip" style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); padding:4px 12px 4px 6px; border-radius:30px; cursor:pointer;">
+              <img id="userAvatarImg" src="" alt="Avatar" style="width:26px; height:26px; border-radius:50%; object-fit:cover; display:none;">
+              <div id="userAvatarPlaceholder" style="width:26px; height:26px; border-radius:50%; background:#9333ea; color:white; font-size:11px; font-weight:800; display:grid; place-items:center;">U</div>
+              <span id="userDisplayName" style="font-size:12px; font-weight:700; color:#fff; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">User</span>
+              <span style="font-size:10px; color:#cbd5e1;">▼</span>
+            </div>
+
+            <!-- Profile Dropdown -->
+            <div id="userProfileDropdown" class="hidden" style="position:absolute; top:42px; right:0; width:230px; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:14px; box-shadow:0 14px 35px rgba(0,0,0,0.6); padding:14px; z-index:1000; text-align:left;">
+              <div style="padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:10px;">
+                <strong id="dropdownUserName" style="font-size:13px; color:#ffffff; display:block;">User</strong>
+                <div id="dropdownUserEmail" style="font-size:11px; color:#94a3b8; word-break:break-all; margin-top:2px;">user@gmail.com</div>
+              </div>
+              <button type="button" id="googleSignOutBtn" style="width:100%; background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:8px; font-size:12px; font-weight:700; cursor:pointer;">
+                Sign Out
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- VIEW 1: LANDING PAGE -->
+    <div id="landingPageView">
+    
+    <!-- Hero Section: Premium Vlogging & Creator Insights -->
+    <section class="premium-hero">
+      <div class="premium-hero-bg"></div>
+
+      <!-- Floating 3D Icons -->
+      <div class="premium-floating-icon fi-1">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+        </svg>
+      </div>
+      <div class="premium-floating-icon fi-2">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path>
+          <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+        </svg>
+      </div>
+      <div class="premium-floating-icon fi-3">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+        </svg>
+      </div>
+      <div class="premium-floating-icon fi-4">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="23 7 16 12 23 17 23 7"></polygon>
+          <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+        </svg>
+      </div>
+
+      <div class="premium-hero-content">
+        <div class="premium-badge-pill">
+          <span style="color:#f472b6;">●</span> 100% Free For Content Creators
+        </div>
+        
+        <h1 class="premium-title">
+          <span class="premium-title-gradient">Vlogging &amp; Creator</span><br />
+          Ultimate Suite
+        </h1>
+
+        <p class="premium-subtitle">
+          The ultimate platform for vloggers. Analyze profiles, uncover viral strategies, and download Full HD Reels, Shorts, and Stories from Instagram, Facebook, and YouTube to skyrocket your growth.
+        </p>
+
+        <div class="premium-features-grid">
+          <!-- Insta Card -->
+          <div class="premium-feature-card">
+            <div class="feature-icon-wrapper fi-insta">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </div>
+            <h3 class="feature-card-title">Instagram Tools</h3>
+            <p class="feature-card-desc">
+              • Instagram Hashtag Scraper<br/>
+              • Instagram Reel &amp; Post Downloader
+            </p>
+          </div>
+
+          <!-- Facebook Card -->
+          <div class="premium-feature-card">
+            <div class="feature-icon-wrapper fi-fb">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+              </svg>
+            </div>
+            <h3 class="feature-card-title">Facebook Suite</h3>
+            <p class="feature-card-desc">
+              • Facebook Hashtag Scraper<br/>
+              • Facebook Post &amp; Reel Downloader
+            </p>
+          </div>
+
+          <!-- YouTube Card -->
+          <div class="premium-feature-card">
+            <div class="feature-icon-wrapper fi-yt">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path>
+                <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
+              </svg>
+            </div>
+            <h3 class="feature-card-title">YouTube Studio</h3>
+            <p class="feature-card-desc">
+              • YouTube Shorts Downloader<br/>
+              • YouTube Video Downloader<br/>
+              • HD Thumbnail Extraction
+            </p>
+          </div>
+        </div>
+
+        <div class="premium-stats">
+          <div class="stat-box">
+            <span class="stat-number">10M+</span>
+            <span class="stat-label">Videos Downloaded</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number">300k</span>
+            <span class="stat-label">Creators</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number">24/7</span>
+            <span class="stat-label">Uptime</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+
+          <!-- User Not Found Error Banner -->
+          <div id="notFoundAlert" class="hidden it-not-found-alert">
+            <span style="font-size:18px;">⚠️</span>
+            <div style="text-align:left;">
+              <strong id="notFoundMsgTitle" style="display:block;">Profile Not Found</strong>
+              <span id="notFoundMsgBody" style="font-size:11px; color:#fca5a5;">No matching Instagram profile found. Please check username or link.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- =========================================================================
+         SECTION 1 — CINEMATIC VLOGGING CREATOR HERO SHOWCASE (WITH USER PHOTOS)
+         ========================================================================= -->
+    <section class="it-sec-wrapper" id="profileExplorerSection">
+      
+      <!-- Top Vlogging Hero Banner (Seamless Full Page Background) -->
+      <div style="position:relative; width:100%;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:36px; align-items:center;">
+          
+          <!-- Text Content -->
+          <div>
+            <span class="it-sec-label" style="background:rgba(236,72,153,0.15); color:var(--primary-pink, #df367c); border-color:rgba(236,72,153,0.3);">THE CREATOR &amp; VLOGGING SUITE</span>
+            <h2 style="font-size:42px; font-weight:900; line-height:1.15; color:var(--text-heading); letter-spacing:-1px; margin-top:12px; margin-bottom:16px;">
+              Designed For <span class="it-title-pink">Vloggers &amp; Content Creators</span>
+            </h2>
+            <p style="font-size:16px; color:var(--text-secondary); line-height:1.75; margin-bottom:20px;">
+              <strong>SocialVault</strong> is the ultimate all-in-one media downloader &amp; forensic intelligence suite built for creators, vloggers, and digital marketers. Download high-definition content seamlessly with complete privacy and zero watermark.
+            </p>
+
+            <!-- Tagda Feature Highlights List -->
+            <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:28px;">
+              <div style="display:flex; align-items:flex-start; gap:12px; background:var(--card-bg, rgba(255,255,255,0.06)); border:1px solid var(--border-color); border-radius:14px; padding:12px 16px; box-shadow:var(--shadow-sm);">
+                <div style="width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, #e1306c, #f56040); display:grid; place-items:center; color:#fff; font-size:16px; flex-shrink:0;">🚀</div>
+                <div>
+                  <div style="font-size:14px; font-weight:800; color:var(--text-heading);">1080p Ultra HD Media Downloads</div>
+                  <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Save Instagram Reels, FB Videos, Stories &amp; Posts in original uncompressed quality without watermark.</div>
+                </div>
+              </div>
+
+              <div style="display:flex; align-items:flex-start; gap:12px; background:var(--card-bg, rgba(255,255,255,0.06)); border:1px solid var(--border-color); border-radius:14px; padding:12px 16px; box-shadow:var(--shadow-sm);">
+                <div style="width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, #ef4444, #dc2626); display:grid; place-items:center; color:#fff; font-size:16px; flex-shrink:0;">▶️</div>
+                <div>
+                  <div style="font-size:14px; font-weight:800; color:var(--text-heading);">YouTube Shorts &amp; 4K Video Suite</div>
+                  <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Download 60fps YouTube Shorts, Full HD MP4 videos, and 4K thumbnails with zero watermark.</div>
+                </div>
+              </div>
+
+              <div style="display:flex; align-items:flex-start; gap:12px; background:var(--card-bg, rgba(255,255,255,0.06)); border:1px solid var(--border-color); border-radius:14px; padding:12px 16px; box-shadow:var(--shadow-sm);">
+                <div style="width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, #9333ea, #6366f1); display:grid; place-items:center; color:#fff; font-size:16px; flex-shrink:0;">🔒</div>
+                <div>
+                  <div style="font-size:14px; font-weight:800; color:var(--text-heading);">100% Anonymous &amp; Private Viewing</div>
+                  <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Watch stories and inspect public profiles discreetly without logging in or leaving digital footprints.</div>
+                </div>
+              </div>
+
+              <div style="display:flex; align-items:flex-start; gap:12px; background:var(--card-bg, rgba(255,255,255,0.06)); border:1px solid var(--border-color); border-radius:14px; padding:12px 16px; box-shadow:var(--shadow-sm);">
+                <div style="width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, #1877f2, #00c6ff); display:grid; place-items:center; color:#fff; font-size:16px; flex-shrink:0;">⚡</div>
+                <div>
+                  <div style="font-size:14px; font-weight:800; color:var(--text-heading);">AI Scraper &amp; Telemetry Analytics</div>
+                  <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Extract viral hashtags, post comments, and Facebook reaction metrics instantly with real-time cloud scrapers.</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:row; gap:10px; width:100%;">
+              <a href="#instagramSuite" style="text-decoration:none; flex:1; padding:12px 10px; font-size:13px; font-weight:800; border-radius:12px; background:linear-gradient(135deg,#e1306c,#f56040,#9333ea); color:#fff; display:inline-flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 6px 18px rgba(225,48,108,0.35); text-align:center; white-space:nowrap; transition:all 0.2s ease;">
+                Instagram Suite &rarr;
+              </a>
+              <a href="#facebookSuite" style="text-decoration:none; flex:1; padding:12px 10px; font-size:13px; font-weight:800; border-radius:12px; background:linear-gradient(135deg,#1877f2,#3b82f6,#00c6ff); color:#fff; display:inline-flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 6px 18px rgba(24,119,242,0.35); text-align:center; white-space:nowrap; transition:all 0.2s ease;">
+                Facebook Suite &rarr;
+              </a>
+              <a href="#youtubeSuite" style="text-decoration:none; flex:1; padding:12px 10px; font-size:13px; font-weight:800; border-radius:12px; background:linear-gradient(135deg,#ef4444,#dc2626,#f97316); color:#fff; display:inline-flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 6px 18px rgba(239,68,68,0.35); text-align:center; white-space:nowrap; transition:all 0.2s ease;">
+                YouTube Suite &rarr;
+              </a>
+            </div>
+          </div>
+
+          <!-- User Uploaded Main Vlogger Animated Video Display (FULL LARGE SIZE) -->
+          <div style="position:relative; text-align:center;">
+            <div style="border-radius:24px; overflow:hidden; border:2px solid rgba(236,72,153,0.5); box-shadow:0 25px 60px rgba(236,72,153,0.4), 0 0 40px rgba(24,119,242,0.3); background:#090d1a; position:relative; min-height:500px; width:100%; aspect-ratio:4/3;">
+              
+              <!-- 3D Video Reel Frame 1 (Instagram Reel Phone Showcase) -->
+              <img src="./assets/insta_reel_hand.png" alt="Instagram Reel Video Showcase" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: yt3FrameLoop 9s ease-in-out 0s infinite; z-index:1;" />
+
+              <!-- 3D Video Reel Frame 2 (Facebook Reel Downloader Showcase) -->
+              <img src="./assets/card_fb_reels.png" alt="Facebook Reel Video Showcase" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: yt3FrameLoop 9s ease-in-out 3s infinite; opacity:0; z-index:1;" />
+
+              <!-- 3D Video Reel Frame 3 (YouTube Video & Shorts Downloader Showcase) -->
+              <img src="./assets/yt_video_frame1.png" alt="YouTube Video & Shorts Showcase" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: yt3FrameLoop 9s ease-in-out 6s infinite; opacity:0; z-index:1;" />
+
+              <!-- Video Dark Gradient Vignette Overlay for UI Legibility -->
+              <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(9,13,26,0.88), rgba(9,13,26,0.1) 45%, rgba(9,13,26,0.35)); z-index:2; pointer-events:none;"></div>
+
+              <!-- Top Phone Speaker Notch -->
+              <div style="position:absolute; top:0; left:50%; transform:translateX(-50%); width:120px; height:16px; background:#090d1a; border-bottom-left-radius:14px; border-bottom-right-radius:14px; z-index:10; border:1px solid rgba(236,72,153,0.5); border-top:none;"></div>
+
+              <!-- Centered Glowing Pulsing 3D Play Button Icon -->
+              <div style="position:absolute; top:50%; left:50%; width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg, rgba(236,72,153,0.95), rgba(24,119,242,0.95)); backdrop-filter:blur(10px); display:grid; place-items:center; z-index:5; animation: pulsePlay 1.5s ease-in-out infinite; border:2.5px solid rgba(255,255,255,0.7); box-shadow:0 0 30px rgba(236,72,153,0.8);">
+                <div style="width:0; height:0; border-top:12px solid transparent; border-bottom:12px solid transparent; border-left:20px solid #fff; margin-left:5px;"></div>
+              </div>
+
+              <!-- Video Description & Telemetry Overlay (Bottom Left) -->
+              <div style="position:absolute; bottom:20px; left:20px; text-align:left; z-index:10; background:rgba(9,13,26,0.75); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.15); border-radius:16px; padding:12px 18px; max-width:82%;">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                  <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981;"></span>
+                  <span style="font-size:12px; font-weight:800; color:#f472b6; letter-spacing:0.5px;">LIVE CREATOR SUITE 4K</span>
+                </div>
+                <div style="font-size:13px; font-weight:700; color:#ffffff; margin-bottom:2px;">Instagram, Facebook &amp; YouTube HD Downloader</div>
+                <div style="font-size:11px; color:#94a3b8;">Reels • Shorts • 4K Videos • Stories • Thumbnails</div>
+              </div>
+
+              <!-- Live Video Progress Bar at Bottom -->
+              <div style="position:absolute; bottom:0; left:0; width:100%; height:5px; background:rgba(255,255,255,0.2); z-index:10;">
+                <div style="height:100%; background:linear-gradient(90deg, #ec4899, #1877f2, #00c6ff); animation: reelProgressBar 9s linear infinite;"></div>
+              </div>
+            </div>
+
+            <!-- Floating Pill Tags -->
+            <a href="./features.html" class="floating-pill-tag" style="top:-18px; left:-18px; background:linear-gradient(135deg,#ec4899,#c13584); color:#fff; font-weight:800; font-size:13px; padding:8px 16px; text-decoration:none;">1080p HD Studio</a>
+            <a href="#youtubeSuite" class="floating-pill-tag" style="top:-18px; right:-18px; background:linear-gradient(135deg,#ef4444,#dc2626); color:#fff; font-weight:800; font-size:13px; padding:8px 16px; text-decoration:none;">YouTube Suite</a>
+            <a href="#facebookSuite" class="floating-pill-tag" style="bottom:-18px; left:-18px; background:linear-gradient(135deg,#1877f2,#00c6ff); color:#fff; font-weight:800; font-size:13px; padding:8px 16px; text-decoration:none;">Facebook Suite</a>
+            <a href="#instagramSuite" class="floating-pill-tag" style="bottom:-18px; right:-18px; background:linear-gradient(135deg,#833ab4,#fd1d1d); color:#fff; font-weight:800; font-size:13px; padding:8px 16px; text-decoration:none;">Instagram Suite</a>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =========================================================================
+         SECTION 2 — INSTAGRAM CREATOR & VLOGGING SUITE (WITH USER REAL PHOTOS)
+         ========================================================================= -->
+    <section class="it-sec-wrapper scroll-reveal" id="instagramSuite">
+      <div style="text-align:center; max-width:900px; margin:0 auto 36px;">
+        <span class="it-sec-label" style="color:#ec4899; border-color:rgba(236,72,153,0.3); background:rgba(236,72,153,0.1); font-size:12px; font-weight:800; padding:6px 18px; letter-spacing:1.5px;">INSTAGRAM VLOGGING SUITE</span>
+        <h2 style="font-size:46px; font-weight:900; line-height:1.15; color:var(--text-heading); letter-spacing:-1px; margin-top:12px; margin-bottom:14px;">
+          Instagram Creator Tools. <span class="it-title-pink" style="display:block; margin-top:4px;">Click To Launch.</span>
+        </h2>
+        <p style="font-size:17px; color:var(--text-muted); line-height:1.6; margin:0 auto; max-width:650px;">
+          Click any feature card to open that tool directly and extract 1080p Full HD media.
+        </p>
+      </div>
+
+      <!-- Instagram Vlogging Showcase Grid -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px; margin-bottom:48px;">
+        
+        <!-- Feature 1: Reel Downloader (FULL-FRAME 3D ANIMATED REEL VIDEO) -->
+        <a href="./reel-downloader.html" class="horiz-card" style="text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; border:1px solid rgba(245,96,64,0.5); overflow:hidden; padding:0; background:var(--card-bg); border-radius:20px; box-shadow:0 12px 35px rgba(245,96,64,0.2); transition:all 0.3s ease;">
+          
+          <!-- Full-Frame Reel Video Display Header (100% Width & Height) -->
+          <div style="height:260px; overflow:hidden; position:relative; background:#000;">
+            
+            <!-- 3D Video Reel Frame 1 (Girl Vlogger Studio) -->
+            <img src="./assets/vlogger_creator.jpg" alt="3D Animated Reel Video 1" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: reel3dVideoLoop 9s ease-in-out infinite; z-index:1;" />
+
+            <!-- 3D Video Reel Frame 2 (Hand Holding Reel Phone App) -->
+            <img src="./assets/insta_reel_hand.png" alt="3D Animated Reel Video 2" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: reel3dVideoLoop 9s ease-in-out 3s infinite; opacity:0; z-index:1;" />
+
+            <!-- 3D Video Reel Frame 3 (Download Hands Profile) -->
+            <img src="./assets/insta_download_hands.png" alt="3D Animated Reel Video 3" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: reel3dVideoLoop 9s ease-in-out 6s infinite; opacity:0; z-index:1;" />
+
+            <!-- Video Dark Gradient Vignette Overlay for UI Legibility -->
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(9,13,26,0.92), rgba(9,13,26,0.15) 50%, rgba(9,13,26,0.3)); z-index:2; pointer-events:none;"></div>
+
+            <!-- Top Speaker Phone Notch -->
+            <div style="position:absolute; top:0; left:50%; transform:translateX(-50%); width:90px; height:12px; background:#090d1a; border-bottom-left-radius:10px; border-bottom-right-radius:10px; z-index:10; border:1px solid rgba(245,96,64,0.4); border-top:none;"></div>
+
+            <!-- Centered Glowing Pulsing 3D Play Icon -->
+            <div style="position:absolute; top:50%; left:50%; width:54px; height:54px; border-radius:50%; background:rgba(245,96,64,0.92); backdrop-filter:blur(8px); display:grid; place-items:center; z-index:5; animation: pulsePlay 1.5s ease-in-out infinite; border:2px solid rgba(255,255,255,0.4);">
+              <div style="width:0; height:0; border-top:9px solid transparent; border-bottom:9px solid transparent; border-left:15px solid #fff; margin-left:4px;"></div>
+            </div>
+
+            <!-- Floating Animated 3D Hearts -->
+            <span style="position:absolute; bottom:90px; right:20px; font-size:18px; z-index:15; pointer-events:none; animation: floatHeart 2.5s ease-in infinite;">❤️</span>
+            <span style="position:absolute; bottom:120px; right:30px; font-size:14px; z-index:15; pointer-events:none; animation: floatHeart 3s ease-in 1s infinite;">💖</span>
+
+            <!-- Creator Info Telemetry Overlay -->
+            <div style="position:absolute; bottom:14px; left:16px; right:60px; z-index:5; text-align:left; color:#fff; font-family:system-ui,-apple-system,sans-serif;">
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                <div style="width:22px; height:22px; border-radius:50%; background:linear-gradient(45deg,#f09433,#e6683c,#dc2743); display:grid; place-items:center; font-size:10px; font-weight:bold; color:#fff;">V</div>
+                <span style="font-size:12px; font-weight:800; text-shadow:0 1px 4px rgba(0,0,0,0.9);">@vlogger_pro</span>
+                <span style="background:rgba(245,96,64,0.3); border:1px solid rgba(245,96,64,0.8); color:#ff7b54; font-size:9px; font-weight:800; padding:1px 6px; border-radius:10px;">LIVE REEL</span>
+              </div>
+              <div style="font-size:10px; color:#cbd5e1; text-shadow:0 1px 2px rgba(0,0,0,0.9); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">🎵 Original Audio - Trending Vlogs 2026</div>
+            </div>
+
+            <!-- Right Side Reel Action Buttons -->
+            <div style="position:absolute; bottom:16px; right:14px; z-index:5; display:flex; flex-direction:column; gap:10px; align-items:center; font-size:11px; color:#fff;">
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <span style="font-size:14px; filter:drop-shadow(0 1px 3px rgba(0,0,0,0.9));">❤️</span>
+                <span style="font-size:8px; font-weight:800; margin-top:-2px;">142K</span>
+              </div>
+              <div style="display:flex; flex-direction:column; align-items:center;">
+                <span style="font-size:14px; filter:drop-shadow(0 1px 3px rgba(0,0,0,0.9));">💬</span>
+                <span style="font-size:8px; font-weight:800; margin-top:-2px;">2.8K</span>
+              </div>
+              <span style="font-size:14px; filter:drop-shadow(0 1px 3px rgba(0,0,0,0.9));">✈️</span>
+            </div>
+
+            <!-- Floating Top Badge -->
+            <span style="position:absolute; top:14px; right:14px; background:rgba(245,96,64,0.35); backdrop-filter:blur(10px); color:#ff7b54; font-size:11px; font-weight:900; padding:6px 14px; border-radius:20px; border:1px solid rgba(245,96,64,0.7); letter-spacing:0.5px; z-index:10;">INSTA REELS</span>
+            
+            <!-- Animated Reel Video Progress Bar -->
+            <div style="position:absolute; bottom:0; left:0; right:0; height:4px; background:rgba(255,255,255,0.2); z-index:10;">
+              <div style="height:100%; background:#f56040; box-shadow:0 0 12px #f56040; animation: reelProgressBar 3s linear infinite;"></div>
+            </div>
+          </div>
+
+          <div style="padding:22px;">
+            <h3 style="font-size:20px; font-weight:800; color:var(--text-heading); margin-bottom:8px;">Instagram Reel Downloader</h3>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+              Download 1080p Full HD Instagram Reels, Carousel clips, and high bitrate MP3 audio without watermark.
+            </p>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-color); padding-top:14px;">
+              <span style="font-size:13px; font-weight:800; color:#f56040; display:flex; align-items:center; gap:4px;">Launch Tool &rarr;</span>
+              <span style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono); background:rgba(245,96,64,0.1); padding:3px 8px; border-radius:6px; color:#f56040;">1080p MP4</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Feature 2: Hashtag Scraper (FULL-FRAME 3D ANIMATED HASHTAG VIDEO) -->
+        <a href="./hashtag-scraper.html" class="horiz-card" style="text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; border:1px solid rgba(236,72,153,0.5); overflow:hidden; padding:0; background:var(--card-bg); border-radius:20px; box-shadow:0 12px 35px rgba(236,72,153,0.2); transition:all 0.3s ease;">
+          
+          <!-- Full-Frame Hashtag Display Header (100% Width & Height) -->
+          <div style="height:260px; overflow:hidden; position:relative; background:#000;">
+            
+            <!-- 3D Hashtag Frame 1 (User Uploaded Panel 1) -->
+            <img src="./assets/hashtag_frame1.png" alt="Hashtag Scraper Frame 1" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: hashtag3dVideoLoop 9s ease-in-out 0s infinite; z-index:1;" />
+
+            <!-- 3D Hashtag Frame 2 (User Uploaded Panel 2) -->
+            <img src="./assets/hashtag_frame2.png" alt="Hashtag Scraper Frame 2" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: hashtag3dVideoLoop 9s ease-in-out 3s infinite; opacity:0; z-index:1;" />
+
+            <!-- 3D Hashtag Frame 3 (User Uploaded Panel 3) -->
+            <img src="./assets/hashtag_frame3.png" alt="Hashtag Scraper Frame 3" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: hashtag3dVideoLoop 9s ease-in-out 6s infinite; opacity:0; z-index:1;" />
+
+            <!-- Video Dark Gradient Vignette Overlay -->
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(9,13,26,0.92), rgba(9,13,26,0.15) 50%, rgba(9,13,26,0.3)); z-index:2; pointer-events:none;"></div>
+
+            <!-- Top Speaker Notch -->
+            <div style="position:absolute; top:0; left:50%; transform:translateX(-50%); width:90px; height:12px; background:#090d1a; border-bottom-left-radius:10px; border-bottom-right-radius:10px; z-index:10; border:1px solid rgba(236,72,153,0.4); border-top:none;"></div>
+
+            <!-- Floating Top Right Badge -->
+            <span style="position:absolute; top:14px; right:14px; background:rgba(236,72,153,0.35); backdrop-filter:blur(10px); color:#f472b6; font-size:11px; font-weight:900; padding:6px 14px; border-radius:20px; border:1px solid rgba(236,72,153,0.7); letter-spacing:0.5px; z-index:10;">HASHTAG SCRAPER</span>
+            
+            <!-- Animated Hashtag Progress Bar -->
+            <div style="position:absolute; bottom:0; left:0; right:0; height:4px; background:rgba(255,255,255,0.2); z-index:10;">
+              <div style="height:100%; background:#ec4899; box-shadow:0 0 12px #ec4899; animation: reelProgressBar 3s linear infinite;"></div>
+            </div>
+          </div>
+          <div style="padding:22px;">
+            <h3 style="font-size:20px; font-weight:800; color:var(--text-heading); margin-bottom:8px;">Instagram Hashtag Scraper</h3>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+              Extract live post volume, hashtag reach clusters, related tags, and tag engagement analytics in 1-click.
+            </p>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-color); padding-top:14px;">
+              <span style="font-size:13px; font-weight:800; color:#ec4899; display:flex; align-items:center; gap:4px;">Launch Tool &rarr;</span>
+              <span style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono); background:rgba(236,72,153,0.1); padding:3px 8px; border-radius:6px; color:#ec4899;">CSV / JSON</span>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 3 — FACEBOOK VLOGGING & CREATOR SUITE
+         ========================================================================= -->
+    <section class="it-sec-wrapper scroll-reveal" id="facebookSuite">
+      <div style="text-align:center; max-width:900px; margin:0 auto 36px;">
+        <span class="it-sec-label" style="color:#60a5fa; border-color:rgba(96,165,250,0.3); background:rgba(24,119,242,0.1); font-size:12px; font-weight:800; padding:6px 18px; letter-spacing:1.5px;">FACEBOOK VLOGGING SUITE</span>
+        <h2 style="font-size:46px; font-weight:900; line-height:1.15; color:var(--text-heading); letter-spacing:-1px; margin-top:12px; margin-bottom:14px;">
+          Facebook Creator Tools. <span class="it-title-blue" style="display:block; margin-top:4px;">Click To Launch.</span>
+        </h2>
+        <p style="font-size:17px; color:var(--text-muted); line-height:1.6; margin:0 auto; max-width:650px;">
+          Click any Facebook tool card to launch that tool directly.
+        </p>
+      </div>
+
+      <!-- Facebook Vlogging Showcase Grid -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px; margin-bottom:48px;">
+        
+        <!-- 1st Card: FB Hashtag Downloader & Scraper -->
+        <a href="./facebook-scraper.html" class="horiz-card" style="text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; border:1px solid rgba(24,119,242,0.4); overflow:hidden; padding:0; background:var(--card-bg); border-radius:20px; box-shadow:0 12px 30px rgba(24,119,242,0.15); transition:all 0.3s ease;">
+          <div style="height:260px; overflow:hidden; position:relative; background:#090d1a;">
+            <img src="./assets/fb_scraper_frame2.jpg" alt="Facebook Hashtag Creator" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: fbScraperLoop 8s ease-in-out infinite; z-index:1;" />
+            <img src="./assets/fb_scraper_frame1.png" alt="Facebook Scraper Live UI" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: fbScraperLoop2 8s ease-in-out infinite; opacity:0; z-index:1;" />
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(9,13,26,0.85), transparent 55%); z-index:2; pointer-events:none;"></div>
+            
+            <!-- Play icon -->
+            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:48px; height:48px; border-radius:50%; background:rgba(24,119,242,0.92); backdrop-filter:blur(8px); display:grid; place-items:center; z-index:5; animation: pulsePlay 1.6s ease-in-out infinite; border:2px solid rgba(255,255,255,0.5);">
+              <div style="width:0; height:0; border-top:8px solid transparent; border-bottom:8px solid transparent; border-left:14px solid #fff; margin-left:3px;"></div>
+            </div>
+
+            <!-- Top Badge -->
+            <span style="position:absolute; top:14px; right:14px; background:rgba(24,119,242,0.35); backdrop-filter:blur(10px); color:#60a5fa; font-size:11px; font-weight:900; padding:6px 14px; border-radius:20px; border:1px solid rgba(24,119,242,0.7); letter-spacing:0.5px; z-index:10;">FB HASHTAGS LIVE</span>
+            
+            <!-- Bottom Progress Bar -->
+            <div style="position:absolute; bottom:0; left:0; right:0; height:4px; background:rgba(255,255,255,0.2); z-index:10;">
+              <div style="height:100%; background:linear-gradient(90deg, #1877f2, #00c6ff); box-shadow:0 0 10px #1877f2; animation: fbProgressBar 8s linear infinite;"></div>
+            </div>
+          </div>
+          <div style="padding:22px;">
+            <h3 style="font-size:20px; font-weight:800; color:var(--text-heading); margin-bottom:8px;">Facebook Hashtag Scraper</h3>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+              Scrape live Facebook hashtag post counts, reach metrics, discover viral tag clusters, and extract high-performing posts in 1-click.
+            </p>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-color); padding-top:14px;">
+              <span style="font-size:13px; font-weight:800; color:#60a5fa; display:flex; align-items:center; gap:4px;">Launch FB Hashtag Scraper &rarr;</span>
+              <span style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono); background:rgba(24,119,242,0.1); padding:3px 8px; border-radius:6px; color:#60a5fa;">#Hashtag Scraper</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- 2nd Card: FB Post & Reel Downloader -->
+        <a href="./facebook-reel-downloader.html" class="horiz-card" style="text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; border:1px solid rgba(0,198,255,0.4); overflow:hidden; padding:0; background:var(--card-bg); border-radius:20px; box-shadow:0 12px 30px rgba(0,198,255,0.15); transition:all 0.3s ease;">
+          <div style="height:260px; overflow:hidden; position:relative; background:#090d1a;">
+            <img src="./assets/fb_reel_frame2.png" alt="Facebook Reel Downloader Phone Showcase" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: fbReelLoop 8s ease-in-out infinite; z-index:1;" />
+            <img src="./assets/fb_reel_frame1.png" alt="Facebook Post and Reel Downloader Dashboard" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: fbReelLoop2 8s ease-in-out infinite; opacity:0; z-index:1;" />
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(9,13,26,0.85), transparent 55%); z-index:2; pointer-events:none;"></div>
+            
+            <!-- Play icon -->
+            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, rgba(24,119,242,0.92), rgba(0,198,255,0.92)); backdrop-filter:blur(8px); display:grid; place-items:center; z-index:5; animation: pulsePlay 1.6s ease-in-out infinite; border:2px solid rgba(255,255,255,0.5);">
+              <div style="width:0; height:0; border-top:8px solid transparent; border-bottom:8px solid transparent; border-left:14px solid #fff; margin-left:3px;"></div>
+            </div>
+
+            <!-- Top Badge -->
+            <span style="position:absolute; top:14px; right:14px; background:rgba(0,198,255,0.25); backdrop-filter:blur(10px); color:#00c6ff; font-size:11px; font-weight:900; padding:6px 14px; border-radius:20px; border:1px solid rgba(0,198,255,0.6); letter-spacing:0.5px; z-index:10;">FB REELS 1080P</span>
+            
+            <!-- Bottom Progress Bar -->
+            <div style="position:absolute; bottom:0; left:0; right:0; height:4px; background:rgba(255,255,255,0.2); z-index:10;">
+              <div style="height:100%; background:linear-gradient(90deg, #1877f2, #00c6ff); box-shadow:0 0 10px #00c6ff; animation: fbProgressBar 8s linear infinite;"></div>
+            </div>
+          </div>
+          <div style="padding:22px;">
+            <h3 style="font-size:20px; font-weight:800; color:var(--text-heading); margin-bottom:8px;">Facebook Post &amp; Reel Downloader</h3>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+              Download public Facebook Posts, Photos, Reels, Watch videos, and clips in original 1080p Full HD resolution without watermark.
+            </p>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-color); padding-top:14px;">
+              <span style="font-size:13px; font-weight:800; color:#00c6ff; display:flex; align-items:center; gap:4px;">Launch FB Post &amp; Reel Downloader &rarr;</span>
+              <span style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono); background:rgba(0,198,255,0.1); padding:3px 8px; border-radius:6px; color:#00c6ff;">1080p Posts &amp; Reels</span>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 4 — YOUTUBE CREATOR & DOWNLOADER SUITE
+         ========================================================================= -->
+    <section class="it-sec-wrapper scroll-reveal" id="youtubeSuite">
+      <div style="text-align:center; max-width:900px; margin:0 auto 36px;">
+        <span class="it-sec-label" style="color:#ef4444; border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.1); font-size:12px; font-weight:800; padding:6px 18px; letter-spacing:1.5px;">YOUTUBE CREATOR SUITE</span>
+        <h2 style="font-size:46px; font-weight:900; line-height:1.15; color:var(--text-heading); letter-spacing:-1px; margin-top:12px; margin-bottom:14px;">
+          YouTube Creator Tools. <span class="it-title-pink" style="background:linear-gradient(135deg, #ef4444, #f97316); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; display:block; margin-top:4px;">Click To Launch.</span>
+        </h2>
+        <p style="font-size:17px; color:var(--text-muted); line-height:1.6; margin:0 auto; max-width:650px;">
+          Click any YouTube tool card to launch that tool directly.
+        </p>
+      </div>
+
+      <!-- YouTube Vlogging Showcase Grid -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:24px;">
+        
+        <!-- Card 1: YouTube Video Downloader -->
+        <a href="./youtube-video-downloader.html" class="horiz-card" style="text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; border:1px solid rgba(239,68,68,0.4); overflow:hidden; padding:0; background:var(--card-bg); border-radius:20px; box-shadow:0 12px 30px rgba(239,68,68,0.15); transition:all 0.3s ease;">
+          <div style="height:260px; overflow:hidden; position:relative; background:#090d1a;">
+            <img src="./assets/yt_video_frame1.png" alt="YouTube Video Downloader Player Showcase" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: yt3FrameLoop 9s ease-in-out 0s infinite; z-index:1;" />
+            <img src="./assets/yt_video_frame2.png" alt="YouTube Video Downloader Creator Showcase" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: yt3FrameLoop 9s ease-in-out 3s infinite; opacity:0; z-index:1;" />
+            <img src="./assets/yt_video_frame3.png" alt="YouTube Video Downloader Creator Girl Showcase" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: yt3FrameLoop 9s ease-in-out 6s infinite; opacity:0; z-index:1;" />
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(9,13,26,0.85), transparent 55%); z-index:2; pointer-events:none;"></div>
+            
+            <!-- Play icon -->
+            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, rgba(239,68,68,0.92), rgba(249,115,22,0.92)); backdrop-filter:blur(8px); display:grid; place-items:center; z-index:5; animation: pulsePlay 1.6s ease-in-out infinite; border:2px solid rgba(255,255,255,0.5);">
+              <div style="width:0; height:0; border-top:8px solid transparent; border-bottom:8px solid transparent; border-left:14px solid #fff; margin-left:3px;"></div>
+            </div>
+
+            <!-- Top Badge -->
+            <span style="position:absolute; top:14px; right:14px; background:rgba(239,68,68,0.35); backdrop-filter:blur(10px); color:#fca5a5; font-size:11px; font-weight:900; padding:6px 14px; border-radius:20px; border:1px solid rgba(239,68,68,0.7); letter-spacing:0.5px; z-index:10;">YT 1080P HD</span>
+            
+            <!-- Bottom Progress Bar -->
+            <div style="position:absolute; bottom:0; left:0; right:0; height:4px; background:rgba(255,255,255,0.2); z-index:10;">
+              <div style="height:100%; background:linear-gradient(90deg, #ef4444, #f97316); box-shadow:0 0 10px #ef4444; animation: fbProgressBar 9s linear infinite;"></div>
+            </div>
+          </div>
+          <div style="padding:22px;">
+            <h3 style="font-size:20px; font-weight:800; color:var(--text-heading); margin-bottom:8px;">YouTube Video Downloader</h3>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+              Download YouTube videos, 1080p Full HD MP4 files, and high quality media clips anonymously without login in 1-click.
+            </p>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-color); padding-top:14px;">
+              <span style="font-size:13px; font-weight:800; color:#ef4444; display:flex; align-items:center; gap:4px;">Launch Video Downloader &rarr;</span>
+              <span style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono); background:rgba(239,68,68,0.1); padding:3px 8px; border-radius:6px; color:#ef4444;">1080p MP4</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Card 2: YouTube Shorts Downloader -->
+        <a href="./youtube-shorts-downloader.html" class="horiz-card" style="text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; border:1px solid rgba(249,115,22,0.4); overflow:hidden; padding:0; background:var(--card-bg); border-radius:20px; box-shadow:0 12px 30px rgba(249,115,22,0.15); transition:all 0.3s ease;">
+          <div style="height:260px; overflow:hidden; position:relative; background:#090d1a;">
+            <img src="./assets/yt_shorts_frame1.png" alt="YouTube Shorts Downloader Phone UI" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: yt3FrameLoop 9s ease-in-out 0s infinite; z-index:1;" />
+            <img src="./assets/yt_shorts_frame2.png" alt="YouTube Shorts Downloader Creator Watching Shorts" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: yt3FrameLoop 9s ease-in-out 3s infinite; opacity:0; z-index:1;" />
+            <img src="./assets/yt_shorts_frame3.png" alt="YouTube Shorts Downloader 3D Cartoon Creator" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: yt3FrameLoop 9s ease-in-out 6s infinite; opacity:0; z-index:1;" />
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(9,13,26,0.85), transparent 55%); z-index:2; pointer-events:none;"></div>
+            
+            <!-- Play icon -->
+            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, rgba(239,68,68,0.92), rgba(249,115,22,0.92)); backdrop-filter:blur(8px); display:grid; place-items:center; z-index:5; animation: pulsePlay 1.6s ease-in-out infinite; border:2px solid rgba(255,255,255,0.5);">
+              <div style="width:0; height:0; border-top:8px solid transparent; border-bottom:8px solid transparent; border-left:14px solid #fff; margin-left:3px;"></div>
+            </div>
+
+            <!-- Floating reaction -->
+            <span style="position:absolute; bottom:25px; right:18px; font-size:16px; z-index:10; pointer-events:none; animation: floatHeart 2.6s ease-in infinite;">🔥</span>
+
+            <!-- Top Badge -->
+            <span style="position:absolute; top:14px; right:14px; background:rgba(249,115,22,0.35); backdrop-filter:blur(10px); color:#fdba74; font-size:11px; font-weight:900; padding:6px 14px; border-radius:20px; border:1px solid rgba(249,115,22,0.7); letter-spacing:0.5px; z-index:10;">YT SHORTS 60FPS</span>
+            
+            <!-- Bottom Progress Bar -->
+            <div style="position:absolute; bottom:0; left:0; right:0; height:4px; background:rgba(255,255,255,0.2); z-index:10;">
+              <div style="height:100%; background:linear-gradient(90deg, #f97316, #ef4444); box-shadow:0 0 10px #f97316; animation: fbProgressBar 9s linear infinite;"></div>
+            </div>
+          </div>
+          <div style="padding:22px;">
+            <h3 style="font-size:20px; font-weight:800; color:var(--text-heading); margin-bottom:8px;">YouTube Shorts Downloader</h3>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+              Download short-form YouTube Shorts vertical videos in high definition 60fps MP4 format instantly with zero watermark.
+            </p>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-color); padding-top:14px;">
+              <span style="font-size:13px; font-weight:800; color:#f97316; display:flex; align-items:center; gap:4px;">Launch Shorts Downloader &rarr;</span>
+              <span style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono); background:rgba(249,115,22,0.1); padding:3px 8px; border-radius:6px; color:#f97316;">60fps Vertical</span>
+            </div>
+          </div>
+        </a>
+
+        <!-- Card 3: YouTube Thumbnail Downloader -->
+        <a href="./youtube-thumbnail-downloader.html" class="horiz-card" style="text-decoration:none; display:flex; flex-direction:column; justify-content:space-between; border:1px solid rgba(236,72,153,0.4); overflow:hidden; padding:0; background:var(--card-bg); border-radius:20px; box-shadow:0 12px 30px rgba(236,72,153,0.15); transition:all 0.3s ease;">
+          <div style="height:260px; overflow:hidden; position:relative; background:#090d1a;">
+            <img src="./assets/yt_thumb_frame1.png" alt="YouTube Thumbnail Downloader Collage Frame" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: fbReelLoop 8s ease-in-out infinite; z-index:1;" />
+            <img src="./assets/yt_thumb_frame2.png" alt="YouTube Thumbnail Downloader Laptop Frame" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; animation: fbReelLoop2 8s ease-in-out infinite; opacity:0; z-index:1;" />
+            <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(9,13,26,0.85), transparent 55%); z-index:2; pointer-events:none;"></div>
+            
+            <!-- Center Icon -->
+            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg, rgba(236,72,153,0.92), rgba(239,68,68,0.92)); backdrop-filter:blur(8px); display:grid; place-items:center; z-index:5; animation: pulsePlay 1.6s ease-in-out infinite; border:2px solid rgba(255,255,255,0.5);">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+            </div>
+
+            <!-- Floating reaction -->
+            <span style="position:absolute; bottom:25px; right:18px; font-size:16px; z-index:10; pointer-events:none; animation: floatHeart 2.6s ease-in infinite;">✨</span>
+
+            <!-- Top Badge -->
+            <span style="position:absolute; top:14px; right:14px; background:rgba(236,72,153,0.35); backdrop-filter:blur(10px); color:#fbcfe8; font-size:11px; font-weight:900; padding:6px 14px; border-radius:20px; border:1px solid rgba(236,72,153,0.7); letter-spacing:0.5px; z-index:10;">THUMBNAIL 4K</span>
+            
+            <!-- Bottom Progress Bar -->
+            <div style="position:absolute; bottom:0; left:0; right:0; height:4px; background:rgba(255,255,255,0.2); z-index:10;">
+              <div style="height:100%; background:linear-gradient(90deg, #ec4899, #ef4444); box-shadow:0 0 10px #ec4899; animation: fbProgressBar 8s linear infinite;"></div>
+            </div>
+          </div>
+          <div style="padding:22px;">
+            <h3 style="font-size:20px; font-weight:800; color:var(--text-heading); margin-bottom:8px;">YouTube Thumbnail Downloader</h3>
+            <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+              Download YouTube video &amp; Shorts cover thumbnails in original 4K Ultra HD, 1080p, 720p, and HQ JPG formats in 1-click.
+            </p>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-color); padding-top:14px;">
+              <span style="font-size:13px; font-weight:800; color:#ec4899; display:flex; align-items:center; gap:4px;">Launch Thumbnail Saver &rarr;</span>
+              <span style="font-size:11px; color:var(--text-muted); font-family:var(--font-mono); background:rgba(236,72,153,0.1); padding:3px 8px; border-radius:6px; color:#ec4899;">4K / 1080p JPG</span>
+            </div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- =========================================================================
+         SECTION 5 — TESTIMONIALS & CREATOR REVIEWS
+         ========================================================================= -->
+    <section class="it-sec-wrapper scroll-reveal" id="testimonialsSection">
+      <div style="text-align:center; max-width:850px; margin:0 auto 44px;">
+        
+        <!-- Rating Pill / Badge -->
+        <div style="display:inline-flex; align-items:center; gap:8px; background:var(--card-bg); border:1px solid var(--border-color); padding:6px 18px; border-radius:30px; font-size:13px; font-weight:700; color:var(--text-heading); box-shadow:var(--shadow-sm); margin-bottom:14px;">
+          <span>4.9/5.0</span>
+          <span style="color:#f59e0b; letter-spacing:2px; font-size:14px;">★★★★★</span>
+          <span style="color:var(--text-muted); font-size:12px; font-weight:600;">(Based on 2,840+ creator ratings)</span>
+        </div>
+
+        <h2 style="font-size:44px; font-weight:900; line-height:1.15; color:var(--text-heading); letter-spacing:-1px; margin-bottom:14px;">
+          What Our Users Are Saying
+        </h2>
+        <p style="font-size:16px; color:var(--text-muted); line-height:1.6; margin:0 auto; max-width:680px;">
+          Here's what real vloggers, creators, and digital marketers have to say about using SocialVault to download Full HD media from <strong style="color:var(--primary-pink);">Instagram</strong>, <strong style="color:#3b82f6;">Facebook</strong>, and <strong style="color:#ef4444;">YouTube</strong> quickly and easily.
+        </p>
+      </div>
+
+      <!-- Testimonials 3-Column Grid -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:24px;">
+        
+        <!-- Card 1: David M -->
+        <div class="horiz-card" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:20px; padding:26px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-sm); transition:all 0.3s ease;">
+          <div>
+            <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px;">
+              <div style="width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg, #3b82f6, #6366f1); display:grid; place-items:center; color:#fff; font-size:18px; font-weight:800; box-shadow:0 4px 12px rgba(59,130,246,0.3);">
+                DM
+              </div>
+              <div>
+                <strong style="font-size:16px; color:var(--text-heading); display:block;">David M.</strong>
+                <span style="font-size:12px; color:var(--text-muted);">Vlogger &amp; Digital Creator</span>
+              </div>
+            </div>
+            <p style="font-size:14px; color:var(--text-secondary); line-height:1.7; font-style:italic; margin-bottom:20px;">
+              &ldquo;I use <strong style="color:var(--text-heading);">SocialVault</strong> almost daily to save <strong style="color:var(--primary-pink);">Instagram Reels</strong>, <strong style="color:#3b82f6;">Facebook Videos</strong>, and <strong style="color:#ef4444;">YouTube Shorts</strong> for reference. It's lightning fast, zero watermarks, and direct 1080p MP4 quality without annoying ads.&rdquo;
+            </p>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; border-top:1px solid var(--border-color); padding-top:14px; font-size:12px; font-weight:700; color:var(--text-muted);">
+            <span>Rating:</span>
+            <span style="color:#f59e0b; letter-spacing:1px; font-size:14px;">★★★★★</span>
+            <span style="color:var(--text-heading); font-weight:800;">5.0</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Bev Robertson -->
+        <div class="horiz-card" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:20px; padding:26px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-sm); transition:all 0.3s ease;">
+          <div>
+            <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px;">
+              <div style="width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg, #ec4899, #f43f5e); display:grid; place-items:center; color:#fff; font-size:18px; font-weight:800; box-shadow:0 4px 12px rgba(236,72,153,0.3);">
+                BR
+              </div>
+              <div>
+                <strong style="font-size:16px; color:var(--text-heading); display:block;">Bev Robertson</strong>
+                <span style="font-size:12px; color:var(--text-muted);">Travel Filmmaker</span>
+              </div>
+            </div>
+            <p style="font-size:14px; color:var(--text-secondary); line-height:1.7; font-style:italic; margin-bottom:20px;">
+              &ldquo;I appreciate that there are no compression artifacts or quality limits. I've downloaded hundreds of <strong style="color:#ef4444;">YouTube 4K videos</strong> and <strong style="color:var(--primary-pink);">Instagram carousel clips</strong>, and they all look pristine on my editing timeline.&rdquo;
+            </p>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; border-top:1px solid var(--border-color); padding-top:14px; font-size:12px; font-weight:700; color:var(--text-muted);">
+            <span>Rating:</span>
+            <span style="color:#f59e0b; letter-spacing:1px; font-size:14px;">★★★★★</span>
+            <span style="color:var(--text-heading); font-weight:800;">5.0</span>
+          </div>
+        </div>
+
+        <!-- Card 3: Martin M -->
+        <div class="horiz-card" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:20px; padding:26px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-sm); transition:all 0.3s ease;">
+          <div>
+            <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px;">
+              <div style="width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg, #10b981, #06b6d4); display:grid; place-items:center; color:#fff; font-size:18px; font-weight:800; box-shadow:0 4px 12px rgba(16,185,129,0.3);">
+                MM
+              </div>
+              <div>
+                <strong style="font-size:16px; color:var(--text-heading); display:block;">Martin M.</strong>
+                <span style="font-size:12px; color:var(--text-muted);">Growth Agency Director</span>
+              </div>
+            </div>
+            <p style="font-size:14px; color:var(--text-secondary); line-height:1.7; font-style:italic; margin-bottom:20px;">
+              &ldquo;No sign-ups, no fees – just paste the link from <strong style="color:var(--primary-pink);">Instagram</strong>, <strong style="color:#3b82f6;">Facebook</strong>, or <strong style="color:#ef4444;">YouTube</strong> and get your video in seconds. The built-in hashtag scraper is an absolute powerhouse for our campaigns.&rdquo;
+            </p>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; border-top:1px solid var(--border-color); padding-top:14px; font-size:12px; font-weight:700; color:var(--text-muted);">
+            <span>Rating:</span>
+            <span style="color:#f59e0b; letter-spacing:1px; font-size:14px;">★★★★★</span>
+            <span style="color:var(--text-heading); font-weight:800;">5.0</span>
+          </div>
+        </div>
+
+        <!-- Card 4: Grace K -->
+        <div class="horiz-card" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:20px; padding:26px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-sm); transition:all 0.3s ease;">
+          <div>
+            <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px;">
+              <div style="width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg, #f59e0b, #ea580c); display:grid; place-items:center; color:#fff; font-size:18px; font-weight:800; box-shadow:0 4px 12px rgba(245,158,11,0.3);">
+                GK
+              </div>
+              <div>
+                <strong style="font-size:16px; color:var(--text-heading); display:block;">Grace K.</strong>
+                <span style="font-size:12px; color:var(--text-muted);">Social Media Producer</span>
+              </div>
+            </div>
+            <p style="font-size:14px; color:var(--text-secondary); line-height:1.7; font-style:italic; margin-bottom:20px;">
+              &ldquo;SocialVault has completely replaced 4 other buggy downloaders for my agency. The 320kbps MP3 audio extraction from YouTube videos and Shorts is pristine. Saves us tons of post-production time!&rdquo;
+            </p>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; border-top:1px solid var(--border-color); padding-top:14px; font-size:12px; font-weight:700; color:var(--text-muted);">
+            <span>Rating:</span>
+            <span style="color:#f59e0b; letter-spacing:1px; font-size:14px;">★★★★★</span>
+            <span style="color:var(--text-heading); font-weight:800;">5.0</span>
+          </div>
+        </div>
+
+        <!-- Card 5: Sidney I -->
+        <div class="horiz-card" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:20px; padding:26px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-sm); transition:all 0.3s ease;">
+          <div>
+            <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px;">
+              <div style="width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg, #8b5cf6, #ec4899); display:grid; place-items:center; color:#fff; font-size:18px; font-weight:800; box-shadow:0 4px 12px rgba(139,92,246,0.3);">
+                SI
+              </div>
+              <div>
+                <strong style="font-size:16px; color:var(--text-heading); display:block;">Sidney I.</strong>
+                <span style="font-size:12px; color:var(--text-muted);">Shorts &amp; Reel Creator</span>
+              </div>
+            </div>
+            <p style="font-size:14px; color:var(--text-secondary); line-height:1.7; font-style:italic; margin-bottom:20px;">
+              &ldquo;The native vertical 60fps Shorts and Reels downloads work in one click directly to my phone camera roll without any compression or watermarks. Best media tool on the web.&rdquo;
+            </p>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; border-top:1px solid var(--border-color); padding-top:14px; font-size:12px; font-weight:700; color:var(--text-muted);">
+            <span>Rating:</span>
+            <span style="color:#f59e0b; letter-spacing:1px; font-size:14px;">★★★★★</span>
+            <span style="color:var(--text-heading); font-weight:800;">5.0</span>
+          </div>
+        </div>
+
+        <!-- Card 6: Brian B -->
+        <div class="horiz-card" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:20px; padding:26px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:var(--shadow-sm); transition:all 0.3s ease;">
+          <div>
+            <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px;">
+              <div style="width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg, #ef4444, #f97316); display:grid; place-items:center; color:#fff; font-size:18px; font-weight:800; box-shadow:0 4px 12px rgba(239,68,68,0.3);">
+                BB
+              </div>
+              <div>
+                <strong style="font-size:16px; color:var(--text-heading); display:block;">Brian B.</strong>
+                <span style="font-size:12px; color:var(--text-muted);">Media Forensic Analyst</span>
+              </div>
+            </div>
+            <p style="font-size:14px; color:var(--text-secondary); line-height:1.7; font-style:italic; margin-bottom:20px;">
+              &ldquo;The forensic telemetry scrapers and high-bitrate media mirrors work 100% reliably. Sleek UI, dark mode aesthetics, and zero registration needed. Truly a premier suite.&rdquo;
+            </p>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; border-top:1px solid var(--border-color); padding-top:14px; font-size:12px; font-weight:700; color:var(--text-muted);">
+            <span>Rating:</span>
+            <span style="color:#f59e0b; letter-spacing:1px; font-size:14px;">★★★★★</span>
+            <span style="color:var(--text-heading); font-weight:800;">5.0</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="it-landing-footer" style="border-top:1px solid var(--border-color); padding: 48px 20px; text-align:center; background: transparent;">
+      <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="it-logo-icon" style="width:28px; height:28px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <span style="font-weight:900; font-size:18px; color:var(--text-heading);"><span class="it-title-pink">Social</span><span class="it-title-orange">Vault</span></span>
+        </div>
+        <p style="font-size:13px; color:var(--text-muted); margin:0;">
+          &copy; 2026 SocialVault Systems Inc. All rights reserved. Built for creators, marketers, and researchers.
+        </p>
+      </div>
+    </footer>
+
+    <!-- Interactive Scripts for FAQ Accordion & Scroll Reveal Engine -->
+    <script>
+      function toggleFaq(header) {
+        const item = header.parentElement;
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-acc-item').forEach(i => i.classList.remove('open'));
+        if (!isOpen) {
+          item.classList.add('open');
+        }
+      }
+
+      // Scroll Reveal Observer
+      document.addEventListener('DOMContentLoaded', function() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('revealed');
+            }
+          });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
+      });
+    </script>
+
+    </div> <!-- End of landingPageView -->
+
+  <!-- ==========================================================================
+       VIEW 2: LIVE PROCESSING DASHBOARD (EXACT MATCH TO 4 SCREENSHOTS)
+       ========================================================================== -->
+  <div id="processingPageView" class="hidden">
+    
+    <!-- Dashboard Top Bar (Matching Landing Page Style) -->
+    <nav class="it-navbar">
+      <div class="it-nav-container">
+        
+        <a href="#" class="it-brand-logo" id="dashBrandLogo">
+          <div class="it-logo-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <span class="it-brand-title"><span class="it-title-pink">Social</span><span class="it-title-orange">Vault</span></span>
+        </a>
+
+        <div style="display:flex; align-items:center; gap:16px;">
+          <span class="dash-today-label" style="font-size:13px;">Today <strong id="dashCurrentDate">August 19, 2026</strong></span>
+
+          <!-- Notifications Bell -->
+          <div style="position:relative;">
+            <span id="bellNotificationBtn" style="position:relative; cursor:pointer; font-size:16px;" title="Notifications">
+              🔔 <span style="position:absolute; top:-4px; right:-6px; background:#ef4444; color:white; font-size:9px; font-weight:800; width:14px; height:14px; border-radius:50%; display:grid; place-items:center;">1</span>
+            </span>
+
+            <!-- Notifications Dropdown -->
+            <div id="notificationsDropdown" class="hidden" style="position:absolute; top:36px; right:-20px; width:270px; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:16px; box-shadow:0 14px 35px rgba(0,0,0,0.5); z-index:1000; overflow:hidden; text-align:left; color:#fff;">
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid rgba(255,255,255,0.1);">
+                <span style="font-size:12px; font-weight:700; color:#fff;">Notifications</span>
+                <span style="font-size:11px; background:#1e293b; color:#94a3b8; font-weight:800; padding:1px 6px; border-radius:10px;">1</span>
+              </div>
+              <div style="padding:12px 16px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;" id="notifRowItem">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <div style="position:relative; width:34px; height:34px; border-radius:50%; overflow:hidden; background:#1e293b; display:grid; place-items:center; color:white; font-size:11px; font-weight:700;" id="notifAvatar">
+                    AK
+                  </div>
+                  <div>
+                    <div style="font-size:11px; color:#94a3b8; font-weight:600;">Instagram &bull; Check ready</div>
+                    <strong style="font-size:12px; color:#fff;" id="notifUsername">himmuydv_.65</strong>
+                  </div>
+                </div>
+                <span style="font-size:16px; color:#94a3b8;">&rsaquo;</span>
+              </div>
+              <div style="padding:0 12px 12px;">
+                <button type="button" id="notifUnlockBtn" style="width:100%; background:linear-gradient(135deg, #9333ea, #ec4899); color:white; border:none; border-radius:10px; padding:10px; font-size:12px; font-weight:700; cursor:pointer;">
+                  Unlock full access
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Theme Switcher for Dashboard -->
+          <button type="button" id="dashThemeToggleBtn" class="it-theme-toggle-btn" title="Toggle Theme">
+            <span id="dashThemeIcon">☼</span>
+          </button>
+
+          <!-- Google Sign-In Button Container for Dashboard -->
+          <div id="dashGoogleAuthBtnWrapper">
+            <button type="button" id="dashGoogleSignInBtn" class="it-google-signin-btn" style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:middle;">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              Sign in with Google
+            </button>
+          </div>
+
+          <!-- Logged In User Dropdown for Dashboard -->
+          <div id="dashLoggedInUserMenu" class="hidden" style="position:relative;">
+            <div id="dashUserProfileChip" style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:30px; padding:4px 12px 4px 6px; cursor:pointer;">
+              <img id="dashUserAvatarImg" src="" alt="User" style="width:24px; height:24px; border-radius:50%; display:none; object-fit:cover;" />
+              <div id="dashUserAvatarPlaceholder" style="width:24px; height:24px; border-radius:50%; background:linear-gradient(135deg, #ec4899, #9333ea); color:#fff; font-size:11px; font-weight:800; display:grid; place-items:center;">U</div>
+              <span id="dashUserDisplayName" style="font-size:13px; font-weight:700; color:#fff;">User</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </div>
+
+            <div id="dashUserProfileDropdown" class="hidden" style="position:absolute; top:42px; right:0; width:220px; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:14px; box-shadow:0 14px 35px rgba(0,0,0,0.6); padding:12px; z-index:1000;">
+              <div style="padding-bottom:8px; margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.1);">
+                <strong id="dashDropdownUserName" style="display:block; font-size:13px; color:#fff;">User</strong>
+                <span id="dashDropdownUserEmail" style="font-size:11px; color:#94a3b8;">user@gmail.com</span>
+              </div>
+              <button type="button" id="dashGoogleSignOutBtn" style="width:100%; text-align:left; background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.25); border-radius:8px; padding:6px 10px; font-size:12px; font-weight:700; cursor:pointer;">
+                Sign out
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- Processing Page Main Container -->
+    <div class="dashboard-page-container">
+      
+      <!-- Top Target Notification Banner -->
+      <div id="topTargetBanner" class="hidden dash-top-banner">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="color:#22c55e; font-size:16px;">⏱</span>
+          <span id="bannerUserAvatar" style="width:30px; height:30px; border-radius:50%; overflow:hidden; background:#1e1328; color:white; display:grid; place-items:center; font-size:11px;">AK</span>
+          <strong id="bannerTargetHandle" class="banner-pill-text">@himmuydv_.65</strong>
+          <span id="bannerTargetName" class="banner-target-name">Arjun Kumar</span>
+          <span id="bannerSizeBadge" class="banner-size-pill">Size: 2.8 GB</span>
+        </div>
+      </div>
+
+      <!-- Instagram Creator Insights Dashboard Layout -->
+      <div style="max-width:1280px; margin:0 auto; padding:24px 20px;">
+        
+        <!-- Breadcrumb & Top Bar -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:16px;">
+          <div class="breadcrumb-back" id="backToLandingBtn" style="cursor:pointer; display:inline-flex; align-items:center; gap:8px; color:#f472b6; font-weight:700; font-size:13px;">
+            &lsaquo; BACK TO SEARCH
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:12px; color:#94a3b8; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:6px 14px;">
+              ⚡ Profile Intelligence Engine
+            </span>
+            <button type="button" id="refreshInsightsBtn" style="background:linear-gradient(135deg, #ec4899, #9333ea); color:white; border:none; border-radius:20px; padding:6px 16px; font-size:12px; font-weight:700; cursor:pointer;">
+              ↻ Re-analyze
+            </button>
+          </div>
+        </div>
+
+        <!-- Creator Profile Hero Header Card -->
+        <div style="background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(9,13,26,0.95)); border:1.5px solid rgba(236,72,153,0.35); border-radius:24px; padding:28px; margin-bottom:24px; box-shadow:0 20px 50px rgba(0,0,0,0.5);">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px;">
+            
+            <div style="display:flex; align-items:center; gap:20px;">
+              <div id="insightsUserAvatar" style="width:84px; height:84px; border-radius:50%; overflow:hidden; border:3px solid #ec4899; box-shadow:0 0 25px rgba(236,72,153,0.5); flex-shrink:0;">
+                <img src="" alt="Avatar" id="insightsAvatarImg" style="width:100%; height:100%; object-fit:cover; display:none;" />
+                <div id="insightsAvatarInitials" style="width:100%; height:100%; display:grid; place-items:center; background:linear-gradient(135deg, #ec4899, #9333ea); color:#fff; font-size:26px; font-weight:800;">HY</div>
+              </div>
+
+              <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <h2 id="insightsDisplayName" style="font-size:24px; font-weight:900; color:#ffffff; margin:0;">Himanshu Yadav</h2>
+                  <span id="insightsVerifiedBadge" style="color:#38bdf8; font-size:18px;" title="Verified Account">✓</span>
+                </div>
+                <div style="font-size:14px; font-weight:700; color:#f472b6; margin-top:2px;" id="insightsUsername">@himuyadav.in</div>
+                <p id="insightsBio" style="font-size:13px; color:#cbd5e1; margin:8px 0 0 0; max-width:600px; line-height:1.5;">
+                  Digital creator &amp; software engineer • Building modern scalable web &amp; cybersecurity platforms.
+                </p>
+              </div>
+            </div>
+
+            <!-- Follower & Posts Count Block -->
+            <div style="display:flex; gap:24px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:16px 24px;">
+              <div style="text-align:center;">
+                <div id="insightsFollowers" style="font-size:22px; font-weight:900; color:#ffffff;">12.4K</div>
+                <div style="font-size:11px; color:#94a3b8; font-weight:700; text-transform:uppercase;">Followers</div>
+              </div>
+              <div style="text-align:center; border-left:1px solid rgba(255,255,255,0.1); padding-left:24px;">
+                <div id="insightsFollowing" style="font-size:22px; font-weight:900; color:#ffffff;">420</div>
+                <div style="font-size:11px; color:#94a3b8; font-weight:700; text-transform:uppercase;">Following</div>
+              </div>
+              <div style="text-align:center; border-left:1px solid rgba(255,255,255,0.1); padding-left:24px;">
+                <div id="insightsPosts" style="font-size:22px; font-weight:900; color:#ec4899;">84</div>
+                <div style="font-size:11px; color:#94a3b8; font-weight:700; text-transform:uppercase;">Posts / Reels</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 4 Creator Performance Metric Cards -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:18px; margin-bottom:28px;">
+          
+          <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:12px; font-weight:700; color:#94a3b8; text-transform:uppercase;">Peak Reel Views</span>
+              <span style="font-size:18px;">🔥</span>
+            </div>
+            <div id="mTopViews" style="font-size:28px; font-weight:900; color:#ffffff; margin-top:8px;">1.2M</div>
+            <div style="font-size:12px; color:#22c55e; margin-top:4px; font-weight:700;">#1 Most Viral Reel</div>
+          </div>
+
+          <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:12px; font-weight:700; color:#94a3b8; text-transform:uppercase;">Avg Views / Reel</span>
+              <span style="font-size:18px;">📊</span>
+            </div>
+            <div id="mAvgViews" style="font-size:28px; font-weight:900; color:#38bdf8; margin-top:8px;">48.5K</div>
+            <div style="font-size:12px; color:#94a3b8; margin-top:4px; font-weight:600;">Based on recent 12 reels</div>
+          </div>
+
+          <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:12px; font-weight:700; color:#94a3b8; text-transform:uppercase;">Engagement Rate</span>
+              <span style="font-size:18px;">📈</span>
+            </div>
+            <div id="mEngagementRate" style="font-size:28px; font-weight:900; color:#ec4899; margin-top:8px;">8.4%</div>
+            <div style="font-size:12px; color:#22c55e; margin-top:4px; font-weight:700;">High Creator Benchmark</div>
+          </div>
+
+          <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.08); border-radius:18px; padding:20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:12px; font-weight:700; color:#94a3b8; text-transform:uppercase;">Viral Potential</span>
+              <span style="font-size:18px;">🚀</span>
+            </div>
+            <div id="mViralPotential" style="font-size:28px; font-weight:900; color:#a855f7; margin-top:8px;">96%</div>
+            <div style="font-size:12px; color:#cbd5e1; margin-top:4px; font-weight:600;">Strong algorithm traction</div>
+          </div>
+
+        </div>
+
+        <!-- Section: Top Trending & Most Viewed Reels -->
+        <div style="margin-bottom:36px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+            <div>
+              <h3 style="font-size:22px; font-weight:900; color:#ffffff; margin:0; display:flex; align-items:center; gap:8px;">
+                <span>🔥 Top Trending &amp; Most Viewed Reels</span>
+              </h3>
+              <p style="font-size:13px; color:#94a3b8; margin:4px 0 0 0;">Ranked by highest plays, reach multiplier, and interaction volume.</p>
+            </div>
+          </div>
+
+          <!-- Reels Grid Container -->
+          <div id="insightsReelsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:20px;">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
+        <!-- 2-Column Extra Insights: Content Strategy & Viral Tags -->
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:24px; margin-bottom:40px;">
+          
+          <!-- Viral Hashtags Breakdown -->
+          <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:24px;">
+            <h4 style="font-size:16px; font-weight:800; color:#ffffff; margin-top:0; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+              <span>🏷️ Top Performing Hashtags</span>
+            </h4>
+            <div id="insightsHashtagsList" style="display:flex; flex-direction:column; gap:10px;">
+              <!-- Populated via JS -->
+            </div>
+          </div>
+
+          <!-- Creator Strategy Tips -->
+          <div style="background:rgba(15,23,42,0.85); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:24px;">
+            <h4 style="font-size:16px; font-weight:800; color:#ffffff; margin-top:0; margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+              <span>💡 Algorithmic Growth Recommendations</span>
+            </h4>
+            <div style="display:flex; flex-direction:column; gap:12px; font-size:13px; color:#cbd5e1;">
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px 14px;">
+                <strong style="color:#ffffff; display:block; margin-bottom:2px;">⏰ Optimal Posting Window</strong>
+                <span id="optPostTime">6:30 PM – 9:00 PM IST on weekdays triggers highest immediate watch-time retention.</span>
+              </div>
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px 14px;">
+                <strong style="color:#ffffff; display:block; margin-bottom:2px;">⚡ Audio &amp; Hook Retention</strong>
+                <span>Reels under 30 seconds with immediate text overlay hooks see a 2.4x higher completion rate.</span>
+              </div>
+              <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:12px; padding:12px 14px;">
+                <strong style="color:#ffffff; display:block; margin-bottom:2px;">🔄 Consistency Score</strong>
+                <span id="consistencyScoreVal">Publishing 4-5 high-definition reels weekly keeps explore distribution active.</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Simulated ₹99 Unlock Modal Dialog (Cleanly Isolated) -->
+  <div id="premiumModal" class="modal-backdrop hidden">
+    <div class="modal-content">
+      <button type="button" class="modal-close" id="modalCloseBtn">&times;</button>
+      <div style="font-size:36px; margin-bottom:8px;">⚡</div>
+      <h3 style="font-size:22px; font-weight:800; color:var(--text-heading); margin-bottom:6px;">Unlock Advanced Demo</h3>
+      <div style="font-size:28px; font-weight:900; color:var(--primary-pink); margin-bottom:6px;">₹99</div>
+      <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-bottom:16px;">
+        One-time simulated unlock &bull; Demo mode
+      </div>
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">
+        Click below to simulate a successful unlock and download the complete extracted profile dataset.
+      </p>
+      <button type="button" class="btn-launch" id="modalActionBtn" style="width:100%; padding:14px;">
+        Unlock for ₹99 (Demo)
+      </button>
+      <div style="font-size:11px; color:#94a3b8; margin-top:12px;">
+        * Demo purchase only. No real transaction or payment gateway is contacted.
+      </div>
+    </div>
+  </div>
+
+  <!-- App Script -->
+  <script src="./app.js?v=2"></script>
+  <script>
+    function filterHomeSuite(suite) {
+      const tabAll = document.getElementById('homeTabAll');
+      const tabIg = document.getElementById('homeTabIg');
+      const tabFb = document.getElementById('homeTabFb');
+      const cards = document.querySelectorAll('#homeToolsGrid .feat-tool-card');
+
+      const activeAllStyle = "background:linear-gradient(135deg, #9333ea, #6366f1); color:white; border:none; outline:none; padding:10px 24px; border-radius:30px; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s; box-shadow:0 4px 14px rgba(147,51,234,0.35); font-family:inherit; display:inline-flex; align-items:center; justify-content:center; gap:8px;";
+      const activeIgStyle = "background:linear-gradient(135deg, #e1306c, #f56040); color:white; border:none; outline:none; padding:10px 24px; border-radius:30px; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s; box-shadow:0 4px 14px rgba(225,48,108,0.3); font-family:inherit; display:inline-flex; align-items:center; justify-content:center; gap:8px;";
+      const activeFbStyle = "background:linear-gradient(135deg, #1877f2, #00c6ff); color:white; border:none; outline:none; padding:10px 24px; border-radius:30px; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s; box-shadow:0 4px 14px rgba(24,119,242,0.3); font-family:inherit; display:inline-flex; align-items:center; justify-content:center; gap:8px;";
+      const inactiveStyle = "background:transparent; color:var(--text-muted); border:none; outline:none; padding:10px 24px; border-radius:30px; font-weight:700; font-size:13px; cursor:pointer; transition:all 0.2s; box-shadow:none; font-family:inherit; display:inline-flex; align-items:center; justify-content:center; gap:8px;";
+
+      if (tabAll) tabAll.style.cssText = inactiveStyle;
+      if (tabIg) tabIg.style.cssText = inactiveStyle;
+      if (tabFb) tabFb.style.cssText = inactiveStyle;
+
+      if (suite === 'instagram' && tabIg) {
+        tabIg.style.cssText = activeIgStyle;
+      } else if (suite === 'facebook' && tabFb) {
+        tabFb.style.cssText = activeFbStyle;
+      } else if (tabAll) {
+        tabAll.style.cssText = activeAllStyle;
+      }
+
+      cards.forEach(card => {
+        const s = card.getAttribute('data-suite');
+        if (suite === 'all' || suite === s) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <script>
+    const t = localStorage.getItem("socialvault_theme") || "dark";
+    document.documentElement.setAttribute("data-theme", t);
+  </script>
+  <title>YouTube Shorts Downloader (1080p 60fps MP4 & MP3) - SocialVault</title>
+  <meta name="description" content="Download short-form YouTube Shorts vertical videos in high definition 60fps MP4 format instantly with zero watermark.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./style.css">
+
+  <style>
+    .yt-page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    [data-theme="dark"] .yt-page-wrapper {
+      background: radial-gradient(circle at 15% 15%, rgba(239, 68, 68, 0.2) 0%, transparent 40%),
+                  radial-gradient(circle at 85% 35%, rgba(249, 115, 22, 0.18) 0%, transparent 45%),
+                  radial-gradient(circle at 50% 70%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                  #080c16 !important;
+      color: #f8fafc !important;
+    }
+
+    [data-theme="light"] .yt-page-wrapper {
+      background: radial-gradient(circle at 15% 15%, rgba(239, 68, 68, 0.08) 0%, transparent 40%),
+                  radial-gradient(circle at 85% 35%, rgba(249, 115, 22, 0.08) 0%, transparent 45%),
+                  #f8fafc !important;
+      color: #0f172a !important;
+    }
+
+    .yt-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+      width: 100%;
+    }
+
+    .yt-hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .yt-tool-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: rgba(239, 68, 68, 0.18);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .yt-headline {
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      line-height: 1.15;
+    }
+
+    [data-theme="dark"] .yt-headline {
+      color: #ffffff !important;
+    }
+
+    [data-theme="light"] .yt-headline {
+      color: #0f172a !important;
+    }
+
+    .yt-subhead {
+      font-size: 16px;
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    [data-theme="dark"] .yt-subhead {
+      color: #94a3b8 !important;
+    }
+
+    [data-theme="light"] .yt-subhead {
+      color: #475569 !important;
+    }
+
+    .yt-gradient-text {
+      background: linear-gradient(135deg, #ef4444, #f97316, #ec4899);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Search Card */
+    .yt-search-card {
+      background: var(--card-bg, #0f172a);
+      border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+      margin-bottom: 40px;
+    }
+
+    .yt-input-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    .yt-input-box {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .yt-input-box svg {
+      position: absolute;
+      left: 18px;
+      color: #ef4444;
+      pointer-events: none;
+    }
+
+    .yt-input {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      padding: 16px 110px 16px 52px;
+      font-size: 0.98rem;
+      color: #fff;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    [data-theme="light"] .yt-input {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    .yt-input:focus {
+      outline: none;
+      border-color: #ef4444;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-paste {
+      position: absolute;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    [data-theme="light"] .btn-paste {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-paste:hover {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    .btn-clear-active {
+      background: rgba(239, 68, 68, 0.25) !important;
+      color: #fca5a5 !important;
+      border-color: rgba(239, 68, 68, 0.5) !important;
+    }
+
+    .btn-clear-active:hover {
+      background: #ef4444 !important;
+      color: #ffffff !important;
+      border-color: #ef4444 !important;
+    }
+
+    .yt-btn {
+      background: linear-gradient(135deg, #ef4444, #f97316);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      padding: 16px 32px;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.2s;
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+    }
+
+    .yt-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(239, 68, 68, 0.5);
+    }
+
+    /* Result Card */
+    .yt-result-card {
+      background: var(--card-bg, #0f172a);
+      border: 1px solid var(--border-color, rgba(255,255,255,0.1));
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      margin-top: 24px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-grid-shorts {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .shorts-preview-box {
+      border-radius: 20px;
+      overflow: hidden;
+      background: #000;
+      border: 2px solid rgba(239, 68, 68, 0.3);
+      box-shadow: 0 20px 40px rgba(239, 68, 68, 0.25);
+      position: relative;
+      aspect-ratio: 9/16;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    .shorts-preview-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .shorts-badge-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(239, 68, 68, 0.9);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+      backdrop-filter: blur(4px);
+    }
+
+    .info-box h3 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      line-height: 1.35;
+    }
+
+    .author-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #ef4444;
+      font-weight: 700;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+      text-decoration: none;
+    }
+
+    .btn-dl-main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #ef4444, #ec4899);
+      color: #fff;
+      text-decoration: none;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      box-shadow: 0 10px 25px rgba(239, 68, 68, 0.35);
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .btn-dl-main:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(239, 68, 68, 0.5);
+    }
+
+    .btn-dl-sec {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      text-decoration: none;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    [data-theme="light"] .btn-dl-sec {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    .btn-dl-sec:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    .loading-state {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid rgba(239, 68, 68, 0.2);
+      border-top-color: #ef4444;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 820px) {
+      .result-grid-shorts { grid-template-columns: 1fr; }
+      .yt-headline { font-size: 32px; }
+      .yt-input-row { flex-direction: column; }
+      .yt-btn { width: 100%; justify-content: center; }
+    }
+
+    /* Animated Video Showcase Loop (3 Frames) */
+    @keyframes ytShorts3Loop {
+      0% { opacity: 0; transform: scale(1.0); }
+      4% { opacity: 1; transform: scale(1.02); }
+      29% { opacity: 1; transform: scale(1.06) translateY(-2px); }
+      33% { opacity: 0; transform: scale(1.08); }
+      100% { opacity: 0; transform: scale(1.0); }
+    }
+
+    @keyframes pulsePlayRed {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 25px rgba(239, 68, 68, 0.6); }
+      50% { transform: translate(-50%, -50%) scale(1.08); box-shadow: 0 0 45px rgba(249, 115, 22, 0.9); }
+    }
+
+    @keyframes ytProgressBar {
+      0% { width: 0%; }
+      100% { width: 100%; }
+    }
+
+    @keyframes floatReaction {
+      0% { transform: translateY(0) scale(0.8); opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 0.9; }
+      100% { transform: translateY(-70px) scale(1.2); opacity: 0; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="yt-page-wrapper">
+
+    <!-- Standard Header / Nav -->
+    <nav class="it-navbar">
+      <div class="it-nav-container">
+        
+        <!-- Logo -->
+        <a href="./index.html" class="it-brand-logo">
+          <div class="it-logo-icon" style="background: linear-gradient(135deg, #ef4444, #f97316);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <span class="it-brand-title"><span class="it-title-pink">Social</span><span class="it-title-orange">Vault</span></span>
+        </a>
+
+        <!-- Center Links -->
+        <ul class="it-nav-menu">
+          <li><a href="./index.html" class="it-nav-item">Home</a></li>
+          <li><a href="./features.html" class="it-nav-item active">Features</a></li>
+          <li><a href="./faq.html" class="it-nav-item">FAQ</a></li>
+        </ul>
+
+        <!-- Right Side -->
+        <div class="it-nav-actions">
+          <button id="themeToggleBtn" class="it-theme-toggle-btn" title="Toggle Theme">
+            <span id="themeIcon">☼</span>
+          </button>
+
+          <!-- Google Sign-In Button Container -->
+          <div id="googleAuthBtnWrapper">
+            <button type="button" id="googleSignInBtn" class="it-google-signin-btn" style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:middle;">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              Sign in with Google
+            </button>
+          </div>
+
+          <!-- Logged In User Profile Menu -->
+          <div id="loggedInUserMenu" class="hidden" style="position:relative;">
+            <div id="userProfileChip" style="display:flex; align-items:center; gap:8px; padding:4px 12px 4px 6px; border-radius:30px; cursor:pointer;">
+              <img id="userAvatarImg" src="" alt="Avatar" style="width:26px; height:26px; border-radius:50%; object-fit:cover; display:none;">
+              <div id="userAvatarPlaceholder" style="width:26px; height:26px; border-radius:50%; background:#ef4444; color:white; font-size:11px; font-weight:800; display:grid; place-items:center;">U</div>
+              <span id="userDisplayName" style="font-size:12px; font-weight:700; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">User</span>
+              <span style="font-size:10px; color:#cbd5e1;">▼</span>
+            </div>
+
+            <!-- Profile Dropdown -->
+            <div id="userProfileDropdown" class="hidden" style="position:absolute; top:42px; right:0; width:230px; border-radius:14px; padding:14px; z-index:1000; text-align:left;">
+              <div style="padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:10px;">
+                <strong id="dropdownUserName" style="font-size:13px; display:block;">User</strong>
+                <div id="dropdownUserEmail" style="font-size:11px; word-break:break-all; margin-top:2px;">user@gmail.com</div>
+              </div>
+              <button type="button" id="googleSignOutBtn" style="width:100%; background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:8px; font-size:12px; font-weight:700; cursor:pointer;">
+                Sign Out
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="yt-container">
+      <div class="yt-hero">
+        <div class="yt-tool-pill">
+          <span>⚡ YouTube Shorts Downloader</span>
+        </div>
+        <h1 class="yt-headline">
+          YouTube Shorts <span class="yt-gradient-text">Downloader</span>
+        </h1>
+        <p class="yt-subhead">
+          Download YouTube Shorts clips, vertical videos, 1080p 60fps MP4 files, and 320kbps MP3 audio instantly without watermark or login.
+        </p>
+      </div>
+
+
+
+      <div class="yt-search-card">
+        <form id="ytForm" onsubmit="handleExtract(event)">
+          <div class="yt-input-row">
+            <div class="yt-input-box">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+              <input type="text" id="ytInput" class="yt-input" placeholder="Paste YouTube Shorts link (e.g. youtube.com/shorts/...)..." required autocomplete="off" oninput="updatePasteBtnState('ytInput', 'btnPaste')">
+              <button type="button" id="btnPaste" class="btn-paste" onclick="handlePasteOrClear('ytInput', 'btnPaste')">Paste</button>
+            </div>
+            <button type="submit" class="yt-btn" id="btnExtract">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Shorts
+            </button>
+          </div>
+        </form>
+
+        <div id="errorAlert" style="display: none; margin-top: 20px; padding: 14px 18px; border-radius: 14px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; font-size: 0.9rem;"></div>
+      </div>
+
+      <!-- Loading State -->
+      <div id="loadingState" class="loading-state">
+        <div class="spinner"></div>
+        <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--text-heading, #ffffff); margin-bottom: 6px;">Please wait...</h3>
+        <p style="font-size: 0.9rem; color: var(--text-muted, #94a3b8);">Processing Vertical 60fps HD Video Stream...</p>
+      </div>
+
+      <!-- Result Container -->
+      <div id="resultContainer" style="display: none;">
+        <div class="yt-result-card">
+          <div class="result-grid-shorts">
+            <div class="shorts-preview-box">
+              <span class="shorts-badge-overlay">⚡ SHORTS 1080p</span>
+              <img id="resThumbnail" src="" alt="Shorts Thumbnail">
+            </div>
+
+            <div class="info-box">
+              <a id="resAuthorUrl" href="#" target="_blank" class="author-badge">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                <span id="resAuthor">YouTube Channel</span>
+              </a>
+
+              <h3 id="resTitle">YouTube Shorts Video Title</h3>
+
+              <div style="margin-top: 24px; display:flex; flex-direction:column; gap:12px;">
+                <a id="btnDownloadHd" href="#" class="btn-dl-main">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Download Shorts Video (1080p MP4)
+                </a>
+
+                <a id="btnDownloadMp3" href="#" class="btn-dl-sec">
+                  🎵 Download Shorts Audio (MP3 320kbps)
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3 Feature Highlight Boxes -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:20px; max-width:960px; margin:36px auto 0; width:100%;">
+        <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
+          <div style="font-size:28px; margin-bottom:8px;">📱</div>
+          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Original 1080p 60fps</strong>
+          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Download viral YouTube Shorts in native vertical 9:16 aspect ratio at maximum 60fps quality.</span>
+        </div>
+        <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
+          <div style="font-size:28px; margin-bottom:8px;">🔇</div>
+          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Zero Watermark &amp; Clean Audio</strong>
+          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Clean video streams without overlays, channel stamps, or compression artifacts.</span>
+        </div>
+        <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
+          <div style="font-size:28px; margin-bottom:8px;">⚡</div>
+          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Universal Device Support</strong>
+          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Download directly to iPhone Camera Roll, Android Gallery, Windows, and Mac in 1-click.</span>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="it-landing-footer">
+      <div class="it-footer-content">
+        <div class="it-footer-left">
+          <span style="font-weight:800; font-size:16px; color:var(--text-heading);">SocialVault</span>
+          <span style="font-size:12px; color:var(--text-muted); margin-left:12px;">&copy; 2026 SocialVault Systems Inc. All rights reserved.</span>
+        </div>
+        <div class="it-footer-links">
+          <a href="./index.html">Home</a>
+          <a href="./features.html">Features</a>
+          <a href="./youtube-shorts-downloader.html">Shorts Downloader</a>
+          <a href="./youtube-video-downloader.html">YouTube Downloader</a>
+          <a href="./reel-downloader.html">Reel Downloader</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="./auth-shared.js"></script>
+
+  <script>
+    // Theme toggle handler
+    const themeBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+
+    function updateThemeUI(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('socialvault_theme', theme);
+      if (themeIcon) {
+        themeIcon.textContent = theme === 'dark' ? '☼' : '☽';
+      }
+    }
+
+    updateThemeUI(t);
+
+    themeBtn?.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      updateThemeUI(next);
+    });
+
+    function updatePasteBtnState(inputId = 'ytInput', btnId = 'btnPaste') {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!input || !btn) return;
+      const hasText = input.value.trim().length > 0;
+      if (hasText) {
+        btn.innerHTML = '✕ Clear';
+        btn.classList.add('btn-clear-active');
+        btn.title = 'Clear / Cut link';
+      } else {
+        btn.innerHTML = 'Paste';
+        btn.classList.remove('btn-clear-active');
+        btn.title = 'Paste from clipboard';
+      }
+    }
+
+    async function handlePasteOrClear(inputId = 'ytInput', btnId = 'btnPaste') {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!input) return;
+      if (input.value.trim().length > 0) {
+        input.value = '';
+        input.focus();
+        updatePasteBtnState(inputId, btnId);
+      } else {
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text) {
+            input.value = text.trim();
+            updatePasteBtnState(inputId, btnId);
+          }
+        } catch (err) {}
+      }
+    }
+
+    async function handleExtract(event) {
+      event.preventDefault();
+      const inputVal = document.getElementById('ytInput').value.trim();
+      const errorAlert = document.getElementById('errorAlert');
+      const loadingState = document.getElementById('loadingState');
+      const resultContainer = document.getElementById('resultContainer');
+      const btnExtract = document.getElementById('btnExtract');
+
+      errorAlert.style.display = 'none';
+      resultContainer.style.display = 'none';
+      loadingState.style.display = 'block';
+      btnExtract.disabled = true;
+
+      try {
+        const apiBase = (window.location.port === '3000' || (!window.location.port && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
+          ? ''
+          : 'http://localhost:3000';
+
+        const res = await fetch(`${apiBase}/api/analysis/youtube-shorts`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: inputVal })
+        });
+
+        let data;
+        try {
+          data = await res.json();
+        } catch (jsonErr) {
+          throw new Error("⚠️ Server Error: Could not connect to Express backend. Please ensure Node server is active on http://localhost:3000.");
+        }
+
+        loadingState.style.display = 'none';
+        btnExtract.disabled = false;
+
+        if (!res.ok || data.status === 'error') {
+          errorAlert.innerText = data.error || 'Failed to extract YouTube Shorts video.';
+          errorAlert.style.display = 'block';
+          return;
+        }
+
+        window.currentYtData = data;
+        document.getElementById('resThumbnail').src = data.thumbnail;
+        document.getElementById('resTitle').innerText = data.title;
+        document.getElementById('resAuthor').innerText = data.author;
+        document.getElementById('resAuthorUrl').href = data.authorUrl;
+
+        const cleanTitle = (data.title || 'youtube_shorts').replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 50);
+        
+        const btnHd = document.getElementById('btnDownloadHd');
+        const btnMp3 = document.getElementById('btnDownloadMp3');
+
+        // 1080p MP4 Shorts Video Downloader
+        if (data.downloadUrl && data.downloadUrl.startsWith('http')) {
+          btnHd.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent(data.downloadUrl)}&filename=${cleanTitle}_shorts_1080p.mp4&type=video`;
+          btnHd.setAttribute('download', `${cleanTitle}_shorts_1080p.mp4`);
+        } else if (data.videoId) {
+          btnHd.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent('https://www.youtube.com/watch?v=' + data.videoId)}&filename=${cleanTitle}_shorts_1080p.mp4&type=video`;
+          btnHd.setAttribute('download', `${cleanTitle}_shorts_1080p.mp4`);
+        }
+
+        // 320kbps MP3 Audio Downloader
+        if (data.audioUrl && data.audioUrl.startsWith('http')) {
+          btnMp3.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent(data.audioUrl)}&filename=${cleanTitle}_shorts_audio.mp3&type=audio`;
+          btnMp3.setAttribute('download', `${cleanTitle}_shorts_audio.mp3`);
+        } else if (data.videoId) {
+          btnMp3.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent('https://www.youtube.com/watch?v=' + data.videoId)}&filename=${cleanTitle}_shorts_audio.mp3&type=audio`;
+          btnMp3.setAttribute('download', `${cleanTitle}_shorts_audio.mp3`);
+        }
+
+        resultContainer.style.display = 'block';
+      } catch (err) {
+        loadingState.style.display = 'none';
+        btnExtract.disabled = false;
+        errorAlert.innerText = 'Network connection error: ' + err.message;
+        errorAlert.style.display = 'block';
+      }
+    }
+
+    function triggerDirectDownload(url, filename) {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.target = '_self';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => a.remove(), 1000);
+    }
+
+    document.getElementById('btnDownloadHd')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const href = e.currentTarget.getAttribute('href');
+      if (href && href !== '#') {
+        const fn = e.currentTarget.getAttribute('download') || 'youtube_shorts_1080p.mp4';
+        triggerDirectDownload(href, fn);
+      }
+    });
+
+    document.getElementById('btnDownloadMp3')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const href = e.currentTarget.getAttribute('href');
+      if (href && href !== '#') {
+        const fn = e.currentTarget.getAttribute('download') || 'youtube_shorts_audio.mp3';
+        triggerDirectDownload(href, fn);
+      }
+    });
+  </script>
+</body>
+</html>

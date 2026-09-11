@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <script>
+    const t = localStorage.getItem("socialvault_theme") || "dark";
+    document.documentElement.setAttribute("data-theme", t);
+  </script>
+  <title>Instagram Reel, Photo &amp; Post Downloader — SocialVault</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./style.css">
+
+  <style>
+    .rd-page-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    [data-theme="dark"] .rd-page-wrapper {
+      background: radial-gradient(circle at 15% 15%, rgba(147, 51, 234, 0.22) 0%, transparent 40%),
+        radial-gradient(circle at 85% 35%, rgba(236, 72, 153, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 50% 70%, rgba(147, 51, 234, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 90%, rgba(234, 88, 12, 0.15) 0%, transparent 45%),
+        #080c16 !important;
+      color: #f8fafc !important;
+    }
+
+    [data-theme="light"] .rd-page-wrapper {
+      background: radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 85% 35%, rgba(168, 85, 247, 0.1) 0%, transparent 45%),
+        #f8fafc !important;
+      color: #0f172a !important;
+    }
+
+    .rd-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+      width: 100%;
+    }
+
+    .rd-hero {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .rd-tool-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      background: rgba(236, 72, 153, 0.15);
+      border: 1px solid rgba(236, 72, 153, 0.35);
+      color: #f472b6;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .rd-headline {
+      font-size: 42px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      line-height: 1.15;
+    }
+
+    [data-theme="dark"] .rd-headline {
+      color: #ffffff !important;
+    }
+
+    [data-theme="light"] .rd-headline {
+      color: #0f172a !important;
+    }
+
+    .rd-subhead {
+      font-size: 16px;
+      max-width: 660px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    [data-theme="dark"] .rd-subhead {
+      color: #94a3b8 !important;
+    }
+
+    [data-theme="light"] .rd-subhead {
+      color: #475569 !important;
+    }
+
+    /* Downloader Card */
+    .rd-search-card {
+      border-radius: 22px;
+      padding: 26px;
+      margin-bottom: 36px;
+    }
+
+    [data-theme="dark"] .rd-search-card {
+      background: rgba(15, 23, 42, 0.75) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45) !important;
+      backdrop-filter: blur(16px);
+    }
+
+    [data-theme="light"] .rd-search-card {
+      background: #ffffff !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06) !important;
+    }
+
+    .rd-form {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .rd-input-wrap {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .rd-link-icon {
+      position: absolute;
+      left: 18px;
+      color: #ec4899;
+      pointer-events: none;
+    }
+
+    .rd-input {
+      width: 100%;
+      height: 56px;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    [data-theme="dark"] .rd-input {
+      background: #090e1a !important;
+      color: #ffffff !important;
+      border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    }
+
+    [data-theme="light"] .rd-input {
+      background: #f1f5f9 !important;
+      color: #0f172a !important;
+      border: 1.5px solid #cbd5e1 !important;
+    }
+
+    .rd-input:focus {
+      border-color: #ec4899;
+      box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.25);
+    }
+
+    .rd-result-card,
+    .rd-info-box {
+      background: rgba(15, 23, 42, 0.75) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      color: #ffffff !important;
+      backdrop-filter: blur(16px);
+    }
+
+    .rd-paste-btn {
+      position: absolute;
+      right: 12px;
+      background: rgba(236, 72, 153, 0.12);
+      color: #df367c;
+      border: 1px solid rgba(236, 72, 153, 0.25);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .rd-paste-btn:hover {
+      background: #ec4899;
+      color: #fff;
+    }
+
+    .btn-clear-active {
+      background: rgba(239, 68, 68, 0.18) !important;
+      color: #fca5a5 !important;
+      border-color: rgba(239, 68, 68, 0.4) !important;
+    }
+
+    .btn-clear-active:hover {
+      background: #ef4444 !important;
+      color: #ffffff !important;
+      border-color: #ef4444 !important;
+    }
+
+    .rd-submit-btn {
+      height: 56px;
+      padding: 0 28px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #df367c, #9333ea);
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .rd-submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(223, 54, 124, 0.35);
+    }
+
+    /* Demo Quick Reel Links */
+    .rd-samples-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .rd-sample-chip {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .rd-sample-chip:hover {
+      border-color: #ec4899;
+      color: #df367c;
+      background: rgba(236, 72, 153, 0.1);
+    }
+
+    /* Result Preview Container */
+    .rd-result-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.06);
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .rd-media-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    @media (max-width: 900px) {
+      .rd-media-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .rd-form {
+        flex-direction: column;
+      }
+
+      .rd-submit-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    .rd-preview-box {
+      border-radius: 20px;
+      overflow: hidden;
+      background: #070a13;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      position: relative;
+      width: 100%;
+      min-height: 420px;
+      max-height: 520px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .rd-preview-img {
+      max-width: 100%;
+      height: auto;
+      max-height: 500px;
+      object-fit: contain; /* Full post visible with NO cropping */
+      display: block;
+      margin: 0 auto;
+      border-radius: 16px;
+    }
+
+    .rd-float-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 900;
+      display: none;
+      place-items: center;
+      cursor: pointer;
+      z-index: 10;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s ease;
+    }
+
+    .rd-float-arrow:hover {
+      background: #ec4899;
+      border-color: #ec4899;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .rd-float-prev {
+      left: 12px;
+    }
+
+    .rd-float-next {
+      right: 12px;
+    }
+
+    .rd-float-badge {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      z-index: 10;
+      display: none;
+    }
+
+    .rd-play-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.65);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      display: none;
+      place-items: center;
+      color: #fff;
+      font-size: 22px;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+    }
+
+    /* Action Download Buttons */
+    .rd-actions-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .rd-btn-download-hd {
+      background: linear-gradient(135deg, #df367c, #9333ea);
+      color: #ffffff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 22px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .rd-btn-download-hd:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(223, 54, 124, 0.35);
+    }
+
+    .rd-btn-sec {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #ffffff !important;
+      border-radius: 12px;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .rd-btn-sec:hover {
+      border-color: #ec4899;
+      color: #ffffff !important;
+      background: rgba(236, 72, 153, 0.25);
+    }
+
+    /* Feature Highlights */
+    .rd-features-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 50px;
+    }
+
+    @media (max-width: 720px) {
+      .rd-features-3col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .rd-f-box {
+      background: var(--card-bg, #ffffff) !important;
+      border: 1px solid var(--border-color, rgba(0, 0, 0, 0.08)) !important;
+      border-radius: 18px;
+      padding: 26px 22px;
+      text-align: center;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      transition: all 0.3s ease;
+    }
+
+    [data-theme="dark"] .rd-f-box {
+      background: rgba(15, 23, 42, 0.75) !important;
+      border: 1px solid rgba(255, 255, 255, 0.12) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    [data-theme="light"] .rd-f-box {
+      background: #ffffff !important;
+      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .rd-f-box strong {
+      color: var(--text-heading, #0f172a) !important;
+    }
+
+    .rd-f-box span {
+      color: var(--text-muted, #64748b) !important;
+    }
+
+    /* Toast */
+    #rdToast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 9999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #rdToast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="rd-page-wrapper">
+
+    <!-- Top Navigation Bar -->
+    <nav class="it-navbar">
+      <div class="it-nav-container">
+
+        <!-- Logo -->
+        <a href="./index.html" class="it-brand-logo">
+          <div class="it-logo-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </div>
+          <span class="it-brand-title"><span class="it-title-pink">Social</span><span
+              class="it-title-orange">Vault</span></span>
+        </a>
+
+        <!-- Center Links -->
+        <ul class="it-nav-menu">
+          <li><a href="./index.html" class="it-nav-item">Home</a></li>
+          <li><a href="./features.html" class="it-nav-item">Features</a></li>
+          <li><a href="./faq.html" class="it-nav-item">FAQ</a></li>
+        </ul>
+
+        <!-- Right Side -->
+        <div class="it-nav-actions">
+          <button id="themeToggleBtn" class="it-theme-toggle-btn" title="Toggle Theme">
+            <span id="themeIcon">☼</span>
+          </button>
+
+          <!-- Google Sign-In Button Container -->
+          <div id="googleAuthBtnWrapper">
+            <button type="button" id="googleSignInBtn" class="it-google-signin-btn" style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:middle;">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              Sign in with Google
+            </button>
+          </div>
+
+          <!-- Logged In User Profile Menu -->
+          <div id="loggedInUserMenu" class="hidden" style="position:relative;">
+            <div id="userProfileChip" style="display:flex; align-items:center; gap:8px; padding:4px 12px 4px 6px; border-radius:30px; cursor:pointer;">
+              <img id="userAvatarImg" src="" alt="Avatar" style="width:26px; height:26px; border-radius:50%; object-fit:cover; display:none;">
+              <div id="userAvatarPlaceholder" style="width:26px; height:26px; border-radius:50%; background:#9333ea; color:white; font-size:11px; font-weight:800; display:grid; place-items:center;">U</div>
+              <span id="userDisplayName" style="font-size:12px; font-weight:700; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">User</span>
+              <span style="font-size:10px; color:#cbd5e1;">▼</span>
+            </div>
+
+            <!-- Profile Dropdown -->
+            <div id="userProfileDropdown" class="hidden" style="position:absolute; top:42px; right:0; width:230px; border-radius:14px; padding:14px; z-index:1000; text-align:left;">
+              <div style="padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:10px;">
+                <strong id="dropdownUserName" style="font-size:13px; display:block;">User</strong>
+                <div id="dropdownUserEmail" style="font-size:11px; word-break:break-all; margin-top:2px;">user@gmail.com</div>
+              </div>
+              <button type="button" id="googleSignOutBtn" style="width:100%; background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:8px; font-size:12px; font-weight:700; cursor:pointer;">
+                Sign Out
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="rd-container">
+
+      <!-- Hero -->
+      <div class="rd-hero">
+        <div class="rd-tool-pill">
+          <span>📸 High-Speed Reel, Photo &amp; Post Extraction Engine</span>
+        </div>
+        <h1 class="rd-headline">
+          Instagram <span class="it-title-pink">Reel, Photo &amp; Post</span> Downloader
+        </h1>
+        <p class="rd-subhead">
+          Download Instagram Reels, HD Photos, Carousel Posts, Videos, and Stories in crystal-clear Full HD 1080p without
+          watermark. 100% Free &amp; Unlimited.
+        </p>
+      </div>
+
+      <!-- Downloader Form Card -->
+      <div class="rd-search-card">
+        <form id="reelForm" class="rd-form" style="flex-direction: column; align-items: stretch; gap: 14px;">
+          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <div class="rd-input-wrap" style="position:relative; flex:1;">
+              <svg class="rd-link-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2.2">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+              </svg>
+              <input type="text" id="reelUrlInput" class="rd-input" style="padding: 0 95px 0 48px;"
+                placeholder="Paste Instagram Reel, Photo or Post link" autocomplete="off" required oninput="updatePasteBtnState('reelUrlInput', 'pasteBtn')" />
+              <button type="button" id="pasteBtn" class="rd-paste-btn" onclick="handlePasteOrClear('reelUrlInput', 'pasteBtn')">Paste</button>
+            </div>
+
+            <button type="submit" id="fetchReelBtn" class="rd-submit-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Get Media</span>
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Loading State -->
+      <div id="reelLoadingState" class="hidden" style="text-align:center; padding:50px 20px;">
+        <div
+          style="width:52px; height:52px; border:4px solid rgba(236,72,153,0.2); border-top-color:#ec4899; border-radius:50%; margin:0 auto 18px; animation:spin 0.8s linear infinite; box-shadow:0 0 25px rgba(236,72,153,0.4);">
+        </div>
+        <h3 style="font-size:22px; font-weight:800; color:var(--text-heading, #ffffff) !important; margin-bottom:6px;">Please wait...</h3>
+        <p style="font-size:14px; color:var(--text-muted, #94a3b8) !important;">Extracting HD Media Streams &amp; Generating Direct Download Mirrors...</p>
+      </div>
+
+      <!-- Result Card -->
+      <div id="reelResultCard" class="rd-result-card hidden">
+        <div class="rd-media-grid">
+
+          <!-- Media Player Preview -->
+          <div class="rd-preview-box">
+            <img id="reelCoverImg" class="rd-preview-img" referrerpolicy="no-referrer"
+              src="https://images.unsplash.com/photo-1682687220063-4742bd7fd538?w=600&auto=format&fit=crop&q=80"
+              alt="Media Preview">
+            <video id="reelVideoPlayer" controls playsinline style="display:none; max-width:100%; height:auto; max-height:500px; object-fit:contain; border-radius:16px; margin: 0 auto;"></video>
+            
+            <!-- Floating Navigation Controls on Preview -->
+            <button type="button" class="rd-float-arrow rd-float-prev" id="floatPrevBtn" onclick="prevSlide()" title="Previous Slide">◀</button>
+            <button type="button" class="rd-float-arrow rd-float-next" id="floatNextBtn" onclick="nextSlide()" title="Next Slide">▶</button>
+            <span class="rd-float-badge" id="floatSlideBadge">1 / 7</span>
+
+            <div class="rd-play-overlay" title="Play Preview">▶</div>
+          </div>
+
+          <!-- Media Info & Download Buttons -->
+          <div class="rd-actions-col">
+
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+              <span
+                style="font-size:11px; font-weight:800; background:rgba(34,197,94,0.2); color:#4ade80; border:1px solid rgba(34,197,94,0.35); padding:4px 10px; border-radius:6px;">
+                ● HD STREAM READY
+              </span>
+              <span id="reelDurationBadge" style="font-size:12px; font-weight:700; color:#cbd5e1;">
+                Duration: 0:34 • 1080p 60fps
+              </span>
+            </div>
+
+            <div>
+              <h2 id="reelAuthorHandle"
+                style="font-size:22px; font-weight:900; color:#ffffff !important; margin-bottom:6px;">
+                @nature.explorers
+              </h2>
+              <p id="reelCaptionText"
+                style="font-size:14px; line-height:1.6; color:#e2e8f0 !important; font-weight:500;">
+                Golden hour in the Norwegian Fjords 🏔️ Experience pure serenity. #travel #nature #norway #reels
+              </p>
+            </div>
+
+            <!-- Stats Bar -->
+            <div
+              style="display:flex; gap:24px; padding:14px 18px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:14px;">
+              <div>
+                <span
+                  style="font-size:11px; color:#94a3b8 !important; font-weight:700; display:block; letter-spacing:0.5px;">LIKES</span>
+                <strong id="reelLikesCount"
+                  style="font-size:18px; font-weight:900; color:#ffffff !important;">148.5K</strong>
+              </div>
+              <div>
+                <span
+                  style="font-size:11px; color:#94a3b8 !important; font-weight:700; display:block; letter-spacing:0.5px;">COMMENTS</span>
+                <strong id="reelCommentsCount"
+                  style="font-size:18px; font-weight:900; color:#ffffff !important;">1,240</strong>
+              </div>
+              <div>
+                <span
+                  style="font-size:11px; color:#94a3b8 !important; font-weight:700; display:block; letter-spacing:0.5px;">FILE
+                  SIZE</span>
+                <strong id="reelFileSize" style="font-size:18px; font-weight:900; color:#ffffff !important;">18.4
+                  MB</strong>
+              </div>
+            </div>
+
+            <!-- Download Buttons -->
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+              <button type="button" class="rd-btn-download-hd" id="btnDownloadMp4" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span id="dlBtnMainText">Download Video (1080p MP4)</span>
+              </button>
+
+              <button type="button" class="rd-btn-sec" id="btnDownloadAudio" style="display:flex; align-items:center; justify-content:center; gap:8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M9 18V5l12-2v13"></path>
+                  <circle cx="6" cy="18" r="3"></circle>
+                  <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+                <span>Download Audio (MP3)</span>
+              </button>
+            </div>
+
+            <!-- Multi-Slide Carousel Navigation Box (Clean, No small thumbnails) -->
+            <div id="carouselNavBox" style="display:none; flex-direction:column; gap:10px; margin-top:14px; padding:14px 16px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); border-radius:16px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <button type="button" id="btnPrevSlide" onclick="prevSlide()" style="padding:8px 18px; border-radius:10px; font-size:13px; font-weight:800; border:none; cursor:pointer; background:linear-gradient(135deg,rgba(236,72,153,0.3),rgba(147,51,234,0.3)); border:1px solid rgba(236,72,153,0.5); color:#fff; transition:all 0.2s;">
+                  ◀ Previous
+                </button>
+                <span id="carouselSlideCounter" style="font-size:14px; font-weight:800; color:#f472b6; letter-spacing:0.5px; text-align:center;">
+                  Slide 1 of 7 (🖼️ HD Photo)
+                </span>
+                <button type="button" id="btnNextSlide" onclick="nextSlide()" style="padding:8px 18px; border-radius:10px; font-size:13px; font-weight:800; border:none; cursor:pointer; background:linear-gradient(135deg,rgba(236,72,153,0.3),rgba(147,51,234,0.3)); border:1px solid rgba(236,72,153,0.5); color:#fff; transition:all 0.2s;">
+                  Next ▶
+                </button>
+              </div>
+
+              <!-- Download All Slides Button -->
+              <button type="button" id="btnDownloadAllSlides" onclick="downloadAllSlides()" style="width:100%; padding:10px; border-radius:10px; font-size:12px; font-weight:800; border:1px solid rgba(255,255,255,0.2); cursor:pointer; background:rgba(255,255,255,0.08); color:#e2e8f0; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Download All Slides Sequentially</span>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 3 Feature Highlight Boxes -->
+      <div class="rd-features-3col">
+        <div class="rd-f-box">
+          <div style="font-size:28px; margin-bottom:8px;">⚡</div>
+          <strong style="font-size:16px; color:var(--text-heading); display:block; margin-bottom:6px;">High Speed
+            Servers</strong>
+          <span style="font-size:13px; color:var(--text-muted); line-height:1.5;">Direct high-bandwidth CDN mirrors with
+            lightning-fast download speeds.</span>
+        </div>
+        <div class="rd-f-box">
+          <div style="font-size:28px; margin-bottom:8px;">🛡️</div>
+          <strong style="font-size:16px; color:var(--text-heading); display:block; margin-bottom:6px;">No
+            Watermark</strong>
+          <span style="font-size:13px; color:var(--text-muted); line-height:1.5;">Download untouched original audio and
+            crystal-clear video quality without logos.</span>
+        </div>
+        <div class="rd-f-box">
+          <div style="font-size:28px; margin-bottom:8px;">📱</div>
+          <strong style="font-size:16px; color:var(--text-heading); display:block; margin-bottom:6px;">Universal Device
+            Support</strong>
+          <span style="font-size:13px; color:var(--text-muted); line-height:1.5;">Compatible with all Android, iPhone,
+            Windows, Mac, and Linux browsers seamlessly.</span>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="rdToast">
+      <span id="rdToastIcon">✅</span>
+      <span id="rdToastText">Download started successfully!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="it-landing-footer">
+      <div class="it-footer-content">
+        <div class="it-footer-left">
+          <span style="font-weight:800; font-size:16px; color:var(--text-heading);">SocialVault</span>
+          <span style="font-size:12px; color:var(--text-muted); margin-left:12px;">&copy; 2026 SocialVault Systems Inc.
+            All rights reserved.</span>
+        </div>
+        <div class="it-footer-links">
+          <a href="./index.html">Home</a>
+          <a href="./features.html">Features</a>
+          <a href="./hashtag-scraper.html">Hashtag Scraper</a>
+          <a href="./reel-downloader.html">Reel Downloader</a>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    // Downloader Logic & Cookies Toggle
+    const reelForm = document.getElementById('reelForm');
+    const reelUrlInput = document.getElementById('reelUrlInput');
+    const reelCookiesInput = document.getElementById('reelCookiesInput');
+    const toggleCookiesBtn = document.getElementById('toggleCookiesBtn');
+    const cookiesInputWrap = document.getElementById('cookiesInputWrap');
+    const cookiesToggleIcon = document.getElementById('cookiesToggleIcon');
+    const pasteBtn = document.getElementById('pasteBtn');
+    const reelLoadingState = document.getElementById('reelLoadingState');
+    const reelResultCard = document.getElementById('reelResultCard');
+    const reelNotFoundAlert = document.getElementById('reelNotFoundAlert');
+
+    toggleCookiesBtn?.addEventListener('click', () => {
+      const isHidden = cookiesInputWrap.classList.contains('hidden');
+      if (isHidden) {
+        cookiesInputWrap.classList.remove('hidden');
+        cookiesToggleIcon.textContent = '▲';
+      } else {
+        cookiesInputWrap.classList.add('hidden');
+        cookiesToggleIcon.textContent = '▼';
+      }
+    });
+
+    function showToast(msg) {
+      const toast = document.getElementById('rdToast');
+      const toastText = document.getElementById('rdToastText');
+      const toastIcon = document.getElementById('rdToastIcon');
+      if (toast && toastText) {
+        if (msg.includes('🔒')) {
+          if (toastIcon) toastIcon.textContent = '🔒';
+        } else if (msg.includes('❌')) {
+          if (toastIcon) toastIcon.textContent = '❌';
+        } else if (msg.includes('⚠️')) {
+          if (toastIcon) toastIcon.textContent = '⚠️';
+        } else {
+          if (toastIcon) toastIcon.textContent = '✅';
+        }
+        toastText.textContent = msg.replace(/^[🔒❌⚠️✅]\s*/, '');
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2800);
+      }
+    }
+
+    function updatePasteBtnState(inputId = 'reelUrlInput', btnId = 'pasteBtn') {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!input || !btn) return;
+      const hasText = input.value.trim().length > 0;
+      if (hasText) {
+        btn.innerHTML = '✕ Clear';
+        btn.classList.add('btn-clear-active');
+        btn.title = 'Clear / Cut link';
+      } else {
+        btn.innerHTML = 'Paste';
+        btn.classList.remove('btn-clear-active');
+        btn.title = 'Paste from clipboard';
+      }
+    }
+
+    async function handlePasteOrClear(inputId = 'reelUrlInput', btnId = 'pasteBtn') {
+      const input = document.getElementById(inputId);
+      const btn = document.getElementById(btnId);
+      if (!input) return;
+      if (input.value.trim().length > 0) {
+        input.value = '';
+        input.focus();
+        updatePasteBtnState(inputId, btnId);
+        showToast('Link cleared');
+      } else {
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text) {
+            input.value = text.trim();
+            updatePasteBtnState(inputId, btnId);
+            showToast('Link pasted from clipboard!');
+          }
+        } catch (err) {
+          showToast('Please paste the URL manually.');
+        }
+      }
+    }
+
+    let currentMediaData = null;
+
+    reelForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      let rawVal = reelUrlInput.value.trim();
+      const cookiesVal = reelCookiesInput ? reelCookiesInput.value.trim() : '';
+      if (!rawVal) return;
+
+      // Restrict Story & Highlight links in this section
+      const isStoryOrHighlight = rawVal.includes('/stories/') || rawVal.includes('/s/') || rawVal.includes('/highlights/');
+      if (isStoryOrHighlight) {
+        showToast("⚠️ Story/Highlight link detected!");
+        if (reelNotFoundAlert) {
+          reelNotFoundAlert.innerHTML = `
+            <div style="display:flex; align-items:center; gap:12px; text-align:left;">
+              <span style="font-size:26px;">🎬</span>
+              <div>
+                <strong style="font-size:15px; display:block; color:#fbbf24; margin-bottom:4px;">Instagram Story or Highlight Link Detected</strong>
+                <span style="font-size:13px; color:#fde68a; line-height:1.5;">This tool is dedicated for Instagram Reels, Photos, IGTV &amp; Video Posts. Please paste a public Instagram Reel or Post link.</span>
+              </div>
+            </div>
+          `;
+          reelNotFoundAlert.style.background = 'rgba(245, 158, 11, 0.16)';
+          reelNotFoundAlert.style.border = '1px solid rgba(245, 158, 11, 0.4)';
+          reelNotFoundAlert.classList.remove('hidden');
+        }
+        return;
+      }
+
+      // Extract single clean Instagram URL if concatenated
+      const igMatch = rawVal.match(/https?:\/\/(?:www\.)?instagram\.com\/(?:p|reel|tv)\/[A-Za-z0-9_-]+/i);
+      const val = igMatch ? (igMatch[0] + '/') : rawVal;
+
+      // Validate Instagram URL format
+      const isIgUrl = val.includes('instagram.com/reel/') || val.includes('instagram.com/p/') || val.includes('instagram.com/tv/') || val.includes('instagram.com/share/');
+      if (!isIgUrl) {
+        showToast("❌ Wrong Link: Please enter a valid Instagram Reel or Post link.");
+        if (reelNotFoundAlert) {
+          reelNotFoundAlert.innerHTML = `
+            <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
+              <span style="font-size:26px;">❌</span>
+              <div>
+                <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">Invalid / Wrong Link Entered</strong>
+                <span style="font-size:13.5px; color:#fca5a5; line-height:1.6;">The URL you entered is not a valid Instagram Reel or Post link. Please check your link and paste a valid Instagram URL (e.g., https://www.instagram.com/reel/... or https://www.instagram.com/p/...).</span>
+              </div>
+            </div>
+          `;
+          reelNotFoundAlert.style.background = 'rgba(239, 68, 68, 0.16)';
+          reelNotFoundAlert.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+          reelNotFoundAlert.classList.remove('hidden');
+          reelNotFoundAlert.style.display = 'block';
+        }
+        reelResultCard.classList.add('hidden');
+        reelResultCard.style.display = 'none';
+        return;
+      }
+
+      reelLoadingState.classList.remove('hidden');
+      reelResultCard.classList.add('hidden');
+      reelResultCard.style.display = 'none';
+      if (reelNotFoundAlert) {
+        reelNotFoundAlert.classList.add('hidden');
+        reelNotFoundAlert.style.display = 'none';
+      }
+
+      try {
+        let res;
+        try {
+          res = await fetch('/api/download', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: val, cookies: cookiesVal })
+          });
+        } catch (expressErr) {
+          res = await fetch('http://localhost:8000/api/download', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: val, cookies: cookiesVal })
+          });
+        }
+
+        let data;
+        try {
+          data = await res.json();
+        } catch (jsonErr) {
+          throw new Error("⚠️ Server Error: Could not parse response from backend.");
+        }
+
+        if (res.status === 403 || data.status === 'error' || data.is_private || data.isPrivate || (data.error && data.error.toLowerCase().includes('private'))) {
+          showToast(data.error || "🔒 Private Account: Media cannot be extracted from private profiles.");
+          if (cookiesInputWrap) {
+            cookiesInputWrap.classList.remove('hidden');
+            if (cookiesToggleIcon) cookiesToggleIcon.textContent = '▲';
+          }
+          if (reelNotFoundAlert) {
+            reelNotFoundAlert.innerHTML = `
+              <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
+                <span style="font-size:26px;">🔒</span>
+                <div>
+                  <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">Private Account / Media Not Found</strong>
+                  <span style="font-size:13.5px; color:#fca5a5; line-height:1.6;">${data.error || 'This Instagram reel or post is from a Private account. Media cannot be extracted from private profiles without permission. Please paste a link from a Public account.'}</span>
+                </div>
+              </div>
+            `;
+            reelNotFoundAlert.style.background = 'rgba(239, 68, 68, 0.16)';
+            reelNotFoundAlert.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+            reelNotFoundAlert.classList.remove('hidden');
+            reelNotFoundAlert.style.display = 'block';
+          }
+          reelResultCard.classList.add('hidden');
+          reelResultCard.style.display = 'none';
+          return;
+        }
+
+        if (res.ok && (data.status === "success" || data.url)) {
+          currentMediaData = data;
+          renderReelData(data);
+          reelResultCard.classList.remove('hidden');
+          reelResultCard.style.display = 'block';
+        } else {
+          showToast(data.error || "❌ Media Not Found: Please check the link and try again.");
+          if (reelNotFoundAlert) {
+            reelNotFoundAlert.innerHTML = `
+              <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
+                <span style="font-size:26px;">❌</span>
+                <div>
+                  <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">Media Not Found</strong>
+                  <span style="font-size:13.5px; color:#fca5a5; line-height:1.6;">${data.error || 'Could not extract media from the provided link. Please ensure the link is from a public post.'}</span>
+                </div>
+              </div>
+            `;
+            reelNotFoundAlert.style.background = 'rgba(239, 68, 68, 0.16)';
+            reelNotFoundAlert.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+            reelNotFoundAlert.classList.remove('hidden');
+            reelNotFoundAlert.style.display = 'block';
+          }
+          reelResultCard.classList.add('hidden');
+          reelResultCard.style.display = 'none';
+        }
+      } catch (err) {
+        showToast("❌ Error: Unable to fetch media stream.");
+        if (reelNotFoundAlert) {
+          reelNotFoundAlert.innerHTML = `
+            <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
+              <span style="font-size:26px;">⚠️</span>
+              <div>
+                <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">Extraction Error</strong>
+                <span style="font-size:13.5px; color:#fca5a5; line-height:1.6;">${err.message || 'Unable to fetch media stream. Please ensure server is running.'}</span>
+              </div>
+            </div>
+          `;
+          reelNotFoundAlert.style.background = 'rgba(239, 68, 68, 0.16)';
+          reelNotFoundAlert.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+          reelNotFoundAlert.classList.remove('hidden');
+          reelNotFoundAlert.style.display = 'block';
+        }
+        reelResultCard.classList.add('hidden');
+        reelResultCard.style.display = 'none';
+      } finally {
+        reelLoadingState.classList.add('hidden');
+      }
+    });
+
+    window.loadSample = function (key) {
+      reelUrlInput.value = `https://www.instagram.com/reel/DcO07_KT_cD/`;
+      reelForm.dispatchEvent(new Event('submit'));
+    };
+
+    function getProxiedMediaUrl(url) {
+      if (!url) return '';
+      if (url.startsWith('/api/') || url.startsWith('data:')) return url;
+      const apiBase = (window.location.protocol === 'file:' || (window.location.port !== '3000' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
+        ? 'http://localhost:3000'
+        : (window.location.port === '3000' ? '' : 'http://localhost:3000');
+      return `${apiBase}/api/stream?url=${encodeURIComponent(url)}`;
+    }
+
+    function formatNumberAbbreviated(num) {
+      if (num === null || num === undefined || num === '') return 'Hidden';
+      const n = Number(num);
+      if (isNaN(n)) return String(num);
+      if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\\.0$/, '') + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1).replace(/\\.0$/, '') + 'K';
+      return n.toString();
+    }
+
+    function renderReelData(data) {
+      const uploader = data.uploader || data.author || 'creator';
+      document.getElementById('reelAuthorHandle').textContent = uploader.startsWith('@') ? uploader : `@${uploader}`;
+      document.getElementById('reelCaptionText').textContent = data.title || data.caption || 'Instagram Media Post';
+
+      // Stats
+      document.getElementById('reelLikesCount').textContent = data.like_count ? formatNumberAbbreviated(data.like_count) : formatNumberAbbreviated(data.likes);
+      document.getElementById('reelCommentsCount').textContent = data.comment_count ? formatNumberAbbreviated(data.comment_count) : formatNumberAbbreviated(data.comments);
+      document.getElementById('reelFileSize').textContent = data.fileSize || (data.is_video ? '14.2 MB' : '2.4 MB');
+
+      window.currentSlideIndex = 0;
+      const carouselNavBox = document.getElementById('carouselNavBox');
+
+      if (Array.isArray(data.entries) && data.entries.length > 1) {
+        if (carouselNavBox) {
+          carouselNavBox.style.display = 'flex';
+        }
+        selectCarouselItem(0);
+      } else {
+        if (carouselNavBox) {
+          carouselNavBox.style.display = 'none';
+        }
+
+        const coverImg = document.getElementById('reelCoverImg');
+        const videoPlayer = document.getElementById('reelVideoPlayer');
+        const playOverlay = document.querySelector('.rd-play-overlay');
+        const primaryMediaUrl = data.url || data.thumbnail || '';
+        const isVid = Boolean(data.is_video);
+
+        if (isVid) {
+          if (videoPlayer) {
+            videoPlayer.src = getProxiedMediaUrl(primaryMediaUrl);
+            videoPlayer.style.display = 'block';
+          }
+          if (coverImg) coverImg.style.display = 'none';
+        } else {
+          if (coverImg) {
+            coverImg.src = getProxiedMediaUrl(primaryMediaUrl);
+            coverImg.style.display = 'block';
+          }
+          if (videoPlayer) {
+            videoPlayer.pause();
+            videoPlayer.style.display = 'none';
+          }
+        }
+        if (playOverlay) playOverlay.style.display = 'none';
+
+        document.getElementById('reelDurationBadge').textContent = isVid ? `Duration: ${data.duration || '0:30'} • 1080p` : '● High Resolution Photo (JPG)';
+        const dlBtnText = document.getElementById('dlBtnMainText') || document.querySelector('#btnDownloadMp4 span');
+        if (dlBtnText) {
+          dlBtnText.textContent = isVid ? 'Download Video (1080p MP4)' : 'Download Photo (HD Quality)';
+        }
+
+        const audioBtn = document.getElementById('btnDownloadAudio');
+        if (audioBtn) {
+          audioBtn.style.display = isVid ? 'flex' : 'none';
+        }
+      }
+
+      showToast('Media stream extracted successfully!');
+    }
+
+    window.selectCarouselItem = function(index) {
+      if (!currentMediaData || !currentMediaData.entries || !currentMediaData.entries[index]) return;
+      window.currentSlideIndex = index;
+      const total = currentMediaData.entries.length;
+      const item = currentMediaData.entries[index];
+      const isVid = Boolean(item.is_video);
+      const rawUrl = item.url || item.thumbnail || '';
+      const proxiedUrl = getProxiedMediaUrl(rawUrl);
+
+      const coverImg = document.getElementById('reelCoverImg');
+      const videoPlayer = document.getElementById('reelVideoPlayer');
+      const playOverlay = document.querySelector('.rd-play-overlay');
+
+      if (isVid) {
+        if (videoPlayer) {
+          videoPlayer.src = proxiedUrl;
+          videoPlayer.style.display = 'block';
+        }
+        if (coverImg) coverImg.style.display = 'none';
+      } else {
+        if (coverImg) {
+          coverImg.removeAttribute('src');
+          coverImg.src = proxiedUrl;
+          coverImg.style.display = 'block';
+          coverImg.onerror = function() {
+            this.onerror = null;
+            this.src = rawUrl; // fallback
+          };
+        }
+        if (videoPlayer) {
+          videoPlayer.pause();
+          videoPlayer.style.display = 'none';
+        }
+      }
+      if (playOverlay) playOverlay.style.display = 'none';
+
+      // Update slide counter
+      const counter = document.getElementById('carouselSlideCounter');
+      if (counter) {
+        counter.textContent = `Slide ${index + 1} of ${total} (${isVid ? '🎬 1080p Video' : '🖼️ HD Photo'})`;
+      }
+
+      // Update duration badge
+      const durationBadge = document.getElementById('reelDurationBadge');
+      if (durationBadge) {
+        durationBadge.textContent = isVid ? `Slide #${index+1} • 1080p MP4 Video` : `Slide #${index+1} • High Resolution Photo (JPG)`;
+      }
+
+      // Update download button text
+      const dlBtnText = document.getElementById('dlBtnMainText') || document.querySelector('#btnDownloadMp4 span');
+      if (dlBtnText) {
+        dlBtnText.textContent = isVid ? `Download Slide #${index+1} (1080p MP4 Video)` : `Download Slide #${index+1} (HD Photo JPG)`;
+      }
+
+      // Update audio button
+      const audioBtn = document.getElementById('btnDownloadAudio');
+      if (audioBtn) {
+        audioBtn.style.display = isVid ? 'flex' : 'none';
+      }
+
+      // Update previous / next button disabled states
+      const prevBtn = document.getElementById('btnPrevSlide');
+      const nextBtn = document.getElementById('btnNextSlide');
+      const floatPrev = document.getElementById('floatPrevBtn');
+      const floatNext = document.getElementById('floatNextBtn');
+      const floatBadge = document.getElementById('floatSlideBadge');
+
+      if (total > 1) {
+        if (prevBtn) {
+          prevBtn.disabled = (index === 0);
+          prevBtn.style.opacity = (index === 0) ? '0.4' : '1';
+          prevBtn.style.cursor = (index === 0) ? 'not-allowed' : 'pointer';
+        }
+        if (nextBtn) {
+          nextBtn.disabled = (index === total - 1);
+          nextBtn.style.opacity = (index === total - 1) ? '0.4' : '1';
+          nextBtn.style.cursor = (index === total - 1) ? 'not-allowed' : 'pointer';
+        }
+        if (floatPrev) {
+          floatPrev.style.display = 'grid';
+          floatPrev.disabled = (index === 0);
+          floatPrev.style.opacity = (index === 0) ? '0.25' : '1';
+          floatPrev.style.cursor = (index === 0) ? 'not-allowed' : 'pointer';
+        }
+        if (floatNext) {
+          floatNext.style.display = 'grid';
+          floatNext.disabled = (index === total - 1);
+          floatNext.style.opacity = (index === total - 1) ? '0.25' : '1';
+          floatNext.style.cursor = (index === total - 1) ? 'not-allowed' : 'pointer';
+        }
+        if (floatBadge) {
+          floatBadge.style.display = 'block';
+          floatBadge.textContent = `${index + 1} / ${total}`;
+        }
+      } else {
+        if (floatPrev) floatPrev.style.display = 'none';
+        if (floatNext) floatNext.style.display = 'none';
+        if (floatBadge) floatBadge.style.display = 'none';
+      }
+
+      // Update current active item URL
+      currentMediaData.activeUrl = item.url;
+      currentMediaData.activeIsVideo = isVid;
+    };
+
+    window.prevSlide = function() {
+      if (window.currentSlideIndex > 0) {
+        selectCarouselItem(window.currentSlideIndex - 1);
+      }
+    };
+
+    window.nextSlide = function() {
+      if (currentMediaData && currentMediaData.entries && window.currentSlideIndex < currentMediaData.entries.length - 1) {
+        selectCarouselItem(window.currentSlideIndex + 1);
+      }
+    };
+
+    window.downloadAllSlides = function() {
+      if (!currentMediaData || !Array.isArray(currentMediaData.entries)) return;
+      const handle = (document.getElementById('reelAuthorHandle').textContent || '@creator').replace('@', '').trim();
+      showToast(`Starting sequential download of all ${currentMediaData.entries.length} slides...`);
+      
+      currentMediaData.entries.forEach((item, idx) => {
+        setTimeout(() => {
+          const isVid = Boolean(item.is_video);
+          const ext = isVid ? 'mp4' : 'jpg';
+          const filename = `instagram_slide_${idx+1}_${handle}.${ext}`;
+          const streamEndpoint = `/api/stream?url=${encodeURIComponent(item.url || item.thumbnail)}&filename=${encodeURIComponent(filename)}`;
+          const a = document.createElement('a');
+          a.href = streamEndpoint;
+          a.download = filename;
+          a.target = '_self';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => a.remove(), 1000);
+        }, idx * 600);
+      });
+    };
+
+    // Direct stream download handler
+    document.getElementById('btnDownloadMp4')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!currentMediaData) {
+        showToast('Please extract a valid post link first.');
+        return;
+      }
+      
+      const handle = (document.getElementById('reelAuthorHandle').textContent || '@creator').replace('@', '').trim();
+      let isVid = currentMediaData.activeIsVideo !== undefined ? Boolean(currentMediaData.activeIsVideo) : Boolean(currentMediaData.is_video);
+      const mediaUrl = currentMediaData.activeUrl || currentMediaData.url || currentMediaData.thumbnail;
+
+      const urlLower = String(mediaUrl || '').toLowerCase();
+      if (urlLower.includes('dst-jpg') || urlLower.includes('.jpg') || urlLower.includes('.jpeg') || urlLower.includes('.webp') || (currentMediaData.ext && currentMediaData.ext !== 'mp4')) {
+        isVid = false;
+      }
+
+      if (!mediaUrl) {
+        showToast('No direct download stream found.');
+        return;
+      }
+
+      const ext = isVid ? 'mp4' : 'jpg';
+      const filename = isVid ? `instagram_video_${handle}_1080p.mp4` : `instagram_photo_${handle}_HD.jpg`;
+      showToast(isVid ? 'Starting 1080p MP4 Video download...' : 'Starting HD Photo download...');
+
+      const streamEndpoint = `/api/stream?url=${encodeURIComponent(mediaUrl)}&filename=${encodeURIComponent(filename)}`;
+      const a = document.createElement('a');
+      a.href = streamEndpoint;
+      a.download = filename;
+      a.target = '_self';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => a.remove(), 1000);
+    });
+
+    document.getElementById('btnDownloadAudio')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!currentMediaData) return;
+      const handle = (document.getElementById('reelAuthorHandle').textContent || '@creator').replace('@', '').trim();
+      const mediaUrl = currentMediaData.url || currentMediaData.videoUrl;
+      if (!mediaUrl) {
+        showToast('No audio track available.');
+        return;
+      }
+      showToast('Starting Audio MP3 download...');
+      const filename = `instagram_audio_${handle}_320kbps.mp3`;
+      const streamEndpoint = `/api/stream?url=${encodeURIComponent(mediaUrl)}&filename=${encodeURIComponent(filename)}`;
+      const a = document.createElement('a');
+      a.href = streamEndpoint;
+      a.download = filename;
+      a.target = '_self';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => a.remove(), 1000);
+    });
+
+    document.getElementById('btnDownloadThumb')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      const handle = (document.getElementById('reelAuthorHandle').textContent || '@creator').replace('@', '').trim();
+      if (currentMediaData && currentMediaData.coverUrl) {
+        showToast('Downloading HD Cover image...');
+        const dlUrl = `/api/analysis/stream-download?url=${encodeURIComponent(currentMediaData.coverUrl)}&filename=instagram_cover_${handle}_HD.jpg&type=image`;
+        const a = document.createElement('a');
+        a.href = dlUrl;
+        a.download = `instagram_cover_${handle}_HD.jpg`;
+        a.target = '_self';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => a.remove(), 1000);
+      } else {
+        showToast('Downloading Cover Image...');
+      }
+    });
+  </script>
+  <script src="./auth-shared.js"></script>
+</body>
+
+</html>

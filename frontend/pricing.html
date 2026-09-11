@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="no-referrer">
+  <script>
+    const t = localStorage.getItem("socialvault_theme") || "dark";
+    document.documentElement.setAttribute("data-theme", t);
+  </script>
+  <title>Pricing — SocialVault Flexible Creator Plans</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./style.css">
+
+  <!-- Google Identity Services SDK -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <nav class="it-navbar">
+    <div class="it-nav-container">
+      
+      <!-- Logo -->
+      <a href="./index.html" class="it-brand-logo">
+        <div class="it-logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+        </div>
+        <span class="it-brand-title"><span class="it-title-pink">Social</span><span class="it-title-orange">Vault</span></span>
+      </a>
+
+      <!-- Center Links -->
+      <ul class="it-nav-menu">
+        <li><a href="./index.html" class="it-nav-item">Home</a></li>
+        <li><a href="./features.html" class="it-nav-item">Features</a></li>
+        <li><a href="./faq.html" class="it-nav-item">FAQ</a></li>
+      </ul>
+
+      <!-- Right Side -->
+      <div class="it-nav-actions">
+        <button id="themeToggleBtn" class="it-theme-toggle-btn" title="Toggle Theme">
+          <span id="themeIcon">☼</span>
+        </button>
+
+        <!-- Google Sign-In Button Container -->
+        <div id="googleAuthBtnWrapper">
+          <button type="button" id="googleSignInBtn" class="it-google-signin-btn" style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:middle;">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            Sign in with Google
+          </button>
+        </div>
+
+        <div id="g_id_onload" style="display:none;"></div>
+
+        <!-- Logged In User Profile Menu -->
+        <div id="loggedInUserMenu" class="hidden" style="position:relative;">
+          <div id="userProfileChip" style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); padding:4px 12px 4px 6px; border-radius:30px; cursor:pointer;">
+            <img id="userAvatarImg" src="" alt="Avatar" style="width:26px; height:26px; border-radius:50%; object-fit:cover; display:none;">
+            <div id="userAvatarPlaceholder" style="width:26px; height:26px; border-radius:50%; background:#9333ea; color:white; font-size:11px; font-weight:800; display:grid; place-items:center;">U</div>
+            <span id="userDisplayName" style="font-size:12px; font-weight:700; color:#fff; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">User</span>
+            <span style="font-size:10px; color:#cbd5e1;">▼</span>
+          </div>
+
+          <div id="userProfileDropdown" class="hidden" style="position:absolute; top:42px; right:0; width:230px; background:#0f172a; border:1px solid rgba(255,255,255,0.15); border-radius:14px; box-shadow:0 14px 35px rgba(0,0,0,0.6); padding:14px; z-index:1000; text-align:left;">
+            <div style="padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:10px;">
+              <strong id="dropdownUserName" style="font-size:13px; color:#ffffff; display:block;">User</strong>
+              <div id="dropdownUserEmail" style="font-size:11px; color:#94a3b8; word-break:break-all; margin-top:2px;">user@gmail.com</div>
+            </div>
+            <button type="button" id="googleSignOutBtn" style="width:100%; background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:8px; font-size:12px; font-weight:700; cursor:pointer;">
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Pricing Hero Header -->
+  <section style="padding: 120px 20px 50px; text-align:center; max-width:900px; margin: 0 auto;">
+    <span class="it-sec-label">TRANSPARENT PRICING</span>
+    <h1 style="font-size:48px; font-weight:900; line-height:1.15; color:var(--text-heading); letter-spacing:-1.5px; margin-top:12px; margin-bottom:16px;">
+      Simple, Unfair Value.
+    </h1>
+    <p style="font-size:17px; color:var(--text-muted); max-width:640px; margin: 0 auto 40px; line-height:1.6;">
+      Choose the plan that fits your social media scraping, Reel downloading, and Instagram/Facebook intelligence needs.
+    </p>
+  </section>
+
+  <!-- Pricing Cards Grid -->
+  <section style="max-width:840px; margin: 0 auto 80px; padding: 0 20px;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:28px;">
+      
+      <!-- Free Tier -->
+      <div class="horiz-card" style="border:1px solid var(--border-color); background:var(--card-bg); padding:32px; border-radius:20px; display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+          <span style="font-size:12px; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">FREE DEMO</span>
+          <div style="font-size:42px; font-weight:900; color:var(--text-heading); margin:12px 0 6px;">₹0</div>
+          <p style="font-size:14px; color:var(--text-muted); margin-bottom:24px;">Try basic searches and tool previews for free.</p>
+          <ul style="font-size:14px; color:var(--text-muted); line-height:2.2; list-style:none; padding:0; margin-bottom:30px;">
+            <li>&check; Public profile search</li>
+            <li>&check; Tool preview access</li>
+            <li>&check; Standard download speeds</li>
+          </ul>
+        </div>
+        <a href="./features.html" class="it-submit-btn" style="text-decoration:none; display:block; text-align:center; padding:14px; border-radius:12px; background:rgba(255,255,255,0.05); color:var(--text-heading); border:1px solid var(--border-color); font-weight:800;">
+          Try Free
+        </a>
+      </div>
+
+      <!-- Unlimited Tier -->
+      <div class="horiz-card" style="border:2px solid #ec4899; background:linear-gradient(180deg, rgba(236,72,153,0.12), #090d1a); padding:32px; border-radius:20px; display:flex; flex-direction:column; justify-content:space-between; box-shadow:0 15px 40px rgba(236,72,153,0.25);">
+        <div>
+          <span style="font-size:12px; font-weight:800; color:#ec4899; text-transform:uppercase; letter-spacing:1px;">UNLIMITED PASS</span>
+          <div style="font-size:42px; font-weight:900; color:#ec4899; margin:12px 0 6px;">₹99 <span style="font-size:15px; color:#94a3b8; font-weight:400;">/ demo</span></div>
+          <p style="font-size:14px; color:var(--text-muted); margin-bottom:24px;">Unlimited forensic scrapers &amp; 1080p downloads.</p>
+          <ul style="font-size:14px; color:#e2e8f0; line-height:2.2; list-style:none; padding:0; margin-bottom:30px;">
+            <li>&check; Unlimited 1080p HD Reel &amp; Video Downloads</li>
+            <li>&check; Anonymous Story &amp; Highlight Saver</li>
+            <li>&check; Full Hashtag Reach &amp; Comment NLP Scrapers</li>
+            <li>&check; All 7 Facebook &amp; Instagram Tools</li>
+          </ul>
+        </div>
+        <button type="button" class="it-submit-btn" style="width:100%; padding:14px; border-radius:12px; font-size:15px; font-weight:800;" onclick="alert('Full Access Unlocked!');">
+          Unlock Full Access (₹99) &rarr;
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Trust Badges -->
+  <section style="max-width:900px; margin: 0 auto 100px; padding: 0 20px;">
+    <div class="it-trust-grid">
+      <div class="it-trust-card">
+        <div class="it-trust-icon">&check;</div>
+        <span>Public profiles only</span>
+      </div>
+      <div class="it-trust-card">
+        <div class="it-trust-icon">&check;</div>
+        <span>No passwords required</span>
+      </div>
+      <div class="it-trust-card">
+        <div class="it-trust-icon">&check;</div>
+        <span>No private account access</span>
+      </div>
+      <div class="it-trust-card">
+        <div class="it-trust-icon">&check;</div>
+        <span>100% Anonymous</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="border-top:1px solid var(--border-color); padding: 48px 20px; text-align:center; background: var(--bg-main);">
+    <p style="font-size:14px; color:var(--text-muted); margin:0;">
+      © 2026 SocialVault. All rights reserved. Built for creators, marketers, and researchers.
+    </p>
+  </footer>
+
+  <script src="./auth-shared.js"></script>
+</body>
+</html>

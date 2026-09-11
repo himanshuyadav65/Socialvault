@@ -1,0 +1,26 @@
+{
+  "name": "socialvault",
+  "version": "1.0.0",
+  "description": "SocialVault — Social Media Intelligence & Analysis Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js"
+  },
+  "keywords": [
+    "simulation",
+    "cybersecurity",
+    "movie-prop",
+    "dashboard"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@distube/ytdl-core": "^4.16.12",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2",
+    "google-auth-library": "^11.0.2",
+    "mysql2": "^3.23.4"
+  }
+}

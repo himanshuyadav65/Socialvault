@@ -1,0 +1,18 @@
+{
+  "name": "socialvault-backend",
+  "version": "1.0.0",
+  "description": "SocialVault REST API & Scraper Backend",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@distube/ytdl-core": "^4.16.12",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2",
+    "google-auth-library": "^11.0.2",
+    "mysql2": "^3.23.4"
+  }
+}
