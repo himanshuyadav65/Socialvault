@@ -1074,7 +1074,7 @@ router.get('/stream-download', async (req, res) => {
     const pyPath = 'C:\\Users\\himanshu yadav\\AppData\\Local\\Programs\\Python\\Python311\\python.exe';
     const { spawn } = require('child_process');
 
-    const args = ['-m', 'yt_dlp', '--js-runtimes', 'node', '-f', 'b[ext=mp4]/best[ext=mp4]/best', '-o', '-', fileUrl];
+    const args = ['-m', 'yt_dlp', '--extractor-args', 'youtube:player_client=android,web', '-f', '18/b[ext=mp4]/best[ext=mp4]/best/bestvideo+bestaudio/best', '-o', '-', fileUrl];
     let child = spawn(pyPath, args);
 
     child.on('error', () => {
@@ -1116,7 +1116,7 @@ router.get('/stream-download', async (req, res) => {
         const pyPath = 'C:\\Users\\himanshu yadav\\AppData\\Local\\Programs\\Python\\Python311\\python.exe';
         const { spawn } = require('child_process');
         const watchUrl = `https://www.youtube.com/watch?v=${req.query.videoId}`;
-        const child = spawn(pyPath, ['-m', 'yt_dlp', '--js-runtimes', 'node', '-f', 'b[ext=mp4]/best[ext=mp4]/best', '-o', '-', watchUrl]);
+        const child = spawn(pyPath, ['-m', 'yt_dlp', '--extractor-args', 'youtube:player_client=android,web', '-f', '18/b[ext=mp4]/best[ext=mp4]/best/bestvideo+bestaudio/best', '-o', '-', watchUrl]);
         child.stdout.pipe(res);
         return;
       }
@@ -1229,11 +1229,11 @@ const handleYoutubeVideo = async (req, res) => {
         const { exec } = require('child_process');
         const pyPath = 'C:\\Users\\himanshu yadav\\AppData\\Local\\Programs\\Python\\Python311\\python.exe';
         const getYtStreams = (targetUrl) => new Promise((resolve) => {
-          const cmd = `"${pyPath}" -m yt_dlp --js-runtimes node -f "b[ext=mp4]/best[ext=mp4]/best" -g "${targetUrl}"`;
+          const cmd = `"${pyPath}" -m yt_dlp --extractor-args "youtube:player_client=android,web" -f "18/b[ext=mp4]/best[ext=mp4]/best/bestvideo+bestaudio/best" -g "${targetUrl}"`;
           exec(cmd, { timeout: 15000 }, (error, stdout) => {
             if (error || !stdout) {
               // Fallback to global python
-              const fallbackCmd = `python -m yt_dlp --js-runtimes node -f "b[ext=mp4]/best[ext=mp4]/best" -g "${targetUrl}"`;
+              const fallbackCmd = `python -m yt_dlp --extractor-args "youtube:player_client=android,web" -f "18/b[ext=mp4]/best[ext=mp4]/best/bestvideo+bestaudio/best" -g "${targetUrl}"`;
               exec(fallbackCmd, { timeout: 15000 }, (err2, out2) => {
                 if (err2 || !out2) return resolve([]);
                 const lines = out2.trim().split('\n').map(l => l.trim()).filter(Boolean);

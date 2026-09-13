@@ -403,6 +403,73 @@
       display: none;
     }
 
+    /* Interactive Thumbnails Gallery Strip (matching Facebook Downloader) */
+    .ig-thumbs-strip {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 12px 4px 6px;
+      width: 100%;
+      justify-content: flex-start;
+      scrollbar-width: thin;
+      box-sizing: border-box;
+    }
+
+    .ig-thumbs-strip::-webkit-scrollbar {
+      height: 6px;
+    }
+
+    .ig-thumbs-strip::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+    }
+
+    .ig-thumb-item {
+      width: 62px;
+      height: 62px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      flex-shrink: 0;
+      opacity: 0.6;
+      transition: all 0.25s ease;
+      position: relative;
+      background: #0b0f19;
+    }
+
+    .ig-thumb-item:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      border-color: rgba(236, 72, 153, 0.8);
+    }
+
+    .ig-thumb-item.active {
+      border-color: #ec4899;
+      box-shadow: 0 0 16px rgba(236, 72, 153, 0.9);
+      opacity: 1;
+      transform: scale(1.08) translateY(-2px);
+    }
+
+    .ig-thumb-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .ig-thumb-num {
+      position: absolute;
+      bottom: 2px;
+      right: 4px;
+      background: rgba(0, 0, 0, 0.75);
+      padding: 1px 5px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      color: #fff;
+    }
+
     .rd-play-overlay {
       position: absolute;
       top: 50%;
@@ -682,19 +749,24 @@
       <div id="reelResultCard" class="rd-result-card hidden">
         <div class="rd-media-grid">
 
-          <!-- Media Player Preview -->
-          <div class="rd-preview-box">
-            <img id="reelCoverImg" class="rd-preview-img" referrerpolicy="no-referrer"
-              src="https://images.unsplash.com/photo-1682687220063-4742bd7fd538?w=600&auto=format&fit=crop&q=80"
-              alt="Media Preview">
-            <video id="reelVideoPlayer" controls playsinline style="display:none; max-width:100%; height:auto; max-height:500px; object-fit:contain; border-radius:16px; margin: 0 auto;"></video>
-            
-            <!-- Floating Navigation Controls on Preview -->
-            <button type="button" class="rd-float-arrow rd-float-prev" id="floatPrevBtn" onclick="prevSlide()" title="Previous Slide">◀</button>
-            <button type="button" class="rd-float-arrow rd-float-next" id="floatNextBtn" onclick="nextSlide()" title="Next Slide">▶</button>
-            <span class="rd-float-badge" id="floatSlideBadge">1 / 7</span>
+          <!-- Media Player Preview Column with Thumbnails Strip -->
+          <div style="display: flex; flex-direction: column; width: 100%; min-width: 0;">
+            <div class="rd-preview-box">
+              <img id="reelCoverImg" class="rd-preview-img" referrerpolicy="no-referrer"
+                src="https://images.unsplash.com/photo-1682687220063-4742bd7fd538?w=600&auto=format&fit=crop&q=80"
+                alt="Media Preview">
+              <video id="reelVideoPlayer" controls playsinline style="display:none; max-width:100%; height:auto; max-height:500px; object-fit:contain; border-radius:16px; margin: 0 auto;"></video>
+              
+              <!-- Floating Navigation Controls on Preview -->
+              <button type="button" class="rd-float-arrow rd-float-prev" id="floatPrevBtn" onclick="prevSlide()" title="Previous Slide">◀</button>
+              <button type="button" class="rd-float-arrow rd-float-next" id="floatNextBtn" onclick="nextSlide()" title="Next Slide">▶</button>
+              <span class="rd-float-badge" id="floatSlideBadge">1 / 7</span>
 
-            <div class="rd-play-overlay" title="Play Preview">▶</div>
+              <div class="rd-play-overlay" title="Play Preview">▶</div>
+            </div>
+
+            <!-- Interactive Thumbnails Strip for Multi-Photo/Video Albums -->
+            <div id="igThumbsStrip" class="ig-thumbs-strip" style="display: none;"></div>
           </div>
 
           <!-- Media Info & Download Buttons -->
@@ -745,8 +817,8 @@
               </div>
             </div>
 
-            <!-- Download Buttons -->
-            <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+            <!-- Download Buttons & Carousel Navigation (matching Facebook Downloader) -->
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px; width:100%;">
               <button type="button" class="rd-btn-download-hd" id="btnDownloadMp4" style="display:flex; align-items:center; justify-content:center; gap:8px;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -756,6 +828,25 @@
                 <span id="dlBtnMainText">Download Video (1080p MP4)</span>
               </button>
 
+              <!-- Previous / Next Photo Slider Action Bar (matching Facebook Downloader) -->
+              <div id="carouselNavBox" style="display:none; align-items:center; justify-content:space-between; gap:8px; margin-top:2px; width:100%; box-sizing:border-box;">
+                <button type="button" id="btnPrevSlide" class="rd-btn-sec" onclick="prevSlide()" style="flex:1; justify-content:center; margin:0; padding:10px 8px; font-size:0.85rem;">
+                  ◀ Prev
+                </button>
+                <span id="carouselSlideCounter" style="font-size:13px; font-weight:800; color:#f472b6; white-space:nowrap; padding:0 6px; text-align:center;">
+                  Slide 1 of 2 (Photo)
+                </span>
+                <button type="button" id="btnNextSlide" class="rd-btn-sec" onclick="nextSlide()" style="flex:1; justify-content:center; margin:0; padding:10px 8px; font-size:0.85rem;">
+                  Next ▶
+                </button>
+              </div>
+
+              <!-- Download All Slides (Batch) Button (matching Facebook Downloader) -->
+              <button type="button" id="btnDownloadAllSlides" onclick="downloadAllSlides()" style="display:none; width:100%; padding:13px 18px; border-radius:14px; font-size:0.92rem; font-weight:700; border:none; cursor:pointer; background:linear-gradient(135deg, #ec4899, #8b5cf6); color:#ffffff; align-items:center; justify-content:center; gap:8px; box-shadow:0 8px 25px rgba(236,72,153,0.35); transition:all 0.2s;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Download All Slides (Batch)</span>
+              </button>
+
               <button type="button" class="rd-btn-sec" id="btnDownloadAudio" style="display:flex; align-items:center; justify-content:center; gap:8px;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                   <path d="M9 18V5l12-2v13"></path>
@@ -763,27 +854,6 @@
                   <circle cx="18" cy="16" r="3"></circle>
                 </svg>
                 <span>Download Audio (MP3)</span>
-              </button>
-            </div>
-
-            <!-- Multi-Slide Carousel Navigation Box (Clean, No small thumbnails) -->
-            <div id="carouselNavBox" style="display:none; flex-direction:column; gap:10px; margin-top:14px; padding:14px 16px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); border-radius:16px;">
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-                <button type="button" id="btnPrevSlide" onclick="prevSlide()" style="padding:8px 18px; border-radius:10px; font-size:13px; font-weight:800; border:none; cursor:pointer; background:linear-gradient(135deg,rgba(236,72,153,0.3),rgba(147,51,234,0.3)); border:1px solid rgba(236,72,153,0.5); color:#fff; transition:all 0.2s;">
-                  ◀ Previous
-                </button>
-                <span id="carouselSlideCounter" style="font-size:14px; font-weight:800; color:#f472b6; letter-spacing:0.5px; text-align:center;">
-                  Slide 1 of 7 (🖼️ HD Photo)
-                </span>
-                <button type="button" id="btnNextSlide" onclick="nextSlide()" style="padding:8px 18px; border-radius:10px; font-size:13px; font-weight:800; border:none; cursor:pointer; background:linear-gradient(135deg,rgba(236,72,153,0.3),rgba(147,51,234,0.3)); border:1px solid rgba(236,72,153,0.5); color:#fff; transition:all 0.2s;">
-                  Next ▶
-                </button>
-              </div>
-
-              <!-- Download All Slides Button -->
-              <button type="button" id="btnDownloadAllSlides" onclick="downloadAllSlides()" style="width:100%; padding:10px; border-radius:10px; font-size:12px; font-weight:800; border:1px solid rgba(255,255,255,0.2); cursor:pointer; background:rgba(255,255,255,0.08); color:#e2e8f0; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span>Download All Slides Sequentially</span>
               </button>
             </div>
 
@@ -1155,19 +1225,20 @@
 
       window.currentSlideIndex = 0;
       const carouselNavBox = document.getElementById('carouselNavBox');
+      const btnDownloadAll = document.getElementById('btnDownloadAllSlides');
+      const thumbsStrip = document.getElementById('igThumbsStrip');
       const floatPrev = document.getElementById('floatPrevBtn');
       const floatNext = document.getElementById('floatNextBtn');
       const floatBadge = document.getElementById('floatSlideBadge');
 
       if (Array.isArray(data.entries) && data.entries.length > 1) {
-        if (carouselNavBox) {
-          carouselNavBox.style.display = 'flex';
-        }
+        if (carouselNavBox) carouselNavBox.style.display = 'flex';
+        if (btnDownloadAll) btnDownloadAll.style.display = 'flex';
         selectCarouselItem(0);
       } else {
-        if (carouselNavBox) {
-          carouselNavBox.style.display = 'none';
-        }
+        if (carouselNavBox) carouselNavBox.style.display = 'none';
+        if (btnDownloadAll) btnDownloadAll.style.display = 'none';
+        if (thumbsStrip) thumbsStrip.style.display = 'none';
         if (floatPrev) floatPrev.style.display = 'none';
         if (floatNext) floatNext.style.display = 'none';
         if (floatBadge) floatBadge.style.display = 'none';
@@ -1247,10 +1318,27 @@
       }
       if (playOverlay) playOverlay.style.display = 'none';
 
+      // Update interactive thumbnail strip
+      const thumbsStrip = document.getElementById('igThumbsStrip');
+      if (thumbsStrip && total > 1) {
+        thumbsStrip.style.display = 'flex';
+        thumbsStrip.innerHTML = currentMediaData.entries.map((ent, i) => `
+          <div class="ig-thumb-item ${i === index ? 'active' : ''}" onclick="selectCarouselItem(${i})" title="Slide ${i+1}">
+            <img src="${getProxiedMediaUrl(ent.thumbnail || ent.url)}" alt="Thumb ${i+1}" onerror="this.onerror=null; this.src='${ent.thumbnail || ent.url}';">
+            <span class="ig-thumb-num">${i+1}</span>
+          </div>
+        `).join('');
+
+        const activeThumb = thumbsStrip.children[index];
+        if (activeThumb) {
+          activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+      }
+
       // Update slide counter
       const counter = document.getElementById('carouselSlideCounter');
       if (counter) {
-        counter.textContent = `Slide ${index + 1} of ${total} (${isVid ? '🎬 1080p Video' : '🖼️ HD Photo'})`;
+        counter.textContent = `Slide ${index + 1} of ${total} (${isVid ? 'Video' : 'Photo'})`;
       }
 
       // Update duration badge
@@ -1259,16 +1347,26 @@
         durationBadge.textContent = isVid ? `Slide #${index+1} • 1080p MP4 Video` : `Slide #${index+1} • High Resolution Photo (JPG)`;
       }
 
-      // Update download button text
+      // Update download button text (matching Facebook: "Download Slide #X (High-Res Photo)")
       const dlBtnText = document.getElementById('dlBtnMainText') || document.querySelector('#btnDownloadMp4 span');
       if (dlBtnText) {
-        dlBtnText.textContent = isVid ? `Download Slide #${index+1} (1080p MP4 Video)` : `Download Slide #${index+1} (HD Photo JPG)`;
+        dlBtnText.textContent = total > 1 
+          ? `Download Slide #${index+1} (${isVid ? '1080p Full HD Video' : 'High-Res Photo'})` 
+          : (isVid ? 'Download Video (1080p MP4)' : 'Download Photo (HD Quality)');
       }
 
       // Update audio button
       const audioBtn = document.getElementById('btnDownloadAudio');
       if (audioBtn) {
         audioBtn.style.display = isVid ? 'flex' : 'none';
+      }
+
+      // Update carousel and batch buttons visibility
+      const carouselNavBox = document.getElementById('carouselNavBox');
+      const btnDownloadAll = document.getElementById('btnDownloadAllSlides');
+      if (total > 1) {
+        if (carouselNavBox) carouselNavBox.style.display = 'flex';
+        if (btnDownloadAll) btnDownloadAll.style.display = 'flex';
       }
 
       // Update previous / next button disabled states
@@ -1328,26 +1426,32 @@
       }
     };
 
-    window.downloadAllSlides = function() {
-      if (!currentMediaData || !Array.isArray(currentMediaData.entries)) return;
-      const handle = (document.getElementById('reelAuthorHandle').textContent || '@creator').replace('@', '').trim();
-      showToast(`Starting sequential download of all ${currentMediaData.entries.length} slides...`);
+    window.downloadAllSlides = async function() {
+      if (!currentMediaData || !Array.isArray(currentMediaData.entries) || currentMediaData.entries.length === 0) return;
+      const handle = (document.getElementById('reelAuthorHandle').textContent || '@creator').replace(/[@\s]/g, '_');
+      const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
+      const total = currentMediaData.entries.length;
+      showToast(`Starting sequential batch download of all ${total} slides...`);
       
-      currentMediaData.entries.forEach((item, idx) => {
-        setTimeout(() => {
-          const isVid = Boolean(item.is_video);
-          const ext = isVid ? 'mp4' : 'jpg';
-          const filename = `instagram_slide_${idx+1}_${handle}.${ext}`;
-          const streamEndpoint = `/api/stream?url=${encodeURIComponent(item.url || item.thumbnail)}&filename=${encodeURIComponent(filename)}`;
-          const a = document.createElement('a');
-          a.href = streamEndpoint;
-          a.download = filename;
-          a.target = '_self';
-          document.body.appendChild(a);
-          a.click();
-          setTimeout(() => a.remove(), 1000);
-        }, idx * 600);
-      });
+      for (let idx = 0; idx < total; idx++) {
+        const item = currentMediaData.entries[idx];
+        const isVid = Boolean(item.is_video);
+        const ext = isVid ? 'mp4' : 'jpg';
+        const filename = isVid ? `instagram_video_${handle}_slide${idx+1}_1080p.mp4` : `instagram_photo_${handle}_slide${idx+1}_HD.jpg`;
+        const rawUrl = item.url || item.thumbnail;
+        const streamEndpoint = `${apiBase}/api/stream?url=${encodeURIComponent(rawUrl)}&filename=${encodeURIComponent(filename)}`;
+        
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = streamEndpoint;
+        a.setAttribute('download', filename);
+        a.setAttribute('target', '_self');
+        document.body.appendChild(a);
+        a.click();
+        await new Promise(r => setTimeout(r, 600));
+        document.body.removeChild(a);
+      }
+      showToast(`✅ All ${total} slides downloaded successfully!`);
     };
 
     // Direct stream download handler
@@ -1358,7 +1462,7 @@
         return;
       }
       
-      const handle = (document.getElementById('reelAuthorHandle').textContent || '@creator').replace('@', '').trim();
+      const handle = (document.getElementById('reelAuthorHandle').textContent || '@creator').replace(/[@\s]/g, '_');
       let isVid = currentMediaData.activeIsVideo !== undefined ? Boolean(currentMediaData.activeIsVideo) : Boolean(currentMediaData.is_video);
       const mediaUrl = currentMediaData.activeUrl || currentMediaData.url || currentMediaData.thumbnail;
 
@@ -1373,10 +1477,12 @@
       }
 
       const ext = isVid ? 'mp4' : 'jpg';
-      const filename = isVid ? `instagram_video_${handle}_1080p.mp4` : `instagram_photo_${handle}_HD.jpg`;
-      showToast(isVid ? 'Starting 1080p MP4 Video download...' : 'Starting HD Photo download...');
+      const slideSuffix = (currentMediaData.entries && currentMediaData.entries.length > 1) ? `_slide${(window.currentSlideIndex || 0) + 1}` : '';
+      const filename = isVid ? `instagram_video_${handle}${slideSuffix}_1080p.mp4` : `instagram_photo_${handle}${slideSuffix}_HD.jpg`;
+      showToast(isVid ? `Starting 1080p MP4 Video download...` : `Starting HD Photo download...`);
 
-      const streamEndpoint = `/api/stream?url=${encodeURIComponent(mediaUrl)}&filename=${encodeURIComponent(filename)}`;
+      const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
+      const streamEndpoint = `${apiBase}/api/stream?url=${encodeURIComponent(mediaUrl)}&filename=${encodeURIComponent(filename)}`;
       const a = document.createElement('a');
       a.href = streamEndpoint;
       a.download = filename;
