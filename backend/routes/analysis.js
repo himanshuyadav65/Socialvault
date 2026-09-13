@@ -1034,8 +1034,11 @@ router.get('/proxy-media', async (req, res) => {
 let innertubeInstance = null;
 async function getInnertube() {
   if (!innertubeInstance) {
-    const { Innertube, ClientType } = require('youtubei.js');
-    innertubeInstance = await Innertube.create({ client_type: ClientType.ANDROID_VR });
+    const { Innertube, ClientType, UniversalCache } = require('youtubei.js');
+    innertubeInstance = await Innertube.create({
+      client_type: ClientType.ANDROID_VR,
+      cache: new UniversalCache(false)
+    });
   }
   return innertubeInstance;
 }
@@ -1062,6 +1065,7 @@ async function extractPureNodeYoutubeStream(vId) {
     }
   } catch (vrErr) {
     console.warn('[Innertube ANDROID_VR Notice]:', vrErr.message);
+    innertubeInstance = null;
   }
 
   // Engine 2: Standard Android client direct request
@@ -1182,13 +1186,18 @@ router.get('/stream-download', async (req, res) => {
               }
             });
           }
-          if (up.ok && up.status === 200) {
+          if (up.ok && (up.status === 200 || up.status === 206)) {
             const cl = up.headers.get('content-length');
             setDownloadHeaders(type === 'audio' ? 'audio/mpeg' : 'video/mp4', cl);
+            if (req.method === 'HEAD') {
+              return res.status(200).end();
+            }
             const { Readable } = require('stream');
             return Readable.fromWeb(up.body).pipe(res);
           }
-        } catch (e) {}
+        } catch (e) {
+          console.warn('[Stream download fetch notice]:', e.message);
+        }
       }
     }
 
@@ -1226,55 +1235,40 @@ router.get('/stream-download', async (req, res) => {
 
     const headers = {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-      'Accept': '*/*',
-      'Referer': referer
+      'Accept': '*/*'
     };
+    if (!isYtStream) {
+      headers['Referer'] = referer;
+    }
 
     if (req.headers.range) {
       headers['Range'] = req.headers.range;
     }
 
-    const upstream = await fetch(fileUrl, { headers });
+    let upstream = await fetch(fileUrl, { headers });
 
-    if (!upstream.ok) {
-      delete headers['Referer'];
-      const retryUpstream = await fetch(fileUrl, { headers });
-      if (!retryUpstream.ok && req.query.videoId) {
-        // Fallback Step 1: Pure Node.js direct streaming
-        const pureUrl = await extractPureNodeYoutubeStream(req.query.videoId);
-        if (pureUrl) {
-          const directUp = await fetch(pureUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
-          if (directUp.ok) {
-            const cl = directUp.headers.get('content-length');
-            if (cl) res.setHeader('Content-Length', cl);
-            const { Readable } = require('stream');
-            return Readable.fromWeb(directUp.body).pipe(res);
+    if (!upstream.ok && req.query.videoId) {
+      // Re-extract fresh stream via pure Node
+      const freshUrl = await extractPureNodeYoutubeStream(req.query.videoId);
+      if (freshUrl) {
+        upstream = await fetch(freshUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36',
+            'Accept': '*/*'
           }
-        }
-
-        // Fallback Step 2: spawn yt-dlp to stream the YouTube watch URL directly
-        const pyPath = 'C:\\Users\\himanshu yadav\\AppData\\Local\\Programs\\Python\\Python311\\python.exe';
-        const { spawn } = require('child_process');
-        const watchUrl = `https://www.youtube.com/watch?v=${req.query.videoId}`;
-        const child = spawn(pyPath, ['-m', 'yt_dlp', '--extractor-args', 'youtube:player_client=android,web', '-f', '18/b[ext=mp4]/best[ext=mp4]/best/bestvideo+bestaudio/best', '-o', '-', watchUrl]);
-        child.stdout.pipe(res);
-        return;
-      }
-      if (retryUpstream.ok) {
-        const cl = retryUpstream.headers.get('content-length');
-        if (cl) res.setHeader('Content-Length', cl);
-        const { Readable } = require('stream');
-        return Readable.fromWeb(retryUpstream.body).pipe(res);
+        });
       }
     }
 
-    const contentLength = upstream.headers.get('content-length');
-    if (contentLength) {
-      res.setHeader('Content-Length', contentLength);
+    if (upstream.ok) {
+      const contentLength = upstream.headers.get('content-length');
+      setDownloadHeaders(type === 'audio' ? 'audio/mpeg' : (type === 'image' ? 'image/jpeg' : 'video/mp4'), contentLength);
+      if (req.method === 'HEAD') {
+        return res.status(200).end();
+      }
+      const { Readable } = require('stream');
+      return Readable.fromWeb(upstream.body).pipe(res);
     }
-
-    const { Readable } = require('stream');
-    return Readable.fromWeb(upstream.body).pipe(res);
 
   } catch (err) {
     console.error('[Stream Download Error]:', err.message);

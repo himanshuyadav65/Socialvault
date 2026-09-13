@@ -719,33 +719,19 @@
       setTimeout(() => a.remove(), 1000);
     }
 
-    document.getElementById('btnDownloadHd')?.addEventListener('click', async (e) => {
-      e.preventDefault();
+    document.getElementById('btnDownloadHd')?.addEventListener('click', (e) => {
       const href = e.currentTarget.getAttribute('href');
       if (!href || href === '#') return;
       const fn = e.currentTarget.getAttribute('download') || 'youtube_shorts_1080p.mp4';
       
       const btn = e.currentTarget;
       const origHtml = btn.innerHTML;
-      btn.innerHTML = '<span>⏳ Preparing download...</span>';
-      btn.style.pointerEvents = 'none';
-
-      try {
-        const checkRes = await fetch(href, { method: 'HEAD' });
-        if (checkRes.status === 403 || !checkRes.ok) {
-          alert("⚠️ Cloud Serverless Notice:\n\nYouTube blocks free cloud datacenters (like Vercel) from streaming this specific video.\n\nTo download ANY YouTube video & Short in 1080p without any bot restrictions, run SocialVault locally on your laptop with 'npm start'!");
-          btn.innerHTML = origHtml;
-          btn.style.pointerEvents = 'auto';
-          return;
-        }
+      btn.innerHTML = '<span>⏳ Downloading...</span>';
+      
+      triggerDirectDownload(href, fn);
+      setTimeout(() => {
         btn.innerHTML = origHtml;
-        btn.style.pointerEvents = 'auto';
-        triggerDirectDownload(href, fn);
-      } catch (err) {
-        btn.innerHTML = origHtml;
-        btn.style.pointerEvents = 'auto';
-        triggerDirectDownload(href, fn);
-      }
+      }, 3000);
     });
   </script>
 </body>
