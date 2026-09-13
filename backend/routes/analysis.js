@@ -1035,10 +1035,14 @@ let innertubeInstance = null;
 async function getInnertube() {
   if (!innertubeInstance) {
     const { Innertube, ClientType, UniversalCache } = await import('youtubei.js');
-    innertubeInstance = await Innertube.create({
+    const options = {
       client_type: ClientType.ANDROID_VR,
       cache: new UniversalCache(false)
-    });
+    };
+    if (process.env.YOUTUBE_COOKIE) {
+      options.cookie = process.env.YOUTUBE_COOKIE;
+    }
+    innertubeInstance = await Innertube.create(options);
   }
   return innertubeInstance;
 }
@@ -1119,35 +1123,7 @@ async function extractPureNodeYoutubeStream(vId) {
   return null;
 }
 
-router.get('/debug-yt', async (req, res) => {
-  const vId = req.query.v || 'DYb115I34i8';
-  try {
-    const { Innertube, UniversalCache } = await import('youtubei.js');
-    const yt = await Innertube.create({ cache: new UniversalCache(false) });
-    const clientsToTry = ['TVHTML5', 'TVHTML5_SIMPLY', 'WEB_EMBEDDED_PLAYER', 'ANDROID_CREATOR', 'VISIONOS', 'WEB_KIDS'];
-    const results = {};
-    for (const client of clientsToTry) {
-      try {
-        const result = await yt.actions.execute('/player', {
-          videoId: vId,
-          client: client,
-          playbackContext: { contentPlaybackContext: { html5Preference: 'HTML5_PREF_WANTS' } }
-        });
-        results[client] = {
-          status: result.data?.playabilityStatus?.status,
-          reason: result.data?.playabilityStatus?.reason,
-          formatsCount: result.data?.streamingData?.formats?.length || 0,
-          adaptiveCount: result.data?.streamingData?.adaptiveFormats?.length || 0
-        };
-      } catch (err) {
-        results[client] = { error: err.message };
-      }
-    }
-    return res.json(results);
-  } catch (e) {
-    return res.status(500).json({ error: e.message, stack: e.stack });
-  }
-});
+
 
 // =========================================================================
 
