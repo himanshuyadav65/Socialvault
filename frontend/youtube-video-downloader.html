@@ -516,10 +516,6 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   Download 1080p HD Video (MP4)
                 </a>
-
-                <a id="btnDownloadMp3" href="#" target="_blank" class="btn-dl-sec">
-                  🎵 Download Audio (MP3 320kbps)
-                </a>
               </div>
             </div>
           </div>
@@ -534,9 +530,9 @@
           <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Download full-length YouTube videos in crystal-clear 1080p, 2K, and 4K MP4 resolution.</span>
         </div>
         <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
-          <div style="font-size:28px; margin-bottom:8px;">🎵</div>
-          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">High-Bitrate MP3 Audio</strong>
-          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Convert YouTube videos into 320kbps high-fidelity MP3 audio tracks in one click.</span>
+          <div style="font-size:28px; margin-bottom:8px;">🚀</div>
+          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Original Audio & Video Synced</strong>
+          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Fully muxed high-definition MP4 stream compatible with all mobile and desktop players.</span>
         </div>
         <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
           <div style="font-size:28px; margin-bottom:8px;">⚡</div>
@@ -671,28 +667,16 @@
         const cleanTitle = (data.title || 'youtube_video').replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 50);
         
         const btnHd = document.getElementById('btnDownloadHd');
-        const btnMp3 = document.getElementById('btnDownloadMp3');
 
         // 1080p MP4 Video Downloader (Direct Stream on SocialVault)
-        if (data.downloadUrl && data.downloadUrl.startsWith('http')) {
-          btnHd.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent(data.downloadUrl)}&filename=${cleanTitle}_1080p.mp4&type=video`;
-          btnHd.setAttribute('download', `${cleanTitle}_1080p.mp4`);
-          btnHd.removeAttribute('target');
-        } else if (data.videoId) {
-          btnHd.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent('https://www.youtube.com/watch?v=' + data.videoId)}&filename=${cleanTitle}_1080p.mp4&type=video`;
-          btnHd.setAttribute('download', `${cleanTitle}_1080p.mp4`);
-          btnHd.removeAttribute('target');
-        }
+        const targetMediaUrl = (data.downloadUrl && data.downloadUrl.startsWith('http')) 
+          ? data.downloadUrl 
+          : (data.videoId ? ('https://www.youtube.com/watch?v=' + data.videoId) : '');
 
-        // 320kbps MP3 Audio Downloader (Direct Stream on SocialVault)
-        if (data.audioUrl && data.audioUrl.startsWith('http')) {
-          btnMp3.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent(data.audioUrl)}&filename=${cleanTitle}_320kbps.mp3&type=audio`;
-          btnMp3.setAttribute('download', `${cleanTitle}_320kbps.mp3`);
-          btnMp3.removeAttribute('target');
-        } else if (data.videoId) {
-          btnMp3.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent('https://www.youtube.com/watch?v=' + data.videoId)}&filename=${cleanTitle}_320kbps.mp3&type=audio`;
-          btnMp3.setAttribute('download', `${cleanTitle}_320kbps.mp3`);
-          btnMp3.removeAttribute('target');
+        if (targetMediaUrl) {
+          btnHd.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent(targetMediaUrl)}&videoId=${encodeURIComponent(data.videoId || '')}&filename=${cleanTitle}_1080p.mp4&type=video`;
+          btnHd.setAttribute('download', `${cleanTitle}_1080p.mp4`);
+          btnHd.removeAttribute('target');
         }
 
         resultContainer.style.display = 'block';
@@ -719,15 +703,6 @@
       const href = e.currentTarget.getAttribute('href');
       if (href && href !== '#') {
         const fn = e.currentTarget.getAttribute('download') || 'youtube_video_1080p.mp4';
-        triggerDirectDownload(href, fn);
-      }
-    });
-
-    document.getElementById('btnDownloadMp3')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      const href = e.currentTarget.getAttribute('href');
-      if (href && href !== '#') {
-        const fn = e.currentTarget.getAttribute('download') || 'youtube_audio_320kbps.mp3';
         triggerDirectDownload(href, fn);
       }
     });

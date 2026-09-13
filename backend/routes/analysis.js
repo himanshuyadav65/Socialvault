@@ -325,7 +325,8 @@ router.post('/download-reel', async (req, res) => {
       duration: data.duration || (isVideo ? '0:30 • 1080p HD' : 'High Resolution Photo'),
       fileSize: '2.5 MB',
       music: 'Original Audio',
-      entries: data.entries || []
+      entries: data.entries || [],
+      images: data.images || (data.entries ? data.entries.map(e => e.url) : [])
     });
   } catch (error) {
     return res.status(500).json({ error: "Failed to download media stream: " + error.message });
@@ -1066,21 +1067,14 @@ router.get('/stream-download', async (req, res) => {
     }
   }
 
-  // 1. Check if link is YouTube or GoogleVideo stream
-  const isYouTube = fileUrl.includes('youtube.com') || fileUrl.includes('youtu.be') || fileUrl.includes('googlevideo.com');
+  // 1. Check if link is a YouTube Watch/Shorts Webpage URL (not a raw googlevideo stream)
+  const isYouTubePage = fileUrl.includes('youtube.com/watch') || fileUrl.includes('youtube.com/shorts') || fileUrl.includes('youtu.be/');
 
-  if (isYouTube) {
+  if (isYouTubePage) {
     const pyPath = 'C:\\Users\\himanshu yadav\\AppData\\Local\\Programs\\Python\\Python311\\python.exe';
     const { spawn } = require('child_process');
 
-    const args = ['-m', 'yt_dlp', '--js-runtimes', 'node', '-o', '-'];
-    if (type === 'audio') {
-      args.push('-x', '--audio-format', 'mp3');
-    } else {
-      args.push('-f', 'b[ext=mp4]/best[ext=mp4]/best');
-    }
-    args.push(fileUrl);
-
+    const args = ['-m', 'yt_dlp', '--js-runtimes', 'node', '-f', 'b[ext=mp4]/best[ext=mp4]/best', '-o', '-', fileUrl];
     let child = spawn(pyPath, args);
 
     child.on('error', () => {
@@ -1096,13 +1090,14 @@ router.get('/stream-download', async (req, res) => {
     return;
   }
 
-  // 2. Direct HTTP Stream Proxy (Instagram, Facebook, TikTok, general CDN)
+  // 2. Direct HTTP Stream Proxy (GoogleVideo, Instagram, Facebook, TikTok, general CDN)
   try {
+    const isYtStream = fileUrl.includes('googlevideo.com');
     const isFb = fileUrl.includes('fbcdn.net') || fileUrl.includes('facebook.com');
-    const referer = isFb ? 'https://www.facebook.com/' : 'https://www.instagram.com/';
+    const referer = isYtStream ? 'https://www.youtube.com/' : (isFb ? 'https://www.facebook.com/' : 'https://www.instagram.com/');
 
     const headers = {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
       'Accept': '*/*',
       'Referer': referer
     };
@@ -1116,18 +1111,21 @@ router.get('/stream-download', async (req, res) => {
     if (!upstream.ok) {
       delete headers['Referer'];
       const retryUpstream = await fetch(fileUrl, { headers });
-      if (!retryUpstream.ok) {
-        // Fallback: spawn yt-dlp to stream fileUrl directly to response stdout
+      if (!retryUpstream.ok && req.query.videoId) {
+        // Fallback: spawn yt-dlp to stream the YouTube watch URL directly
         const pyPath = 'C:\\Users\\himanshu yadav\\AppData\\Local\\Programs\\Python\\Python311\\python.exe';
         const { spawn } = require('child_process');
-        const child = spawn(pyPath, ['-m', 'yt_dlp', '-o', '-', fileUrl]);
+        const watchUrl = `https://www.youtube.com/watch?v=${req.query.videoId}`;
+        const child = spawn(pyPath, ['-m', 'yt_dlp', '--js-runtimes', 'node', '-f', 'b[ext=mp4]/best[ext=mp4]/best', '-o', '-', watchUrl]);
         child.stdout.pipe(res);
         return;
       }
-      const cl = retryUpstream.headers.get('content-length');
-      if (cl) res.setHeader('Content-Length', cl);
-      const { Readable } = require('stream');
-      return Readable.fromWeb(retryUpstream.body).pipe(res);
+      if (retryUpstream.ok) {
+        const cl = retryUpstream.headers.get('content-length');
+        if (cl) res.setHeader('Content-Length', cl);
+        const { Readable } = require('stream');
+        return Readable.fromWeb(retryUpstream.body).pipe(res);
+      }
     }
 
     const contentLength = upstream.headers.get('content-length');
@@ -1231,11 +1229,11 @@ const handleYoutubeVideo = async (req, res) => {
         const { exec } = require('child_process');
         const pyPath = 'C:\\Users\\himanshu yadav\\AppData\\Local\\Programs\\Python\\Python311\\python.exe';
         const getYtStreams = (targetUrl) => new Promise((resolve) => {
-          const cmd = `"${pyPath}" -m yt_dlp --js-runtimes node --remote-components ejs:github -g "${targetUrl}"`;
+          const cmd = `"${pyPath}" -m yt_dlp --js-runtimes node -f "b[ext=mp4]/best[ext=mp4]/best" -g "${targetUrl}"`;
           exec(cmd, { timeout: 15000 }, (error, stdout) => {
             if (error || !stdout) {
               // Fallback to global python
-              const fallbackCmd = `python -m yt_dlp --js-runtimes node --remote-components ejs:github -g "${targetUrl}"`;
+              const fallbackCmd = `python -m yt_dlp --js-runtimes node -f "b[ext=mp4]/best[ext=mp4]/best" -g "${targetUrl}"`;
               exec(fallbackCmd, { timeout: 15000 }, (err2, out2) => {
                 if (err2 || !out2) return resolve([]);
                 const lines = out2.trim().split('\n').map(l => l.trim()).filter(Boolean);

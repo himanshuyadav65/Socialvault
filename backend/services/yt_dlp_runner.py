@@ -179,25 +179,37 @@ def extract(url_or_username, cookie_file=None):
         if raw_entries:
             for idx, item in enumerate(raw_entries):
                 slide_no = idx + 1
-                if item and (item.get('url') or item.get('requested_downloads')):
-                    item_id = item.get('id') or f"slide_{slide_no}"
-                    item_title = item.get('title') or f"Slide {slide_no} (Video)"
-                    item_url = item.get('url') or (item.get('requested_downloads')[0].get('url') if item.get('requested_downloads') else None)
-                    item_ext = item.get('ext') or 'mp4'
-                    is_vid = item_ext in ['mp4', 'm4v', 'webm'] or bool(item.get('vcodec') and item.get('vcodec') != 'none')
-                    
+                if not item:
+                    continue
+
+                item_id = item.get('id') or f"slide_{slide_no}"
+                item_url = item.get('url')
+                if not item_url and item.get('requested_downloads'):
+                    item_url = item['requested_downloads'][0].get('url')
+
+                item_thumb = item.get('thumbnail')
+                if not item_thumb and item.get('thumbnails') and len(item['thumbnails']) > 0:
+                    item_thumb = item['thumbnails'][-1].get('url') or item['thumbnails'][0].get('url')
+
+                if not item_url and item_thumb:
+                    item_url = item_thumb
+
+                item_ext = item.get('ext') or ('mp4' if item.get('vcodec') and item.get('vcodec') != 'none' else 'jpg')
+                is_vid = item_ext in ['mp4', 'm4v', 'webm'] or bool(item.get('vcodec') and item.get('vcodec') != 'none')
+
+                if item_url:
                     entries.append({
                         'id': item_id,
                         'slideNo': slide_no,
                         'url': item_url,
-                        'thumbnail': item.get('thumbnail') or item_url,
-                        'title': item_title,
+                        'thumbnail': item_thumb or item_url,
+                        'title': item.get('title') or f"Slide {slide_no} ({'Video' if is_vid else 'Photo'})",
                         'uploader': uploader,
                         'ext': item_ext,
                         'is_video': is_vid
                     })
                 else:
-                    # Photo slide skipped by yt-dlp
+                    # Photo slide fallback
                     sc = photo_shortcodes[photo_idx] if photo_idx < len(photo_shortcodes) else None
                     photo_idx += 1
                     img_url = resolve_instagram_image_url(sc) if sc else None

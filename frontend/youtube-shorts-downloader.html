@@ -9,7 +9,7 @@
     const t = localStorage.getItem("socialvault_theme") || "dark";
     document.documentElement.setAttribute("data-theme", t);
   </script>
-  <title>YouTube Shorts Downloader (1080p 60fps MP4 & MP3) - SocialVault</title>
+  <title>YouTube Shorts Downloader (1080p 60fps MP4) - SocialVault</title>
   <meta name="description" content="Download short-form YouTube Shorts vertical videos in high definition 60fps MP4 format instantly with zero watermark.">
   
   <!-- Fonts -->
@@ -535,10 +535,6 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   Download Shorts Video (1080p MP4)
                 </a>
-
-                <a id="btnDownloadMp3" href="#" class="btn-dl-sec">
-                  🎵 Download Shorts Audio (MP3 320kbps)
-                </a>
               </div>
             </div>
           </div>
@@ -690,24 +686,16 @@
         const cleanTitle = (data.title || 'youtube_shorts').replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 50);
         
         const btnHd = document.getElementById('btnDownloadHd');
-        const btnMp3 = document.getElementById('btnDownloadMp3');
 
         // 1080p MP4 Shorts Video Downloader
-        if (data.downloadUrl && data.downloadUrl.startsWith('http')) {
-          btnHd.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent(data.downloadUrl)}&filename=${cleanTitle}_shorts_1080p.mp4&type=video`;
-          btnHd.setAttribute('download', `${cleanTitle}_shorts_1080p.mp4`);
-        } else if (data.videoId) {
-          btnHd.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent('https://www.youtube.com/watch?v=' + data.videoId)}&filename=${cleanTitle}_shorts_1080p.mp4&type=video`;
-          btnHd.setAttribute('download', `${cleanTitle}_shorts_1080p.mp4`);
-        }
+        const targetMediaUrl = (data.downloadUrl && data.downloadUrl.startsWith('http')) 
+          ? data.downloadUrl 
+          : (data.videoId ? ('https://www.youtube.com/watch?v=' + data.videoId) : '');
 
-        // 320kbps MP3 Audio Downloader
-        if (data.audioUrl && data.audioUrl.startsWith('http')) {
-          btnMp3.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent(data.audioUrl)}&filename=${cleanTitle}_shorts_audio.mp3&type=audio`;
-          btnMp3.setAttribute('download', `${cleanTitle}_shorts_audio.mp3`);
-        } else if (data.videoId) {
-          btnMp3.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent('https://www.youtube.com/watch?v=' + data.videoId)}&filename=${cleanTitle}_shorts_audio.mp3&type=audio`;
-          btnMp3.setAttribute('download', `${cleanTitle}_shorts_audio.mp3`);
+        if (targetMediaUrl) {
+          btnHd.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent(targetMediaUrl)}&videoId=${encodeURIComponent(data.videoId || '')}&filename=${cleanTitle}_shorts_1080p.mp4&type=video`;
+          btnHd.setAttribute('download', `${cleanTitle}_shorts_1080p.mp4`);
+          btnHd.removeAttribute('target');
         }
 
         resultContainer.style.display = 'block';
@@ -734,15 +722,6 @@
       const href = e.currentTarget.getAttribute('href');
       if (href && href !== '#') {
         const fn = e.currentTarget.getAttribute('download') || 'youtube_shorts_1080p.mp4';
-        triggerDirectDownload(href, fn);
-      }
-    });
-
-    document.getElementById('btnDownloadMp3')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      const href = e.currentTarget.getAttribute('href');
-      if (href && href !== '#') {
-        const fn = e.currentTarget.getAttribute('download') || 'youtube_shorts_audio.mp3';
         triggerDirectDownload(href, fn);
       }
     });

@@ -181,7 +181,7 @@
 
     .fb-input {
       width: 100%;
-      padding: 16px 16px 16px 48px;
+      padding: 16px 95px 16px 48px;
       border-radius: 14px;
       border: 1px solid rgba(255, 255, 255, 0.16);
       background: #090e1a;
@@ -189,6 +189,7 @@
       font-size: 15px;
       outline: none;
       transition: all 0.2s ease;
+      box-sizing: border-box;
     }
 
     .fb-input:focus {
@@ -211,6 +212,7 @@
       transition: all 0.2s ease;
       white-space: nowrap;
       box-shadow: 0 4px 18px rgba(24, 119, 242, 0.35);
+      box-sizing: border-box;
     }
 
     .fb-btn:hover {
@@ -594,6 +596,16 @@
       20% { opacity: 1; }
       80% { opacity: 0.9; }
       100% { transform: translateY(-70px) scale(1.2); opacity: 0; }
+    }
+
+    @media (max-width: 768px) {
+      .fb-container { padding: 24px 14px 60px; }
+      .fb-headline { font-size: 28px; letter-spacing: -0.5px; }
+      .fb-subhead { font-size: 14px; }
+      .fb-search-card { padding: 18px 14px; margin-bottom: 24px; }
+      .fb-input-row { flex-direction: column; width: 100%; gap: 12px; align-items: stretch; }
+      .fb-input-box { width: 100%; }
+      .fb-btn { width: 100%; justify-content: center; padding: 15px 20px; }
     }
   </style>
   <link rel="icon" type="image/png" href="./assets/logo-icon.png">

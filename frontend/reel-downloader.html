@@ -291,7 +291,16 @@
     @media (max-width: 900px) {
       .rd-media-grid {
         grid-template-columns: 1fr;
-        gap: 24px;
+        gap: 20px;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .rd-media-grid > div {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
       }
 
       .rd-form {
@@ -302,6 +311,19 @@
         width: 100%;
         justify-content: center;
       }
+
+      .rd-preview-box {
+        min-height: 240px;
+        max-height: 440px;
+      }
+
+      .rd-result-card {
+        padding: 18px 14px;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
     }
 
     .rd-preview-box {
@@ -311,7 +333,9 @@
       border: 1px solid rgba(255, 255, 255, 0.12);
       position: relative;
       width: 100%;
-      min-height: 420px;
+      max-width: 100%;
+      box-sizing: border-box;
+      min-height: 260px;
       max-height: 520px;
       display: flex;
       align-items: center;
@@ -1115,8 +1139,25 @@
       document.getElementById('reelCommentsCount').textContent = data.comment_count ? formatNumberAbbreviated(data.comment_count) : formatNumberAbbreviated(data.comments);
       document.getElementById('reelFileSize').textContent = data.fileSize || (data.is_video ? '14.2 MB' : '2.4 MB');
 
+      // Normalize entries from images or slides if present
+      if ((!Array.isArray(data.entries) || data.entries.length <= 1) && Array.isArray(data.images) && data.images.length > 1) {
+        data.entries = data.images.map((imgUrl, idx) => ({
+          id: `slide_${idx + 1}`,
+          slideNo: idx + 1,
+          url: imgUrl,
+          thumbnail: imgUrl,
+          title: `Slide ${idx + 1} (Photo)`,
+          uploader: uploader,
+          ext: 'jpg',
+          is_video: false
+        }));
+      }
+
       window.currentSlideIndex = 0;
       const carouselNavBox = document.getElementById('carouselNavBox');
+      const floatPrev = document.getElementById('floatPrevBtn');
+      const floatNext = document.getElementById('floatNextBtn');
+      const floatBadge = document.getElementById('floatSlideBadge');
 
       if (Array.isArray(data.entries) && data.entries.length > 1) {
         if (carouselNavBox) {
@@ -1127,6 +1168,9 @@
         if (carouselNavBox) {
           carouselNavBox.style.display = 'none';
         }
+        if (floatPrev) floatPrev.style.display = 'none';
+        if (floatNext) floatNext.style.display = 'none';
+        if (floatBadge) floatBadge.style.display = 'none';
 
         const coverImg = document.getElementById('reelCoverImg');
         const videoPlayer = document.getElementById('reelVideoPlayer');

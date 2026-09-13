@@ -41,11 +41,27 @@ function prepareCookieFile(cookiesInput) {
   return filePath;
 }
 
+function shortcodeToMediaId(shortcode) {
+  try {
+    let id = BigInt(0);
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+    for (let i = 0; i < shortcode.length; i++) {
+      const char = shortcode[i];
+      const val = BigInt(alphabet.indexOf(char));
+      id = id * BigInt(64) + val;
+    }
+    return id.toString();
+  } catch (e) {
+    return '';
+  }
+}
+
 async function fetchInstagramNodeFallback(url) {
   try {
     const shortcodeMatch = (url || '').match(/\/(?:reel|p|tv)\/([A-Za-z0-9_-]+)/);
     if (!shortcodeMatch) return null;
     const shortcode = shortcodeMatch[1];
+    const mediaId = shortcodeToMediaId(shortcode);
 
     let directMediaUrl = '';
     try {
@@ -63,8 +79,52 @@ async function fetchInstagramNodeFallback(url) {
     let author = 'instagram_creator';
     let caption = '';
     let thumbnail = directMediaUrl;
-    const isVideo = url.includes('/reel/');
+    let isVideo = url.includes('/reel/');
+    let entries = [];
 
+    // Attempt 1: Try GraphQL / API for multi-photo / carousel items
+    if (mediaId) {
+      try {
+        const apiRes = await fetch(`https://www.instagram.com/api/v1/media/${mediaId}/info/`, {
+          headers: {
+            'User-Agent': 'Instagram 275.0.0.27.98 Android (33/13; 420dpi; 1080x2240; Xiaomi; M2007J20CG; surya; qcom; en_US; 458229258)',
+            'X-IG-App-ID': '936619743392459',
+            'Accept': '*/*'
+          }
+        });
+        if (apiRes.ok) {
+          const apiJson = await apiRes.json();
+          const item = apiJson?.items?.[0];
+          if (item) {
+            author = item.user?.username || author;
+            caption = item.caption?.text || caption;
+            
+            if (item.carousel_media && Array.isArray(item.carousel_media) && item.carousel_media.length > 0) {
+              item.carousel_media.forEach((c, idx) => {
+                const cVid = c.video_versions?.[0]?.url;
+                const cImg = c.image_versions2?.candidates?.[0]?.url;
+                const itemIsVid = Boolean(cVid);
+                const itemUrl = cVid || cImg;
+                if (itemUrl) {
+                  entries.push({
+                    id: c.pk ? String(c.pk) : `slide_${idx + 1}`,
+                    slideNo: idx + 1,
+                    url: itemUrl,
+                    thumbnail: cImg || itemUrl,
+                    title: `Slide ${idx + 1} (${itemIsVid ? 'Video' : 'Photo'})`,
+                    uploader: author,
+                    ext: itemIsVid ? 'mp4' : 'jpg',
+                    is_video: itemIsVid
+                  });
+                }
+              });
+            }
+          }
+        }
+      } catch (apiErr) {}
+    }
+
+    // Attempt 2: Extract metadata from embed/captioned/
     try {
       const embedRes = await fetch(`https://www.instagram.com/p/${shortcode}/embed/captioned/`, {
         headers: {
@@ -88,8 +148,23 @@ async function fetchInstagramNodeFallback(url) {
       }
     } catch (e) {}
 
-    const finalUrl = directMediaUrl || thumbnail;
+    const finalUrl = (entries.length > 0 ? entries[0].url : '') || directMediaUrl || thumbnail;
     if (!finalUrl) return null;
+
+    if (entries.length === 0) {
+      entries.push({
+        id: shortcode,
+        slideNo: 1,
+        url: finalUrl,
+        thumbnail: thumbnail || finalUrl,
+        title: caption || 'Instagram Media Post',
+        uploader: author,
+        ext: isVideo ? 'mp4' : 'jpg',
+        is_video: isVideo
+      });
+    }
+
+    const firstIsVid = entries[0]?.is_video || isVideo;
 
     return {
       status: 'success',
@@ -97,10 +172,12 @@ async function fetchInstagramNodeFallback(url) {
       title: caption || 'Instagram Post',
       uploader: author,
       thumbnail: thumbnail || finalUrl,
-      is_video: isVideo,
-      ext: isVideo ? 'mp4' : 'jpg',
+      is_video: firstIsVid,
+      ext: firstIsVid ? 'mp4' : 'jpg',
       like_count: 12500,
-      comment_count: 340
+      comment_count: 340,
+      entries: entries,
+      images: entries.map(e => e.url)
     };
   } catch (err) {
     return null;
