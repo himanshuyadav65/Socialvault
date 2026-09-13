@@ -1122,19 +1122,28 @@ async function extractPureNodeYoutubeStream(vId) {
 router.get('/debug-yt', async (req, res) => {
   const vId = req.query.v || 'DYb115I34i8';
   try {
-    const yt = await getInnertube();
-    const result = await yt.actions.execute('/player', {
-      videoId: vId,
-      client: 'ANDROID_VR',
-      playbackContext: { contentPlaybackContext: { html5Preference: 'HTML5_PREF_WANTS' } }
-    });
-    return res.json({
-      status: result.data?.playabilityStatus?.status,
-      reason: result.data?.playabilityStatus?.reason,
-      formatsCount: result.data?.streamingData?.formats?.length || 0,
-      adaptiveCount: result.data?.streamingData?.adaptiveFormats?.length || 0,
-      formats: result.data?.streamingData?.formats || []
-    });
+    const { Innertube, UniversalCache } = await import('youtubei.js');
+    const yt = await Innertube.create({ cache: new UniversalCache(false) });
+    const clientsToTry = ['ANDROID_VR', 'IOS', 'ANDROID', 'MWEB', 'WEB', 'TV_EMBEDDED', 'YTMUSIC', 'YTMUSIC_ANDROID', 'MEDIA_CONNECT'];
+    const results = {};
+    for (const client of clientsToTry) {
+      try {
+        const result = await yt.actions.execute('/player', {
+          videoId: vId,
+          client: client,
+          playbackContext: { contentPlaybackContext: { html5Preference: 'HTML5_PREF_WANTS' } }
+        });
+        results[client] = {
+          status: result.data?.playabilityStatus?.status,
+          reason: result.data?.playabilityStatus?.reason,
+          formatsCount: result.data?.streamingData?.formats?.length || 0,
+          adaptiveCount: result.data?.streamingData?.adaptiveFormats?.length || 0
+        };
+      } catch (err) {
+        results[client] = { error: err.message };
+      }
+    }
+    return res.json(results);
   } catch (e) {
     return res.status(500).json({ error: e.message, stack: e.stack });
   }
