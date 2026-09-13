@@ -1,3 +1,4 @@
+
 /**
  * ============================================================================
  * SocialScope — Express REST API Backend
@@ -74,7 +75,7 @@ app.get('/api/stream', async (req, res) => {
   } catch (e) {
     // Fallback direct stream
   }
-  
+
   try {
     const upstream = await fetch(mediaUrl, {
       headers: {
@@ -96,7 +97,7 @@ app.get('/api/stream', async (req, res) => {
 app.post('/api/upload-cookies', async (req, res) => {
   const fs = require('fs');
   const cookiesPath = path.join(__dirname, 'cookies.txt');
-  
+
   if (req.body && req.body.cookies) {
     fs.writeFileSync(cookiesPath, req.body.cookies, 'utf-8');
     return res.json({

@@ -1115,12 +1115,24 @@ section.it-sec-wrapper + section.it-sec-wrapper::before {
 
 .it-logo-icon {
   width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #06b6d4, #a855f7);
-  display: grid;
-  place-items: center;
-  box-shadow: 0 0 16px rgba(6, 182, 212, 0.4);
+  height: 36px;
+  background: url('./assets/logo-icon.png') no-repeat center center / contain !important;
+  display: inline-block;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  flex-shrink: 0;
+}
+
+[data-theme="light"] .it-logo-icon {
+  background-image: url('./assets/logo-icon-light.png') !important;
+}
+
+[data-theme="dark"] .it-logo-icon {
+  background-image: url('./assets/logo-icon.png') !important;
+}
+
+.it-logo-icon svg {
+  display: none !important;
 }
 
 .it-brand-title {
@@ -1130,27 +1142,27 @@ section.it-sec-wrapper + section.it-sec-wrapper::before {
 }
 
 .it-title-pink {
-  background: linear-gradient(135deg, #e1306c, #f56040, #ec4899);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #ec4899;
+  background: linear-gradient(135deg, #e1306c, #f56040, #ec4899) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: #ec4899 !important;
 }
 
 .it-title-blue {
-  background: linear-gradient(135deg, #1877f2, #3b82f6, #00c6ff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #00c6ff;
+  background: linear-gradient(135deg, #1877f2, #3b82f6, #00c6ff) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: #00c6ff !important;
 }
 
 .it-title-orange {
-  background: linear-gradient(135deg, #a855f7, #6366f1);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: #a855f7;
+  background: linear-gradient(135deg, #a855f7, #6366f1) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: #a855f7 !important;
 }
 
 .it-nav-menu {
