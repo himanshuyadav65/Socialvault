@@ -1031,8 +1031,40 @@ router.get('/proxy-media', async (req, res) => {
 // PURE NODE.JS YOUTUBE STREAM EXTRACTOR
 // RUNS IN 500MS ON VERCEL SERVERLESS & LOCAL ENVIRONMENTS WITHOUT REQUIRING PYTHON OR YT-DLP
 // =========================================================================
+let innertubeInstance = null;
+async function getInnertube() {
+  if (!innertubeInstance) {
+    const { Innertube, ClientType } = require('youtubei.js');
+    innertubeInstance = await Innertube.create({ client_type: ClientType.ANDROID_VR });
+  }
+  return innertubeInstance;
+}
+
 async function extractPureNodeYoutubeStream(vId) {
   if (!vId) return null;
+
+  // Engine 1: Innertube with ANDROID_VR (Bypasses datacenter bot challenges on Shorts & Cloud IPs)
+  try {
+    const yt = await getInnertube();
+    const res = await yt.actions.execute('/player', {
+      videoId: vId,
+      client: 'ANDROID_VR',
+      playbackContext: { contentPlaybackContext: { html5Preference: 'HTML5_PREF_WANTS' } }
+    });
+    const formats = res.data?.streamingData?.formats || [];
+    const f18 = formats.find(f => f.itag === 18 && f.url);
+    if (f18 && f18.url) {
+      return f18.url;
+    }
+    const anyMp4 = formats.find(f => f.url && f.mimeType?.includes('video/mp4'));
+    if (anyMp4 && anyMp4.url) {
+      return anyMp4.url;
+    }
+  } catch (vrErr) {
+    console.warn('[Innertube ANDROID_VR Notice]:', vrErr.message);
+  }
+
+  // Engine 2: Standard Android client direct request
   try {
     const res = await fetch('https://www.youtube.com/youtubei/v1/player', {
       method: 'POST',
@@ -1068,18 +1100,19 @@ async function extractPureNodeYoutubeStream(vId) {
         racyCheckOk: true
       })
     });
-    if (!res.ok) return null;
-    const json = await res.json();
-    const formats = json.streamingData?.formats || [];
-    const f18 = formats.find(f => f.itag === 18 && f.url);
-    if (f18 && f18.url) return f18.url;
-    const anyCombined = formats.find(f => f.url && f.mimeType && f.mimeType.includes('video/mp4'));
-    if (anyCombined && anyCombined.url) return anyCombined.url;
-    return null;
+    if (res.ok) {
+      const json = await res.json();
+      const formats = json.streamingData?.formats || [];
+      const f18 = formats.find(f => f.itag === 18 && f.url);
+      if (f18 && f18.url) return f18.url;
+      const anyCombined = formats.find(f => f.url && f.mimeType && f.mimeType.includes('video/mp4'));
+      if (anyCombined && anyCombined.url) return anyCombined.url;
+    }
   } catch (err) {
     console.warn('[Pure Node YouTube Extractor Error]:', err.message);
-    return null;
   }
+
+  return null;
 }
 
 // =========================================================================
@@ -1135,12 +1168,20 @@ router.get('/stream-download', async (req, res) => {
       const directStream = await extractPureNodeYoutubeStream(vId);
       if (directStream) {
         try {
-          const up = await fetch(directStream, {
+          let up = await fetch(directStream, {
             headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+              'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36',
               'Accept': '*/*'
             }
           });
+          if (!up.ok) {
+            up = await fetch(directStream, {
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': '*/*'
+              }
+            });
+          }
           if (up.ok && up.status === 200) {
             const cl = up.headers.get('content-length');
             setDownloadHeaders(type === 'audio' ? 'audio/mpeg' : 'video/mp4', cl);
