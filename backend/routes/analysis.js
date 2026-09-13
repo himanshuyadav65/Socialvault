@@ -1124,7 +1124,7 @@ router.get('/debug-yt', async (req, res) => {
   try {
     const { Innertube, UniversalCache } = await import('youtubei.js');
     const yt = await Innertube.create({ cache: new UniversalCache(false) });
-    const clientsToTry = ['ANDROID_VR', 'IOS', 'ANDROID', 'MWEB', 'WEB', 'TV_EMBEDDED', 'YTMUSIC', 'YTMUSIC_ANDROID', 'MEDIA_CONNECT'];
+    const clientsToTry = ['TVHTML5', 'TVHTML5_SIMPLY', 'WEB_EMBEDDED_PLAYER', 'ANDROID_CREATOR', 'VISIONOS', 'WEB_KIDS'];
     const results = {};
     for (const client of clientsToTry) {
       try {
