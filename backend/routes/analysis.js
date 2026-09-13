@@ -1119,6 +1119,27 @@ async function extractPureNodeYoutubeStream(vId) {
   return null;
 }
 
+router.get('/debug-yt', async (req, res) => {
+  const vId = req.query.v || 'DYb115I34i8';
+  try {
+    const yt = await getInnertube();
+    const result = await yt.actions.execute('/player', {
+      videoId: vId,
+      client: 'ANDROID_VR',
+      playbackContext: { contentPlaybackContext: { html5Preference: 'HTML5_PREF_WANTS' } }
+    });
+    return res.json({
+      status: result.data?.playabilityStatus?.status,
+      reason: result.data?.playabilityStatus?.reason,
+      formatsCount: result.data?.streamingData?.formats?.length || 0,
+      adaptiveCount: result.data?.streamingData?.adaptiveFormats?.length || 0,
+      formats: result.data?.streamingData?.formats || []
+    });
+  } catch (e) {
+    return res.status(500).json({ error: e.message, stack: e.stack });
+  }
+});
+
 // =========================================================================
 
 // =========================================================================
