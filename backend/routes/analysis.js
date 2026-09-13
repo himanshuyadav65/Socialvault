@@ -1034,7 +1034,7 @@ router.get('/proxy-media', async (req, res) => {
 let innertubeInstance = null;
 async function getInnertube() {
   if (!innertubeInstance) {
-    const { Innertube, ClientType, UniversalCache } = require('youtubei.js');
+    const { Innertube, ClientType, UniversalCache } = await import('youtubei.js');
     innertubeInstance = await Innertube.create({
       client_type: ClientType.ANDROID_VR,
       cache: new UniversalCache(false)
