@@ -1082,39 +1082,9 @@ async function extractPureNodeYoutubeStream(vId) {
   }
 }
 
-router.get('/debug-yt/:id', async (req, res) => {
-  try {
-    const ytRes = await fetch('https://www.youtube.com/youtubei/v1/player', {
-      method: 'POST',
-      headers: {
-        'X-YouTube-Client-Name': '3',
-        'X-YouTube-Client-Version': '21.26.364',
-        'Origin': 'https://www.youtube.com',
-        'User-Agent': 'com.google.android.youtube/21.26.364 (Linux; U; Android 11) gzip',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        context: { client: { clientName: 'ANDROID', clientVersion: '21.26.364', androidSdkVersion: 30, userAgent: 'com.google.android.youtube/21.26.364 (Linux; U; Android 11) gzip', osName: 'Android', osVersion: '11', hl: 'en', timeZone: 'UTC', utcOffsetMinutes: 0 } },
-        videoId: req.params.id,
-        playbackContext: { contentPlaybackContext: { html5Preference: 'HTML5_PREF_WANTS', signatureTimestamp: 20702 } },
-        contentCheckOk: true, racyCheckOk: true
-      })
-    });
-    const j = await ytRes.json();
-    return res.json({
-      httpStatus: ytRes.status,
-      playabilityStatus: j.playabilityStatus,
-      formatsCount: j.streamingData?.formats?.length || 0,
-      formats: (j.streamingData?.formats || []).map(f => ({ itag: f.itag, quality: f.qualityLabel, url: !!f.url })),
-      error: j.error
-    });
-  } catch (err) {
-    return res.json({ catchError: err.message });
-  }
-});
-
 // =========================================================================
 
+// =========================================================================
 // UNIVERSAL DIRECT STREAM DOWNLOAD PROXY
 // FORCES DIRECT ATTACHMENT FILE DOWNLOAD TO CHROME DOWNLOAD BAR (NEVER INLINE VIDEO)
 // =========================================================================
@@ -1128,26 +1098,21 @@ router.get('/stream-download', async (req, res) => {
   }
 
   const safeFilename = rawFilename.replace(/[^a-zA-Z0-9_.-]/g, '_');
-  
-  // Set Chrome Attachment Download Headers ALWAYS first
-  res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}"; filename*=UTF-8''${encodeURIComponent(safeFilename)}`);
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
-  if (type === 'audio') {
-    res.setHeader('Content-Type', 'audio/mpeg');
-  } else if (type === 'image') {
-    res.setHeader('Content-Type', 'image/jpeg');
-  } else {
-    res.setHeader('Content-Type', 'video/mp4');
-  }
+  const setDownloadHeaders = (contentType, length) => {
+    res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}"; filename*=UTF-8''${encodeURIComponent(safeFilename)}`);
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Content-Type', contentType);
+    if (length) res.setHeader('Content-Length', length);
+  };
 
   // Handle Base64 Data URLs directly
   if (fileUrl.startsWith('data:')) {
     try {
       const parts = fileUrl.split(',');
       const imgBuf = Buffer.from(parts[1], 'base64');
-      res.setHeader('Content-Length', imgBuf.length);
+      setDownloadHeaders(type === 'image' ? 'image/jpeg' : 'video/mp4', imgBuf.length);
       return res.send(imgBuf);
     } catch (e) {
       return res.status(500).send('Invalid data URI');
@@ -1176,9 +1141,9 @@ router.get('/stream-download', async (req, res) => {
               'Accept': '*/*'
             }
           });
-          if (up.ok) {
+          if (up.ok && up.status === 200) {
             const cl = up.headers.get('content-length');
-            if (cl) res.setHeader('Content-Length', cl);
+            setDownloadHeaders(type === 'audio' ? 'audio/mpeg' : 'video/mp4', cl);
             const { Readable } = require('stream');
             return Readable.fromWeb(up.body).pipe(res);
           }
@@ -1187,23 +1152,29 @@ router.get('/stream-download', async (req, res) => {
     }
 
     // Step 2: Spawn yt-dlp if local Python is available
+    const fs = require('fs');
     const pyPath = 'C:\\Users\\himanshu yadav\\AppData\\Local\\Programs\\Python\\Python311\\python.exe';
-    const { spawn } = require('child_process');
+    const hasLocalPy = fs.existsSync(pyPath);
 
-    const args = ['-m', 'yt_dlp', '--extractor-args', 'youtube:player_client=android,web', '-f', '18/b[ext=mp4]/best[ext=mp4]/best/bestvideo+bestaudio/best', '-o', '-', fileUrl];
-    let child = spawn(pyPath, args);
+    if (hasLocalPy) {
+      const { spawn } = require('child_process');
+      const args = ['-m', 'yt_dlp', '--extractor-args', 'youtube:player_client=android,web', '-f', '18/b[ext=mp4]/best[ext=mp4]/best/bestvideo+bestaudio/best', '-o', '-', fileUrl];
+      const child = spawn(pyPath, args);
 
-    child.on('error', () => {
-      child = spawn('python', args);
+      setDownloadHeaders(type === 'audio' ? 'audio/mpeg' : 'video/mp4');
       child.stdout.pipe(res);
-    });
 
-    child.stdout.pipe(res);
+      req.on('close', () => {
+        if (child && !child.killed) child.kill('SIGTERM');
+      });
+      return;
+    }
 
-    req.on('close', () => {
-      if (child && !child.killed) child.kill('SIGTERM');
-    });
-    return;
+    // Step 3: Vercel Serverless Fallback (When cloud datacenter IP is challenged by YouTube bot protection)
+    // Redirect cleanly to high-speed web mirror so user never gets a 0-byte corrupt file
+    if (vId) {
+      return res.redirect(302, `https://10downloader.com/download?v=${vId}`);
+    }
   }
 
   // 2. Direct HTTP Stream Proxy (GoogleVideo, Instagram, Facebook, TikTok, general CDN)

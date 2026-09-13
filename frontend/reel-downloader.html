@@ -1267,7 +1267,7 @@
         }
         if (playOverlay) playOverlay.style.display = 'none';
 
-        document.getElementById('reelDurationBadge').textContent = isVid ? `Duration: ${data.duration || '0:30'} • 1080p` : '● High Resolution Photo (JPG)';
+        document.getElementById('reelDurationBadge').textContent = isVid ? `Duration: ${data.duration || '0:30'} • 1080p Video (Single)` : '● Single High-Res Photo (1 of 1)';
         const dlBtnText = document.getElementById('dlBtnMainText') || document.querySelector('#btnDownloadMp4 span');
         if (dlBtnText) {
           dlBtnText.textContent = isVid ? 'Download Video (1080p MP4)' : 'Download Photo (HD Quality)';
