@@ -237,14 +237,101 @@
     }
   }
 
+  // --- 3. RESPONSIVE MOBILE NAVIGATION DRAWER ---
+  function initMobileNav() {
+    const navbar = document.querySelector(".it-navbar");
+    if (!navbar) return;
+    const navContainer = navbar.querySelector(".it-nav-container");
+    if (!navContainer) return;
+
+    let toggleBtn = document.getElementById("mobileMenuToggle");
+    let drawer = document.getElementById("mobileNavDrawer");
+
+    if (!toggleBtn) {
+      const navActions = navContainer.querySelector(".it-nav-actions") || navContainer;
+      toggleBtn = document.createElement("button");
+      toggleBtn.type = "button";
+      toggleBtn.id = "mobileMenuToggle";
+      toggleBtn.className = "it-mobile-toggle";
+      toggleBtn.setAttribute("aria-label", "Toggle Mobile Menu");
+      toggleBtn.innerHTML = `
+        <svg class="it-hamburger-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+        <svg class="it-close-icon hidden" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      `;
+      navActions.appendChild(toggleBtn);
+    }
+
+    if (!drawer) {
+      drawer = document.createElement("div");
+      drawer.id = "mobileNavDrawer";
+      drawer.className = "it-mobile-drawer hidden";
+
+      const currentPath = window.location.pathname.toLowerCase();
+      const isHome = currentPath.endsWith("index.html") || currentPath === "/" || currentPath === "" || currentPath.endsWith("/");
+      const isFeatures = currentPath.includes("features.html");
+      const isFaq = currentPath.includes("faq.html");
+
+      drawer.innerHTML = `
+        <ul class="it-mobile-nav-list">
+          <li><a href="./index.html" class="it-mobile-nav-link ${isHome ? 'active' : ''}"><span>🏠</span> Home</a></li>
+          <li><a href="./features.html" class="it-mobile-nav-link ${isFeatures ? 'active' : ''}"><span>⚡</span> Features &amp; Tools</a></li>
+          <li><a href="./faq.html" class="it-mobile-nav-link ${isFaq ? 'active' : ''}"><span>❓</span> FAQ &amp; Guides</a></li>
+        </ul>
+      `;
+      navbar.appendChild(drawer);
+    }
+
+    const hamburgerIcon = toggleBtn.querySelector(".it-hamburger-icon");
+    const closeIcon = toggleBtn.querySelector(".it-close-icon");
+
+    toggleBtn.onclick = function (e) {
+      e.stopPropagation();
+      const isOpen = !drawer.classList.contains("hidden");
+      if (isOpen) {
+        drawer.classList.add("hidden");
+        if (hamburgerIcon) hamburgerIcon.classList.remove("hidden");
+        if (closeIcon) closeIcon.classList.add("hidden");
+      } else {
+        drawer.classList.remove("hidden");
+        if (hamburgerIcon) hamburgerIcon.classList.add("hidden");
+        if (closeIcon) closeIcon.classList.remove("hidden");
+      }
+    };
+
+    document.addEventListener("click", function (e) {
+      if (drawer && !drawer.classList.contains("hidden") && !drawer.contains(e.target) && !toggleBtn.contains(e.target)) {
+        drawer.classList.add("hidden");
+        if (hamburgerIcon) hamburgerIcon.classList.remove("hidden");
+        if (closeIcon) closeIcon.classList.add("hidden");
+      }
+    });
+
+    drawer.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        drawer.classList.add("hidden");
+        if (hamburgerIcon) hamburgerIcon.classList.remove("hidden");
+        if (closeIcon) closeIcon.classList.add("hidden");
+      });
+    });
+  }
+
   // Run on DOM ready
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       initTheme();
       initAuth();
+      initMobileNav();
     });
   } else {
     initTheme();
     initAuth();
+    initMobileNav();
   }
 })();
