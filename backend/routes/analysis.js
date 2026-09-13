@@ -1082,7 +1082,39 @@ async function extractPureNodeYoutubeStream(vId) {
   }
 }
 
+router.get('/debug-yt/:id', async (req, res) => {
+  try {
+    const ytRes = await fetch('https://www.youtube.com/youtubei/v1/player', {
+      method: 'POST',
+      headers: {
+        'X-YouTube-Client-Name': '3',
+        'X-YouTube-Client-Version': '21.26.364',
+        'Origin': 'https://www.youtube.com',
+        'User-Agent': 'com.google.android.youtube/21.26.364 (Linux; U; Android 11) gzip',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        context: { client: { clientName: 'ANDROID', clientVersion: '21.26.364', androidSdkVersion: 30, userAgent: 'com.google.android.youtube/21.26.364 (Linux; U; Android 11) gzip', osName: 'Android', osVersion: '11', hl: 'en', timeZone: 'UTC', utcOffsetMinutes: 0 } },
+        videoId: req.params.id,
+        playbackContext: { contentPlaybackContext: { html5Preference: 'HTML5_PREF_WANTS', signatureTimestamp: 20702 } },
+        contentCheckOk: true, racyCheckOk: true
+      })
+    });
+    const j = await ytRes.json();
+    return res.json({
+      httpStatus: ytRes.status,
+      playabilityStatus: j.playabilityStatus,
+      formatsCount: j.streamingData?.formats?.length || 0,
+      formats: (j.streamingData?.formats || []).map(f => ({ itag: f.itag, quality: f.qualityLabel, url: !!f.url })),
+      error: j.error
+    });
+  } catch (err) {
+    return res.json({ catchError: err.message });
+  }
+});
+
 // =========================================================================
+
 // UNIVERSAL DIRECT STREAM DOWNLOAD PROXY
 // FORCES DIRECT ATTACHMENT FILE DOWNLOAD TO CHROME DOWNLOAD BAR (NEVER INLINE VIDEO)
 // =========================================================================
