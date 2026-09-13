@@ -855,6 +855,11 @@
                 </svg>
                 <span>Download Audio (MP3)</span>
               </button>
+
+              <button type="button" class="rd-btn-sec" id="btnCopyCaption" onclick="copyCaption()" style="display:flex; align-items:center; justify-content:center; gap:8px; padding:11px 16px; font-size:0.86rem; border-radius:12px; opacity:0.92;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>Copy Caption</span>
+              </button>
             </div>
 
           </div>
@@ -1477,6 +1482,39 @@
       a.click();
       setTimeout(() => a.remove(), 1000);
     });
+
+    window.copyCaption = function() {
+      const cap = (currentMediaData?.caption || currentMediaData?.title || document.getElementById('reelCaptionText')?.textContent || '').trim();
+      if (!cap) {
+        showToast('No caption found to copy.');
+        return;
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(cap).then(() => {
+          showToast('📋 Caption copied to clipboard!');
+        }).catch(() => {
+          fallbackCopy(cap);
+        });
+      } else {
+        fallbackCopy(cap);
+      }
+
+      function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          showToast('📋 Caption copied to clipboard!');
+        } catch (e) {
+          showToast('Failed to copy caption.');
+        }
+        document.body.removeChild(ta);
+      }
+    };
 
     document.getElementById('btnDownloadThumb')?.addEventListener('click', (e) => {
       e.preventDefault();

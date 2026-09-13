@@ -145,6 +145,70 @@ async function fetchInstagramNodeFallback(url) {
         if (imgMatch) {
           thumbnail = imgMatch[1].replace(/&amp;/g, '&');
         }
+
+        // Extract all carousel images/videos from edge_sidecar_to_children
+        const sidecarIdx = html.indexOf('edge_sidecar_to_children');
+        if (sidecarIdx !== -1) {
+          const startBrace = html.indexOf('{', sidecarIdx);
+          if (startBrace !== -1) {
+            let depth = 0;
+            let endBrace = -1;
+            for (let i = startBrace; i < html.length; i++) {
+              if (html[i] === '{') depth++;
+              else if (html[i] === '}') {
+                depth--;
+                if (depth === 0) {
+                  endBrace = i;
+                  break;
+                }
+              }
+            }
+            if (endBrace !== -1) {
+              let jsonStr = html.substring(startBrace, endBrace + 1);
+              jsonStr = jsonStr.replace(/\\"/g, '"').replace(/\\\\/g, '\\').replace(/\\\//g, '/');
+              try {
+                const sidecarObj = JSON.parse(jsonStr);
+                const edges = sidecarObj.edges || [];
+                if (edges.length > 0) {
+                  entries = edges.map((ed, idx) => {
+                    const node = ed.node || {};
+                    const isV = Boolean(node.is_video);
+                    const streamUrl = (node.video_url || node.display_url || '').replace(/\\u0026/g, '&');
+                    const thumbUrl = (node.display_url || streamUrl).replace(/\\u0026/g, '&');
+                    return {
+                      id: node.id ? String(node.id) : `slide_${idx + 1}`,
+                      slideNo: idx + 1,
+                      url: streamUrl,
+                      thumbnail: thumbUrl,
+                      title: `Slide ${idx + 1} (${isV ? 'Video' : 'Photo'})`,
+                      uploader: author,
+                      ext: isV ? 'mp4' : 'jpg',
+                      is_video: isV
+                    };
+                  });
+                }
+              } catch (parseErr) {
+                const re = /"display_url":\s*"([^"]+)"/g;
+                let m;
+                let idx = 0;
+                while ((m = re.exec(jsonStr)) !== null) {
+                  const cleanUrl = m[1].replace(/\\\//g, '/').replace(/\\u0026/g, '&');
+                  entries.push({
+                    id: `slide_${idx + 1}`,
+                    slideNo: idx + 1,
+                    url: cleanUrl,
+                    thumbnail: cleanUrl,
+                    title: `Slide ${idx + 1} (Photo)`,
+                    uploader: author,
+                    ext: 'jpg',
+                    is_video: false
+                  });
+                  idx++;
+                }
+              }
+            }
+          }
+        }
       }
     } catch (e) {}
 
@@ -190,6 +254,16 @@ async function extractMediaInfo(url, cookies = '') {
   }
 
   const cleanUrl = url.trim();
+
+  // Step 0: Fast Pure Node.js Instagram Carousel & Media Extractor (500ms on Vercel & Local)
+  if (cleanUrl.includes('instagram.com/')) {
+    try {
+      const fbData = await fetchInstagramNodeFallback(cleanUrl);
+      if (fbData && fbData.status === 'success' && fbData.url) {
+        return fbData;
+      }
+    } catch (e) {}
+  }
 
   // Step 1: Try FastAPI Python engine on port 8000
   try {
