@@ -516,10 +516,6 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   Download 1080p HD Video (MP4)
                 </a>
-                <a id="btnDownloadMirror" href="#" target="_blank" rel="noopener noreferrer" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.18); color: #e2e8f0; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; font-size: 14px; padding: 12px 20px; border-radius: 12px; transition: all 0.2s ease;">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-                  ⚡ Alternative 1080p Cloud Mirror
-                </a>
               </div>
             </div>
           </div>
@@ -683,11 +679,7 @@
           btnHd.removeAttribute('target');
         }
 
-        const btnMirror = document.getElementById('btnDownloadMirror');
-        if (btnMirror && data.videoId) {
-          btnMirror.href = `https://10downloader.com/download?v=${data.videoId}`;
-          btnMirror.style.display = 'flex';
-        }
+
 
         resultContainer.style.display = 'block';
       } catch (err) {

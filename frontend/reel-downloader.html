@@ -1231,54 +1231,21 @@
       const floatNext = document.getElementById('floatNextBtn');
       const floatBadge = document.getElementById('floatSlideBadge');
 
-      if (Array.isArray(data.entries) && data.entries.length > 1) {
-        if (carouselNavBox) carouselNavBox.style.display = 'flex';
-        if (btnDownloadAll) btnDownloadAll.style.display = 'flex';
-        selectCarouselItem(0);
-      } else {
-        if (carouselNavBox) carouselNavBox.style.display = 'none';
-        if (btnDownloadAll) btnDownloadAll.style.display = 'none';
-        if (thumbsStrip) thumbsStrip.style.display = 'none';
-        if (floatPrev) floatPrev.style.display = 'none';
-        if (floatNext) floatNext.style.display = 'none';
-        if (floatBadge) floatBadge.style.display = 'none';
-
-        const coverImg = document.getElementById('reelCoverImg');
-        const videoPlayer = document.getElementById('reelVideoPlayer');
-        const playOverlay = document.querySelector('.rd-play-overlay');
-        const primaryMediaUrl = data.url || data.thumbnail || '';
-        const isVid = Boolean(data.is_video);
-
-        if (isVid) {
-          if (videoPlayer) {
-            videoPlayer.src = getProxiedMediaUrl(primaryMediaUrl);
-            videoPlayer.style.display = 'block';
-          }
-          if (coverImg) coverImg.style.display = 'none';
-        } else {
-          if (coverImg) {
-            coverImg.src = getProxiedMediaUrl(primaryMediaUrl);
-            coverImg.style.display = 'block';
-          }
-          if (videoPlayer) {
-            videoPlayer.pause();
-            videoPlayer.style.display = 'none';
-          }
-        }
-        if (playOverlay) playOverlay.style.display = 'none';
-
-        document.getElementById('reelDurationBadge').textContent = isVid ? `Duration: ${data.duration || '0:30'} • 1080p Video (Single)` : '● Single High-Res Photo (1 of 1)';
-        const dlBtnText = document.getElementById('dlBtnMainText') || document.querySelector('#btnDownloadMp4 span');
-        if (dlBtnText) {
-          dlBtnText.textContent = isVid ? 'Download Video (1080p MP4)' : 'Download Photo (HD Quality)';
-        }
-
-        const audioBtn = document.getElementById('btnDownloadAudio');
-        if (audioBtn) {
-          audioBtn.style.display = isVid ? 'flex' : 'none';
-        }
+      if (!Array.isArray(data.entries) || data.entries.length === 0) {
+        data.entries = [{
+          id: 'slide_1',
+          slideNo: 1,
+          url: data.url || data.thumbnail || '',
+          thumbnail: data.thumbnail || data.url || '',
+          title: data.title || 'Instagram Media',
+          uploader: data.uploader || 'Instagram User',
+          ext: data.ext || (data.is_video ? 'mp4' : 'jpg'),
+          is_video: Boolean(data.is_video)
+        }];
       }
 
+      window.currentSlideIndex = 0;
+      selectCarouselItem(0);
       showToast('Media stream extracted successfully!');
     }
 
@@ -1318,9 +1285,9 @@
       }
       if (playOverlay) playOverlay.style.display = 'none';
 
-      // Update interactive thumbnail strip
+      // Update interactive thumbnail strip (ALWAYS visible, matching Facebook downloader)
       const thumbsStrip = document.getElementById('igThumbsStrip');
-      if (thumbsStrip && total > 1) {
+      if (thumbsStrip) {
         thumbsStrip.style.display = 'flex';
         thumbsStrip.innerHTML = currentMediaData.entries.map((ent, i) => `
           <div class="ig-thumb-item ${i === index ? 'active' : ''}" onclick="selectCarouselItem(${i})" title="Slide ${i+1}">
@@ -1335,10 +1302,48 @@
         }
       }
 
+      // Update floating navigation arrows on preview (ALWAYS visible)
+      const floatPrev = document.getElementById('floatPrevBtn');
+      const floatNext = document.getElementById('floatNextBtn');
+      const floatBadge = document.getElementById('floatSlideBadge');
+
+      if (floatPrev) {
+        floatPrev.style.display = 'flex';
+        floatPrev.disabled = (index === 0);
+        floatPrev.style.opacity = (index === 0) ? '0.25' : '1';
+        floatPrev.style.cursor = (index === 0) ? 'not-allowed' : 'pointer';
+      }
+      if (floatNext) {
+        floatNext.style.display = 'flex';
+        floatNext.disabled = (index === total - 1);
+        floatNext.style.opacity = (index === total - 1) ? '0.25' : '1';
+        floatNext.style.cursor = (index === total - 1) ? 'not-allowed' : 'pointer';
+      }
+      if (floatBadge) {
+        floatBadge.style.display = 'block';
+        floatBadge.textContent = `${index + 1} / ${total}`;
+      }
+
       // Update slide counter
       const counter = document.getElementById('carouselSlideCounter');
       if (counter) {
         counter.textContent = `Slide ${index + 1} of ${total} (${isVid ? 'Video' : 'Photo'})`;
+      }
+
+      // Update previous / next slider buttons (ALWAYS visible, matching Facebook downloader)
+      const carouselNavBox = document.getElementById('carouselNavBox');
+      const prevBtn = document.getElementById('btnPrevSlide');
+      const nextBtn = document.getElementById('btnNextSlide');
+      if (carouselNavBox) carouselNavBox.style.display = 'flex';
+      if (prevBtn) {
+        prevBtn.disabled = (index === 0);
+        prevBtn.style.opacity = (index === 0) ? '0.4' : '1';
+        prevBtn.style.cursor = (index === 0) ? 'not-allowed' : 'pointer';
+      }
+      if (nextBtn) {
+        nextBtn.disabled = (index === total - 1);
+        nextBtn.style.opacity = (index === total - 1) ? '0.4' : '1';
+        nextBtn.style.cursor = (index === total - 1) ? 'not-allowed' : 'pointer';
       }
 
       // Update duration badge
@@ -1361,53 +1366,13 @@
         audioBtn.style.display = isVid ? 'flex' : 'none';
       }
 
-      // Update carousel and batch buttons visibility
-      const carouselNavBox = document.getElementById('carouselNavBox');
+      // Update batch download button visibility (shown when total > 1)
       const btnDownloadAll = document.getElementById('btnDownloadAllSlides');
-      if (total > 1) {
-        if (carouselNavBox) carouselNavBox.style.display = 'flex';
-        if (btnDownloadAll) btnDownloadAll.style.display = 'flex';
+      if (btnDownloadAll) {
+        btnDownloadAll.style.display = total > 1 ? 'flex' : 'none';
       }
 
-      // Update previous / next button disabled states
-      const prevBtn = document.getElementById('btnPrevSlide');
-      const nextBtn = document.getElementById('btnNextSlide');
-      const floatPrev = document.getElementById('floatPrevBtn');
-      const floatNext = document.getElementById('floatNextBtn');
-      const floatBadge = document.getElementById('floatSlideBadge');
 
-      if (total > 1) {
-        if (prevBtn) {
-          prevBtn.disabled = (index === 0);
-          prevBtn.style.opacity = (index === 0) ? '0.4' : '1';
-          prevBtn.style.cursor = (index === 0) ? 'not-allowed' : 'pointer';
-        }
-        if (nextBtn) {
-          nextBtn.disabled = (index === total - 1);
-          nextBtn.style.opacity = (index === total - 1) ? '0.4' : '1';
-          nextBtn.style.cursor = (index === total - 1) ? 'not-allowed' : 'pointer';
-        }
-        if (floatPrev) {
-          floatPrev.style.display = 'grid';
-          floatPrev.disabled = (index === 0);
-          floatPrev.style.opacity = (index === 0) ? '0.25' : '1';
-          floatPrev.style.cursor = (index === 0) ? 'not-allowed' : 'pointer';
-        }
-        if (floatNext) {
-          floatNext.style.display = 'grid';
-          floatNext.disabled = (index === total - 1);
-          floatNext.style.opacity = (index === total - 1) ? '0.25' : '1';
-          floatNext.style.cursor = (index === total - 1) ? 'not-allowed' : 'pointer';
-        }
-        if (floatBadge) {
-          floatBadge.style.display = 'block';
-          floatBadge.textContent = `${index + 1} / ${total}`;
-        }
-      } else {
-        if (floatPrev) floatPrev.style.display = 'none';
-        if (floatNext) floatNext.style.display = 'none';
-        if (floatBadge) floatBadge.style.display = 'none';
-      }
 
       // Update current active item URL
       currentMediaData.activeUrl = item.url;

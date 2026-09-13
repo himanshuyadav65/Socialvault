@@ -1170,11 +1170,11 @@ router.get('/stream-download', async (req, res) => {
       return;
     }
 
-    // Step 3: Vercel Serverless Fallback (When cloud datacenter IP is challenged by YouTube bot protection)
-    // Redirect cleanly to high-speed web mirror so user never gets a 0-byte corrupt file
-    if (vId) {
-      return res.redirect(302, `https://10downloader.com/download?v=${vId}`);
-    }
+    // Step 3: Serverless cloud restriction fallback
+    return res.status(403).json({
+      status: 'error',
+      error: 'YouTube Cloud Restriction: Google blocks serverless cloud datacenters from downloading this specific video stream. Please run SocialVault locally on your PC via npm start for 100% unrestricted 1080p downloads.'
+    });
   }
 
   // 2. Direct HTTP Stream Proxy (GoogleVideo, Instagram, Facebook, TikTok, general CDN)
