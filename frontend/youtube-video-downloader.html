@@ -690,17 +690,58 @@
       }
     }
 
-    function triggerDirectDownload(url, filename) {
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.target = '_self';
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => a.remove(), 1000);
+    function showToast(msg) {
+      let t = document.getElementById('rdToast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'rdToast';
+        t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(20,20,25,0.95);color:#fff;padding:12px 24px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);font-size:14px;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,0.5);z-index:99999;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);opacity:0;pointer-events:none;backdrop-filter:blur(10px);text-align:center;max-width:90vw;';
+        document.body.appendChild(t);
+      }
+      t.innerHTML = msg;
+      t.style.opacity = '1';
+      t.style.transform = 'translateX(-50%) translateY(0)';
+      clearTimeout(window._rdToastTimer);
+      window._rdToastTimer = setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateX(-50%) translateY(10px)';
+      }, 4000);
+    }
+
+    async function triggerDirectDownload(url, filename, btn, origHtml) {
+      try {
+        const res = await fetch(url);
+        const contentType = res.headers.get('content-type') || '';
+        if (!res.ok || contentType.includes('application/json')) {
+          let errJson = {};
+          try { errJson = await res.json(); } catch (e) {}
+          const msg = errJson.error || '⚠️ YouTube Cloud Restriction: Google blocks serverless cloud datacenters from streaming this video. Please run locally with npm start for 100% unrestricted downloads.';
+          showToast(msg);
+          if (btn) btn.innerHTML = origHtml;
+          return;
+        }
+
+        const blob = await res.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          URL.revokeObjectURL(blobUrl);
+          a.remove();
+          if (btn) btn.innerHTML = origHtml;
+        }, 1500);
+        showToast('✅ Download completed!');
+      } catch (err) {
+        showToast('Download error: ' + err.message);
+        if (btn) btn.innerHTML = origHtml;
+      }
     }
 
     document.getElementById('btnDownloadHd')?.addEventListener('click', (e) => {
+      e.preventDefault();
       const href = e.currentTarget.getAttribute('href');
       if (!href || href === '#') return;
       const fn = e.currentTarget.getAttribute('download') || 'youtube_video_1080p.mp4';
@@ -709,10 +750,7 @@
       const origHtml = btn.innerHTML;
       btn.innerHTML = '<span>⏳ Downloading...</span>';
       
-      triggerDirectDownload(href, fn);
-      setTimeout(() => {
-        btn.innerHTML = origHtml;
-      }, 3000);
+      triggerDirectDownload(href, fn, btn, origHtml);
     });
   </script>
 </body>

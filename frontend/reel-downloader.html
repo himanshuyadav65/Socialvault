@@ -1259,8 +1259,12 @@
       window.currentSlideIndex = index;
       const total = currentMediaData.entries.length;
       const item = currentMediaData.entries[index];
-      const isVid = Boolean(item.is_video);
       const rawUrl = item.url || item.thumbnail || '';
+      let isVid = Boolean(item.is_video);
+      const urlLower = (rawUrl || '').toLowerCase();
+      if (urlLower.includes('.jpg') || urlLower.includes('.jpeg') || urlLower.includes('.webp') || urlLower.includes('dst-jpg')) {
+        isVid = false;
+      }
       const proxiedUrl = getProxiedMediaUrl(rawUrl);
 
       const coverImg = document.getElementById('reelCoverImg');

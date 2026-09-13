@@ -212,8 +212,8 @@ async function fetchInstagramNodeFallback(url) {
       }
     } catch (e) {}
 
-    const finalUrl = (entries.length > 0 ? entries[0].url : '') || directMediaUrl || thumbnail;
-    if (!finalUrl) return null;
+    const isActuallyVideoUrl = Boolean(finalUrl && (finalUrl.includes('.mp4') || finalUrl.includes('.m4v') || finalUrl.includes('/v/t50.') || finalUrl.includes('&bytestart=')));
+    const firstIsVid = entries.length > 0 ? Boolean(entries[0]?.is_video) : isActuallyVideoUrl;
 
     if (entries.length === 0) {
       entries.push({
@@ -223,12 +223,10 @@ async function fetchInstagramNodeFallback(url) {
         thumbnail: thumbnail || finalUrl,
         title: caption || 'Instagram Media Post',
         uploader: author,
-        ext: isVideo ? 'mp4' : 'jpg',
-        is_video: isVideo
+        ext: firstIsVid ? 'mp4' : 'jpg',
+        is_video: firstIsVid
       });
     }
-
-    const firstIsVid = entries[0]?.is_video || isVideo;
 
     return {
       status: 'success',
@@ -259,8 +257,13 @@ async function extractMediaInfo(url, cookies = '') {
   if (cleanUrl.includes('instagram.com/')) {
     try {
       const fbData = await fetchInstagramNodeFallback(cleanUrl);
+      // For carousels or photo posts, fbData is complete!
+      // For reels, only return immediately if an actual video stream was found.
+      const isReelUrl = cleanUrl.includes('/reel/') || cleanUrl.includes('/reels/');
       if (fbData && fbData.status === 'success' && fbData.url) {
-        return fbData;
+        if (!isReelUrl || fbData.is_video) {
+          return fbData;
+        }
       }
     } catch (e) {}
   }
