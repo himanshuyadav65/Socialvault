@@ -969,19 +969,37 @@
       }
 
       try {
+        const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
         let res;
         try {
-          res = await fetch('/api/download', {
+          res = await fetch(`${apiBase}/api/download`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: val, cookies: cookiesVal })
           });
+          if (!res.ok && res.status !== 403) {
+            // Fallback to analysis download-reel route
+            const fallbackRes = await fetch(`${apiBase}/api/analysis/download-reel`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: val, cookies: cookiesVal })
+            });
+            if (fallbackRes.ok) res = fallbackRes;
+          }
         } catch (expressErr) {
-          res = await fetch('http://localhost:8000/api/download', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: val, cookies: cookiesVal })
-          });
+          try {
+            res = await fetch(`${apiBase}/api/analysis/download-reel`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: val, cookies: cookiesVal })
+            });
+          } catch (e2) {
+            res = await fetch('http://localhost:8000/api/download', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url: val, cookies: cookiesVal })
+            });
+          }
         }
 
         let data;
@@ -1074,9 +1092,7 @@
     function getProxiedMediaUrl(url) {
       if (!url) return '';
       if (url.startsWith('/api/') || url.startsWith('data:')) return url;
-      const apiBase = (window.location.protocol === 'file:' || (window.location.port !== '3000' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
-        ? 'http://localhost:3000'
-        : (window.location.port === '3000' ? '' : 'http://localhost:3000');
+      const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
       return `${apiBase}/api/stream?url=${encodeURIComponent(url)}`;
     }
 

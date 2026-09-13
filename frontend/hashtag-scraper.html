@@ -966,9 +966,7 @@
       }
 
       try {
-        const apiBase = (window.location.protocol === 'file:' || (window.location.port !== '3000' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
-          ? 'http://localhost:3000'
-          : (window.location.port === '3000' ? '' : 'http://localhost:3000');
+        const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
 
         const res = await fetch(`${apiBase}/api/analysis/hashtag`, {
           method: 'POST',
@@ -980,7 +978,7 @@
         try {
           data = await res.json();
         } catch (jsonErr) {
-          throw new Error("⚠️ Server Error: Could not parse response. Please ensure Express server is running on http://localhost:3000.");
+          throw new Error("⚠️ Server Error: Could not parse response. Please try again in a few moments.");
         }
 
         if (res.status === 403 || data.status === 'error' || data.isPrivate || (data.error && data.error.toLowerCase().includes('private'))) {

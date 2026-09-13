@@ -1093,9 +1093,7 @@
       btnExtract.style.opacity = '0.7';
 
       try {
-        const apiBase = (window.location.protocol === 'file:' || (window.location.port !== '3000' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
-          ? 'http://localhost:3000'
-          : (window.location.port === '3000' ? '' : 'http://localhost:3000');
+        const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
 
         const res = await fetch(`${apiBase}/api/analysis/facebook-reel`, {
           method: 'POST',
@@ -1107,7 +1105,7 @@
         try {
           data = await res.json();
         } catch (jsonErr) {
-          throw new Error("⚠️ Server Error: Could not parse response. Please ensure Express server is running on http://localhost:3000.");
+          throw new Error("⚠️ Server Error: Could not parse response. Please try again in a few moments.");
         }
 
         if (data.isStory || (data.error && (data.error.includes('Story') || data.error.includes('stories')))) {
@@ -1188,9 +1186,7 @@
     function getProxiedMediaUrl(url) {
       if (!url) return '';
       if (url.startsWith('/api/') || url.startsWith('data:')) return url;
-      const apiBase = (window.location.protocol === 'file:' || (window.location.port !== '3000' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
-        ? 'http://localhost:3000'
-        : (window.location.port === '3000' ? '' : 'http://localhost:3000');
+      const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
       return `${apiBase}/api/analysis/proxy-media?url=${encodeURIComponent(url)}`;
     }
 
@@ -1385,7 +1381,7 @@
 
       showToast(`Starting sequential download for all ${images.length} slides...`);
       const handle = (currentData.author || currentData.authorName || 'creator').replace(/[@\s]/g, '_');
-      const apiBase = (window.location.port === '3000' || (!window.location.port && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')) ? '' : 'http://localhost:3000';
+      const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
 
       for (let i = 0; i < images.length; i++) {
         const targetSrc = images[i];
@@ -1425,9 +1421,7 @@
 
       showToast(`Starting ${isVid ? 'Video' : 'Photo'} download...`);
 
-      const apiBase = (window.location.port === '3000' || (!window.location.port && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
-        ? ''
-        : 'http://localhost:3000';
+      const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
 
       const dlUrl = `${apiBase}/api/stream?url=${encodeURIComponent(targetSrc)}&filename=${encodeURIComponent(filename)}`;
 

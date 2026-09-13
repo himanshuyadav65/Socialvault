@@ -850,9 +850,7 @@
       `;
 
       try {
-        const apiBase = (window.location.port === '3000' || (!window.location.port && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')) 
-          ? '' 
-          : 'http://localhost:3000';
+        const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
 
         let res;
         try {
@@ -862,7 +860,7 @@
             body: JSON.stringify({ url, maxPosts: 5 })
           });
         } catch (fetchErr) {
-          res = await fetch('http://localhost:3000/api/analysis/facebook-post', {
+          res = await fetch(`${apiBase}/api/analysis/facebook-post`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url, maxPosts: 5 })

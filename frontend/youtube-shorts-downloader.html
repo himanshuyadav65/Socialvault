@@ -657,9 +657,7 @@
       btnExtract.disabled = true;
 
       try {
-        const apiBase = (window.location.port === '3000' || (!window.location.port && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'))
-          ? ''
-          : 'http://localhost:3000';
+        const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
 
         const res = await fetch(`${apiBase}/api/analysis/youtube-shorts`, {
           method: 'POST',
@@ -671,7 +669,7 @@
         try {
           data = await res.json();
         } catch (jsonErr) {
-          throw new Error("⚠️ Server Error: Could not connect to Express backend. Please ensure Node server is active on http://localhost:3000.");
+          throw new Error("⚠️ Server Error: Could not connect to Express backend. Please try again in a few moments.");
         }
 
         loadingState.style.display = 'none';
