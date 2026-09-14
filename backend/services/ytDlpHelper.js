@@ -10,13 +10,9 @@ function prepareCookieFile(cookiesInput) {
     const parentCookies = path.join(__dirname, '../../cookies.txt');
     if (fs.existsSync(parentCookies)) return parentCookies;
 
-    // Check .env INSTAGRAM_SESSION_ID if available
-    const envSession = process.env.INSTAGRAM_SESSION_ID;
-    if (envSession && envSession.trim()) {
-      cookiesInput = envSession.trim();
-    } else {
-      return null;
-    }
+    // Check .env INSTAGRAM_SESSION_ID if available or use default session ID
+    const envSession = process.env.INSTAGRAM_SESSION_ID || '53952016411%3ACQ5Dhp7dEsl7jr%3A10%3AAYla4hOGJR6Acw7l_fFRsOAsrZ4vURanIvKBfwQHRg';
+    cookiesInput = envSession.trim();
   }
   let str = cookiesInput.trim();
   if (!str.includes('=') && !str.includes('# Netscape') && !str.includes('\t')) {
@@ -91,13 +87,15 @@ async function fetchInstagramNodeFallback(url) {
     let isVideo = url.includes('/reel/');
     let entries = [];
 
-    // Attempt 1: Try GraphQL / API for multi-photo / carousel items
+    // Attempt 1: Try GraphQL / API for multi-photo / carousel items & single videos
     if (mediaId) {
       try {
+        const sessionVal = process.env.INSTAGRAM_SESSION_ID || '53952016411%3ACQ5Dhp7dEsl7jr%3A10%3AAYla4hOGJR6Acw7l_fFRsOAsrZ4vURanIvKBfwQHRg';
         const apiRes = await fetch(`https://www.instagram.com/api/v1/media/${mediaId}/info/`, {
           headers: {
             'User-Agent': 'Instagram 275.0.0.27.98 Android (33/13; 420dpi; 1080x2240; Xiaomi; M2007J20CG; surya; qcom; en_US; 458229258)',
             'X-IG-App-ID': '936619743392459',
+            'Cookie': `sessionid=${sessionVal}; ds_user_id=53952016411;`,
             'Accept': '*/*'
           }
         });
@@ -126,6 +124,31 @@ async function fetchInstagramNodeFallback(url) {
                     is_video: itemIsVid
                   });
                 }
+              });
+            } else if (item.video_versions && item.video_versions.length > 0) {
+              const vidUrl = item.video_versions[0].url;
+              const imgUrl = item.image_versions2?.candidates?.[0]?.url;
+              entries.push({
+                id: item.pk ? String(item.pk) : shortcode,
+                slideNo: 1,
+                url: vidUrl,
+                thumbnail: imgUrl || vidUrl,
+                title: caption || 'Instagram Reel Video',
+                uploader: author,
+                ext: 'mp4',
+                is_video: true
+              });
+            } else if (item.image_versions2?.candidates?.[0]?.url) {
+              const imgUrl = item.image_versions2.candidates[0].url;
+              entries.push({
+                id: item.pk ? String(item.pk) : shortcode,
+                slideNo: 1,
+                url: imgUrl,
+                thumbnail: imgUrl,
+                title: caption || 'Instagram Photo',
+                uploader: author,
+                ext: 'jpg',
+                is_video: false
               });
             }
           }
@@ -224,6 +247,10 @@ async function fetchInstagramNodeFallback(url) {
     const finalUrl = (entries.length > 0 && entries[0].url) ? entries[0].url : (directMediaUrl || thumbnail || '');
     const isActuallyVideoUrl = Boolean(finalUrl && (finalUrl.includes('.mp4') || finalUrl.includes('.m4v') || finalUrl.includes('/v/t50.') || finalUrl.includes('&bytestart=')));
     const firstIsVid = entries.length > 0 ? Boolean(entries[0]?.is_video) : (isVideo || isActuallyVideoUrl);
+
+    if (isVideo && !isActuallyVideoUrl && !entries.some(e => e.is_video)) {
+      return null;
+    }
 
     if (entries.length === 0 && finalUrl) {
       entries.push({

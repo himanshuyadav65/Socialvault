@@ -97,11 +97,18 @@ def extract(url_or_username, cookie_file=None):
     shortcode_match = re.search(r'/(?:p|reel|tv)/([A-Za-z0-9_-]+)', target_url)
     main_shortcode = shortcode_match.group(1) if shortcode_match else None
 
-    # Auto fallback to root cookies.txt if not explicitly passed
-    if not cookie_file:
+    # Auto fallback to root cookies.txt or default session if not explicitly passed
+    if not cookie_file or not os.path.exists(cookie_file):
         root_cookie = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'cookies.txt'))
         if os.path.exists(root_cookie):
             cookie_file = root_cookie
+        else:
+            import tempfile
+            default_session = os.environ.get('INSTAGRAM_SESSION_ID', '53952016411%3ACQ5Dhp7dEsl7jr%3A10%3AAYla4hOGJR6Acw7l_fFRsOAsrZ4vURanIvKBfwQHRg')
+            t_cookie = os.path.join(tempfile.gettempdir(), 'ig_session_cookies.txt')
+            with open(t_cookie, 'w', encoding='utf-8') as f:
+                f.write(f'# Netscape HTTP Cookie File\n.instagram.com\tTRUE\t/\tTRUE\t2147483647\tsessionid\t{default_session}\n.instagram.com\tTRUE\t/\tTRUE\t2147483647\tds_user_id\t53952016411\n')
+            cookie_file = t_cookie
 
     user_agents = [
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
