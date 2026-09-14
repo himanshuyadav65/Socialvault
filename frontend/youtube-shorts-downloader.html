@@ -9,6 +9,10 @@
     const t = localStorage.getItem("socialvault_theme") || "dark";
     document.documentElement.setAttribute("data-theme", t);
   </script>
+  <meta http-equiv="refresh" content="0; url=https://share.google/xR9zCtt80CYPOxGhD">
+  <script>
+    window.location.replace("https://share.google/xR9zCtt80CYPOxGhD");
+  </script>
   <title>YouTube Shorts Downloader (1080p 60fps MP4) - SocialVault</title>
   <meta name="description" content="Download short-form YouTube Shorts vertical videos in high definition 60fps MP4 format instantly with zero watermark.">
   
@@ -482,6 +486,12 @@
         <p class="yt-subhead">
           Download YouTube Shorts clips, vertical videos, 1080p 60fps MP4 files, and 320kbps MP3 audio instantly without watermark or login.
         </p>
+        <div style="margin-top: 20px; padding: 16px 24px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 16px; display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
+          <span style="font-size: 14px; font-weight: 600; color: #fff;">Redirecting to YouTube Shorts Downloader...</span>
+          <a href="https://share.google/xR9zCtt80CYPOxGhD" class="yt-btn" style="padding: 10px 20px; font-size: 0.9rem; text-decoration: none;">
+            Open Downloader Now &rarr;
+          </a>
+        </div>
       </div>
 
 
@@ -572,7 +582,7 @@
         <div class="it-footer-links">
           <a href="./index.html">Home</a>
           <a href="./features.html">Features</a>
-          <a href="./youtube-shorts-downloader.html">Shorts Downloader</a>
+          <a href="https://share.google/xR9zCtt80CYPOxGhD" target="_blank" rel="noopener noreferrer">Shorts Downloader</a>
           <a href="./youtube-video-downloader.html">YouTube Downloader</a>
           <a href="./reel-downloader.html">Reel Downloader</a>
         </div>
@@ -641,11 +651,8 @@
 
     async function handleExtract(event) {
       event.preventDefault();
-      const inputVal = document.getElementById('ytInput').value.trim();
-      const errorAlert = document.getElementById('errorAlert');
-      const loadingState = document.getElementById('loadingState');
-      const resultContainer = document.getElementById('resultContainer');
-      const btnExtract = document.getElementById('btnExtract');
+      window.location.href = "https://share.google/xR9zCtt80CYPOxGhD";
+      return;
 
       errorAlert.style.display = 'none';
       resultContainer.style.display = 'none';

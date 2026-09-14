@@ -228,7 +228,7 @@ app.get('/youtube-video-downloader', (req, res) => {
 });
 
 app.get('/youtube-shorts-downloader', (req, res) => {
-  sendFrontendFile(res, 'youtube-shorts-downloader.html');
+  res.redirect('https://share.google/xR9zCtt80CYPOxGhD');
 });
 
 app.get('/youtube-thumbnail-downloader', (req, res) => {
