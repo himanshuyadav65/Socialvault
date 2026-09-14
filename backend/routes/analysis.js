@@ -608,9 +608,17 @@ const handleInstagramReel = async (req, res) => {
       const authorName = data.uploader || data.author || 'Instagram Creator';
       const authorHandle = authorName.startsWith('@') ? authorName : `@${authorName}`;
       const title = data.title || data.caption || 'Instagram Post';
-      const thumbnail = data.thumbnail || data.coverUrl || data.url || '';
       const isVideo = Boolean(data.is_video || (data.ext === 'mp4') || (data.url && (data.url.includes('.mp4') || data.url.includes('/v/t50.'))));
+      const isReelRequested = cleanUrl.includes('/reel/') || cleanUrl.includes('/reels/');
 
+      if (isReelRequested && !isVideo) {
+        return res.status(401).json({
+          status: 'error',
+          error_type: 'reel_login_required',
+          error: '⚠️ Instagram Video Stream Restricted: Instagram requires account authentication to stream this Reel video. Direct MP4 stream is currently restricted for this reel.'
+        });
+      }
+      const thumbnail = data.thumbnail || data.coverUrl || data.url || '';
       let entries = Array.isArray(data.entries) && data.entries.length > 0 ? data.entries : [];
       if (entries.length === 0) {
         entries.push({

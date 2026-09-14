@@ -733,24 +733,6 @@
             </button>
           </div>
 
-          <!-- Optional Instagram Session Cookie Field -->
-          <div style="margin-top: 6px; text-align: left;">
-            <button type="button" id="toggleCookiesBtn" class="cookie-toggle-btn" style="background: none; border: none; color: #94a3b8; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 4px 0;">
-              <span>🔑 Paste Instagram Session Cookie (Optional / Login Required Reels)</span>
-              <span id="cookiesToggleIcon">▼</span>
-            </button>
-
-            <div id="cookiesInputWrap" class="hidden" style="margin-top: 10px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 14px; padding: 14px;">
-              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                <input type="text" id="reelCookiesInput" class="rd-input" style="flex: 1; min-width: 220px; padding: 10px 14px; font-size: 13px; border-radius: 10px; background: rgba(0,0,0,0.3);" placeholder="Paste Instagram sessionid cookie (e.g. 539520...)" autocomplete="off" />
-                <button type="button" onclick="saveQuickCookie()" style="background: linear-gradient(135deg, #e1306c, #f77737); color: #fff; border: none; border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;">Save Cookie</button>
-              </div>
-              <p style="font-size: 11.5px; color: #94a3b8; margin: 8px 0 0 0; line-height: 1.4;">
-                💡 <strong>How to get sessionid:</strong> Login to Instagram in browser → Press F12 → Application tab → Cookies → Copy <code>sessionid</code> value and paste here.
-              </p>
-            </div>
-          </div>
-
         </form>
       </div>
 
@@ -1162,21 +1144,13 @@
         }
 
         if (res.status === 401 || data.error_type === 'cookie_required') {
-          if (cookiesInputWrap) {
-            cookiesInputWrap.classList.remove('hidden');
-            if (cookiesToggleIcon) cookiesToggleIcon.textContent = '▲';
-          }
           if (reelNotFoundAlert) {
             reelNotFoundAlert.innerHTML = `
               <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
-                <span style="font-size:28px;">🔑</span>
-                <div style="flex:1;">
-                  <strong style="font-size:16px; display:block; color:#fbbf24; margin-bottom:6px; font-weight:800;">Instagram Login Verification Required</strong>
-                  <span style="font-size:13.5px; color:#fef08a; line-height:1.6; display:block; margin-bottom:12px;">Instagram restricts automated unauthenticated downloading for this public Reel. Paste your Instagram <code>sessionid</code> cookie below to download in 1080p Full HD:</span>
-                  <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-                    <input type="text" id="cookieQuickRetryInput" placeholder="Paste sessionid cookie here..." style="flex:1; min-width:200px; padding:10px 14px; border-radius:10px; border:1px solid rgba(251,191,36,0.4); background:rgba(0,0,0,0.4); color:#fff; font-size:13px;" />
-                    <button type="button" onclick="retryWithQuickCookie()" style="background:linear-gradient(135deg,#f59e0b,#e1306c); color:#fff; border:none; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:800; cursor:pointer;">Save &amp; Download Now ⚡</button>
-                  </div>
+                <span style="font-size:26px;">⚠️</span>
+                <div>
+                  <strong style="font-size:16px; display:block; color:#fbbf24; margin-bottom:6px; font-weight:800;">Instagram Protected Media / Login Restricted</strong>
+                  <span style="font-size:13.5px; color:#fef08a; line-height:1.6;">Instagram is temporarily restricting automated video access for this link. Please retry in a few moments or test with another public reel link.</span>
                 </div>
               </div>
             `;

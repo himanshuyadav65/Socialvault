@@ -57,9 +57,18 @@ app.post('/api/download', async (req, res) => {
   try {
     const data = await extractMediaInfo(cleanUrl, cookies);
     if (data && (data.url || data.status === 'success')) {
-      if (data && (data.ext === 'jpg' || data.ext === 'jpeg' || (data.url && (data.url.includes('.jpg') || data.url.includes('.webp') || data.url.includes('dst-jpg'))))) {
+      const isActuallyImg = Boolean(data.ext === 'jpg' || data.ext === 'jpeg' || (data.url && (data.url.includes('.jpg') || data.url.includes('.webp') || data.url.includes('dst-jpg'))));
+      if (isActuallyImg) {
         data.is_video = false;
         data.ext = 'jpg';
+      }
+      const isReelReq = cleanUrl.includes('/reel/') || cleanUrl.includes('/reels/');
+      if (isReelReq && isActuallyImg) {
+        return res.status(401).json({
+          status: 'error',
+          error_type: 'video_stream_restricted',
+          error: '⚠️ Instagram Video Stream Restricted: Instagram requires account authentication to stream this reel. Automated direct MP4 download is currently restricted for this reel.'
+        });
       }
       return res.json(data);
     }
