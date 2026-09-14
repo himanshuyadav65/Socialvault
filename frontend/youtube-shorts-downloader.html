@@ -703,7 +703,7 @@
 
         const btnMirror = document.getElementById('btnMirrorDownload');
         if (btnMirror && data.videoId) {
-          btnMirror.href = `https://10downloader.com/download?v=${encodeURIComponent(data.videoId)}`;
+          btnMirror.href = `https://www.ssyoutube.com/watch?v=${encodeURIComponent(data.videoId)}`;
           btnMirror.style.display = 'inline-flex';
         }
 
@@ -742,11 +742,11 @@
           let errJson = {};
           try { errJson = await res.json(); } catch (e) {}
           const vId = window.currentYtData?.videoId || '';
-          const mirrorUrl = vId ? `https://10downloader.com/download?v=${encodeURIComponent(vId)}` : '';
+          const mirrorUrl = vId ? `https://www.ssyoutube.com/watch?v=${encodeURIComponent(vId)}` : '';
           const btnMirror = document.getElementById('btnMirrorDownload');
           if (btnMirror) btnMirror.style.display = 'inline-flex';
 
-          showToast('⚡ Google Datacenter Blocked: Opening High-Speed Cloud Mirror 2...');
+          showToast('⚡ Opening High-Speed Cloud Download Mirror...');
           if (mirrorUrl) {
             setTimeout(() => { window.open(mirrorUrl, '_blank'); }, 600);
           }
