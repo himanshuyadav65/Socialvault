@@ -21,6 +21,7 @@
     "dotenv": "^17.4.2",
     "express": "^4.19.2",
     "google-auth-library": "^11.0.2",
+    "instagram-url-direct": "^2.0.7",
     "mysql2": "^3.23.4",
     "youtubei.js": "^18.0.0"
   }

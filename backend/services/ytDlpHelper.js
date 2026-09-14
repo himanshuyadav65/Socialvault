@@ -7,7 +7,16 @@ function prepareCookieFile(cookiesInput) {
   if (!cookiesInput || !cookiesInput.trim()) {
     const rootCookies = path.join(__dirname, '../cookies.txt');
     if (fs.existsSync(rootCookies)) return rootCookies;
-    return null;
+    const parentCookies = path.join(__dirname, '../../cookies.txt');
+    if (fs.existsSync(parentCookies)) return parentCookies;
+
+    // Check .env INSTAGRAM_SESSION_ID if available
+    const envSession = process.env.INSTAGRAM_SESSION_ID;
+    if (envSession && envSession.trim()) {
+      cookiesInput = envSession.trim();
+    } else {
+      return null;
+    }
   }
   let str = cookiesInput.trim();
   if (!str.includes('=') && !str.includes('# Netscape') && !str.includes('\t')) {
@@ -212,10 +221,11 @@ async function fetchInstagramNodeFallback(url) {
       }
     } catch (e) {}
 
+    const finalUrl = (entries.length > 0 && entries[0].url) ? entries[0].url : (directMediaUrl || thumbnail || '');
     const isActuallyVideoUrl = Boolean(finalUrl && (finalUrl.includes('.mp4') || finalUrl.includes('.m4v') || finalUrl.includes('/v/t50.') || finalUrl.includes('&bytestart=')));
-    const firstIsVid = entries.length > 0 ? Boolean(entries[0]?.is_video) : isActuallyVideoUrl;
+    const firstIsVid = entries.length > 0 ? Boolean(entries[0]?.is_video) : (isVideo || isActuallyVideoUrl);
 
-    if (entries.length === 0) {
+    if (entries.length === 0 && finalUrl) {
       entries.push({
         id: shortcode,
         slideNo: 1,

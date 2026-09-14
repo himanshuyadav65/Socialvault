@@ -35,23 +35,53 @@ app.post('/api/download', async (req, res) => {
     return res.status(400).json({ status: 'error', error: 'Instagram link is required.' });
   }
 
+  // Clean Instagram URL
+  let cleanUrl = url.trim();
+  const shortcodeMatch = cleanUrl.match(/\/(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/i);
+  if (shortcodeMatch) {
+    const sc = shortcodeMatch[1];
+    const isReel = cleanUrl.includes('/reel/') || cleanUrl.includes('/reels/');
+    cleanUrl = `https://www.instagram.com/${isReel ? 'reel' : 'p'}/${sc}/`;
+  }
+
+  // Auto-save cookies if passed in body
+  if (cookies && typeof cookies === 'string' && cookies.trim()) {
+    try {
+      const fs = require('fs');
+      const cPath = path.join(__dirname, 'cookies.txt');
+      const lines = cookies.includes('\t') ? cookies : `.instagram.com\tTRUE\t/\tTRUE\t2147483647\tsessionid\t${cookies.replace(/^sessionid=/, '').trim()}`;
+      fs.writeFileSync(cPath, lines, 'utf-8');
+    } catch (e) {}
+  }
+
   try {
-    const data = await extractMediaInfo(url, cookies);
-    if (data.status === 'error' || data.is_private || data.isPrivate || !data.url) {
+    const data = await extractMediaInfo(cleanUrl, cookies);
+    if (data && (data.url || data.status === 'success')) {
+      if (data && (data.ext === 'jpg' || data.ext === 'jpeg' || (data.url && (data.url.includes('.jpg') || data.url.includes('.webp') || data.url.includes('dst-jpg'))))) {
+        data.is_video = false;
+        data.ext = 'jpg';
+      }
+      return res.json(data);
+    }
+
+    const errText = (data && data.error) ? String(data.error).toLowerCase() : '';
+    const isPrivate = Boolean(data && (data.is_private || data.isPrivate || errText.includes('this account is private')));
+
+    if (isPrivate) {
       return res.status(403).json({
         status: 'error',
         isPrivate: true,
-        error_type: 'private_or_invalid',
-        error: '🔒 Private Account / Media Not Found: This Instagram reel, photo, or post is from a Private account or the link is invalid. Media cannot be extracted from private profiles without permission. Please paste a link from a Public account.'
+        error_type: 'private_account',
+        error: '🔒 Private Account: This Instagram reel, photo, or post is from a Private account. Media cannot be extracted from private profiles without permission. Please paste a link from a Public account.'
       });
     }
 
-    if (data && (data.ext === 'jpg' || data.ext === 'jpeg' || (data.url && (data.url.includes('.jpg') || data.url.includes('.webp') || data.url.includes('dst-jpg'))))) {
-      data.is_video = false;
-      data.ext = 'jpg';
-    }
-
-    return res.json(data);
+    return res.status(401).json({
+      status: 'error',
+      isPrivate: false,
+      error_type: 'cookie_required',
+      error: '🔑 Instagram Login Verification Required: Instagram temporarily restricts automated downloading of this public Reel. Please paste your Instagram sessionid cookie below to download in Full HD 1080p.'
+    });
   } catch (err) {
     return res.status(500).json({ status: 'error', error: 'Failed to extract media: ' + err.message });
   }

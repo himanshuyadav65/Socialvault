@@ -733,6 +733,24 @@
             </button>
           </div>
 
+          <!-- Optional Instagram Session Cookie Field -->
+          <div style="margin-top: 6px; text-align: left;">
+            <button type="button" id="toggleCookiesBtn" class="cookie-toggle-btn" style="background: none; border: none; color: #94a3b8; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 4px 0;">
+              <span>🔑 Paste Instagram Session Cookie (Optional / Login Required Reels)</span>
+              <span id="cookiesToggleIcon">▼</span>
+            </button>
+
+            <div id="cookiesInputWrap" class="hidden" style="margin-top: 10px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 14px; padding: 14px;">
+              <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="reelCookiesInput" class="rd-input" style="flex: 1; min-width: 220px; padding: 10px 14px; font-size: 13px; border-radius: 10px; background: rgba(0,0,0,0.3);" placeholder="Paste Instagram sessionid cookie (e.g. 539520...)" autocomplete="off" />
+                <button type="button" onclick="saveQuickCookie()" style="background: linear-gradient(135deg, #e1306c, #f77737); color: #fff; border: none; border-radius: 10px; padding: 10px 18px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap;">Save Cookie</button>
+              </div>
+              <p style="font-size: 11.5px; color: #94a3b8; margin: 8px 0 0 0; line-height: 1.4;">
+                💡 <strong>How to get sessionid:</strong> Login to Instagram in browser → Press F12 → Application tab → Cookies → Copy <code>sessionid</code> value and paste here.
+              </p>
+            </div>
+          </div>
+
         </form>
       </div>
 
@@ -943,6 +961,41 @@
       }
     });
 
+    async function saveQuickCookie() {
+      const val = reelCookiesInput ? reelCookiesInput.value.trim() : '';
+      if (!val) {
+        showToast('Please enter a valid sessionid cookie value');
+        return;
+      }
+      try {
+        const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
+        const res = await fetch(`${apiBase}/api/upload-cookies`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cookies: val })
+        });
+        if (res.ok) {
+          showToast('✅ Cookie saved successfully for all tools!');
+        } else {
+          showToast('Failed to save cookie.');
+        }
+      } catch (e) {
+        showToast('Error saving cookie: ' + e.message);
+      }
+    }
+
+    async function retryWithQuickCookie() {
+      const quickInput = document.getElementById('cookieQuickRetryInput');
+      const val = quickInput ? quickInput.value.trim() : '';
+      if (!val) {
+        showToast('Please paste your sessionid cookie first!');
+        return;
+      }
+      if (reelCookiesInput) reelCookiesInput.value = val;
+      await saveQuickCookie();
+      reelForm?.dispatchEvent(new Event('submit'));
+    }
+
     function showToast(msg) {
       const toast = document.getElementById('rdToast');
       const toastText = document.getElementById('rdToastText');
@@ -1071,14 +1124,14 @@
         const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
         let res;
         try {
-          res = await fetch(`${apiBase}/api/download`, {
+          res = await fetch(`${apiBase}/api/analysis/instagram-reel`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: val, cookies: cookiesVal })
           });
-          if (!res.ok && res.status !== 403) {
-            // Fallback to analysis download-reel route
-            const fallbackRes = await fetch(`${apiBase}/api/analysis/download-reel`, {
+          if (!res.ok && res.status !== 401 && res.status !== 403) {
+            // Fallback to /api/download route
+            const fallbackRes = await fetch(`${apiBase}/api/download`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ url: val, cookies: cookiesVal })
@@ -1087,7 +1140,7 @@
           }
         } catch (expressErr) {
           try {
-            res = await fetch(`${apiBase}/api/analysis/download-reel`, {
+            res = await fetch(`${apiBase}/api/download`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ url: val, cookies: cookiesVal })
@@ -1108,7 +1161,36 @@
           throw new Error("⚠️ Server Error: Could not parse response from backend.");
         }
 
-        if (res.status === 403 || data.status === 'error' || data.is_private || data.isPrivate || (data.error && data.error.toLowerCase().includes('private'))) {
+        if (res.status === 401 || data.error_type === 'cookie_required') {
+          if (cookiesInputWrap) {
+            cookiesInputWrap.classList.remove('hidden');
+            if (cookiesToggleIcon) cookiesToggleIcon.textContent = '▲';
+          }
+          if (reelNotFoundAlert) {
+            reelNotFoundAlert.innerHTML = `
+              <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
+                <span style="font-size:28px;">🔑</span>
+                <div style="flex:1;">
+                  <strong style="font-size:16px; display:block; color:#fbbf24; margin-bottom:6px; font-weight:800;">Instagram Login Verification Required</strong>
+                  <span style="font-size:13.5px; color:#fef08a; line-height:1.6; display:block; margin-bottom:12px;">Instagram restricts automated unauthenticated downloading for this public Reel. Paste your Instagram <code>sessionid</code> cookie below to download in 1080p Full HD:</span>
+                  <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <input type="text" id="cookieQuickRetryInput" placeholder="Paste sessionid cookie here..." style="flex:1; min-width:200px; padding:10px 14px; border-radius:10px; border:1px solid rgba(251,191,36,0.4); background:rgba(0,0,0,0.4); color:#fff; font-size:13px;" />
+                    <button type="button" onclick="retryWithQuickCookie()" style="background:linear-gradient(135deg,#f59e0b,#e1306c); color:#fff; border:none; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:800; cursor:pointer;">Save &amp; Download Now ⚡</button>
+                  </div>
+                </div>
+              </div>
+            `;
+            reelNotFoundAlert.style.background = 'rgba(245, 158, 11, 0.16)';
+            reelNotFoundAlert.style.border = '1px solid rgba(245, 158, 11, 0.4)';
+            reelNotFoundAlert.classList.remove('hidden');
+            reelNotFoundAlert.style.display = 'block';
+          }
+          reelResultCard.classList.add('hidden');
+          reelResultCard.style.display = 'none';
+          return;
+        }
+
+        if (res.status === 403 || data.is_private || data.isPrivate || (data.error && data.error.toLowerCase().includes('private'))) {
           showToast(data.error || "🔒 Private Account: Media cannot be extracted from private profiles.");
           if (cookiesInputWrap) {
             cookiesInputWrap.classList.remove('hidden');
@@ -1119,7 +1201,7 @@
               <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
                 <span style="font-size:26px;">🔒</span>
                 <div>
-                  <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">Private Account / Media Not Found</strong>
+                  <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">Private Account Detected</strong>
                   <span style="font-size:13.5px; color:#fca5a5; line-height:1.6;">${data.error || 'This Instagram reel or post is from a Private account. Media cannot be extracted from private profiles without permission. Please paste a link from a Public account.'}</span>
                 </div>
               </div>
