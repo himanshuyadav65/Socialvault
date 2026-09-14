@@ -735,8 +735,13 @@
           const vId = window.currentYtData?.videoId || '';
           const cleanWatchUrl = vId ? `https://www.youtube.com/watch?v=${vId}` : '';
           if (cleanWatchUrl) {
-            showToast('⚡ Opening Ad-Free Cloud Downloader...');
-            window.open(`https://cobalt.tools/#${cleanWatchUrl}`, '_blank');
+            try {
+              if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(cleanWatchUrl);
+              }
+            } catch(e) {}
+            showToast('📋 Link Copied! Opening Downloader — Just tap Paste & Download!');
+            window.open('https://yt1s.com', '_blank');
           } else {
             showToast('Download error. Please try again.');
           }
@@ -761,8 +766,13 @@
         const vId = window.currentYtData?.videoId || '';
         const cleanWatchUrl = vId ? `https://www.youtube.com/watch?v=${vId}` : '';
         if (cleanWatchUrl) {
-          showToast('⚡ Opening Ad-Free Cloud Downloader...');
-          window.open(`https://cobalt.tools/#${cleanWatchUrl}`, '_blank');
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(cleanWatchUrl);
+            }
+          } catch(e) {}
+          showToast('📋 Link Copied! Opening Downloader — Just tap Paste & Download!');
+          window.open('https://yt1s.com', '_blank');
         } else {
           showToast('Download error: ' + err.message);
         }
@@ -780,8 +790,13 @@
       const isCloudHosted = window.location.hostname.includes('vercel.app') || (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1');
 
       if (isCloudHosted && cleanWatchUrl) {
-        showToast('⚡ Opening Ad-Free Cloud Downloader (No Email Required)...');
-        window.open(`https://cobalt.tools/#${cleanWatchUrl}`, '_blank');
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(cleanWatchUrl);
+          }
+        } catch(e) {}
+        showToast('📋 Link Copied! Opening Downloader — Just tap Paste & Download!');
+        window.open('https://yt1s.com', '_blank');
         return;
       }
 
