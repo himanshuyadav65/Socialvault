@@ -731,9 +731,15 @@
         const res = await fetch(url);
         const contentType = res.headers.get('content-type') || '';
         if (!res.ok || contentType.includes('application/json')) {
-          let errJson = {};
           if (btn) btn.innerHTML = origHtml;
-          showToast(errJson.error || '⚠️ Serverless cloud datacenter restriction: Google blocks cloud IPs. Run SocialVault locally via npm start for 100% direct downloads without ads or email.');
+          const vId = window.currentYtData?.videoId || '';
+          const cleanWatchUrl = vId ? `https://www.youtube.com/watch?v=${vId}` : '';
+          if (cleanWatchUrl) {
+            showToast('⚡ Opening Ad-Free Cloud Downloader...');
+            window.open(`https://cobalt.tools/#${cleanWatchUrl}`, '_blank');
+          } else {
+            showToast('Download error. Please try again.');
+          }
           return;
         }
 
@@ -751,8 +757,15 @@
         }, 1500);
         showToast('✅ Download completed!');
       } catch (err) {
-        showToast('Download error: ' + err.message);
         if (btn) btn.innerHTML = origHtml;
+        const vId = window.currentYtData?.videoId || '';
+        const cleanWatchUrl = vId ? `https://www.youtube.com/watch?v=${vId}` : '';
+        if (cleanWatchUrl) {
+          showToast('⚡ Opening Ad-Free Cloud Downloader...');
+          window.open(`https://cobalt.tools/#${cleanWatchUrl}`, '_blank');
+        } else {
+          showToast('Download error: ' + err.message);
+        }
       }
     }
 
@@ -762,6 +775,16 @@
       if (!href || href === '#') return;
       const fn = e.currentTarget.getAttribute('download') || 'youtube_shorts_1080p.mp4';
       
+      const vId = window.currentYtData?.videoId || '';
+      const cleanWatchUrl = vId ? `https://www.youtube.com/watch?v=${vId}` : '';
+      const isCloudHosted = window.location.hostname.includes('vercel.app') || (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1');
+
+      if (isCloudHosted && cleanWatchUrl) {
+        showToast('⚡ Opening Ad-Free Cloud Downloader (No Email Required)...');
+        window.open(`https://cobalt.tools/#${cleanWatchUrl}`, '_blank');
+        return;
+      }
+
       const btn = e.currentTarget;
       const origHtml = btn.innerHTML;
       btn.innerHTML = '<span>⏳ Downloading...</span>';
