@@ -224,11 +224,11 @@ app.get('/instagram-story-downloader', (req, res) => {
 });
 
 app.get('/youtube-video-downloader', (req, res) => {
-  sendFrontendFile(res, 'youtube-video-downloader.html');
+  res.redirect('https://share.google/mHXva8AymmWUGHULt');
 });
 
 app.get('/youtube-shorts-downloader', (req, res) => {
-  res.redirect('https://share.google/xR9zCtt80CYPOxGhD');
+  res.redirect('https://share.google/mHXva8AymmWUGHULt');
 });
 
 app.get('/youtube-thumbnail-downloader', (req, res) => {
