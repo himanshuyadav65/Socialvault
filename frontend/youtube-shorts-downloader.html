@@ -535,6 +535,9 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                   Download Shorts Video (1080p MP4)
                 </a>
+                <a id="btnMirrorDownload" href="#" target="_blank" class="btn-dl-main" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #fff; text-decoration: none; display: none; align-items: center; justify-content: center; gap: 8px;">
+                  <span>⚡ Cloud Mirror 2 (Fast Alternative)</span>
+                </a>
               </div>
             </div>
           </div>
@@ -698,7 +701,11 @@
           btnHd.removeAttribute('target');
         }
 
-
+        const btnMirror = document.getElementById('btnMirrorDownload');
+        if (btnMirror && data.videoId) {
+          btnMirror.href = `https://10downloader.com/download?v=${encodeURIComponent(data.videoId)}`;
+          btnMirror.style.display = 'inline-flex';
+        }
 
         resultContainer.style.display = 'block';
       } catch (err) {
@@ -734,8 +741,15 @@
         if (!res.ok || contentType.includes('application/json')) {
           let errJson = {};
           try { errJson = await res.json(); } catch (e) {}
-          const msg = errJson.error || '⚠️ YouTube Cloud Restriction: Google blocks serverless cloud datacenters from streaming this video. Please run locally with npm start for 100% unrestricted downloads.';
-          showToast(msg);
+          const vId = window.currentYtData?.videoId || '';
+          const mirrorUrl = vId ? `https://10downloader.com/download?v=${encodeURIComponent(vId)}` : '';
+          const btnMirror = document.getElementById('btnMirrorDownload');
+          if (btnMirror) btnMirror.style.display = 'inline-flex';
+
+          showToast('⚡ Google Datacenter Blocked: Opening High-Speed Cloud Mirror 2...');
+          if (mirrorUrl) {
+            setTimeout(() => { window.open(mirrorUrl, '_blank'); }, 600);
+          }
           if (btn) btn.innerHTML = origHtml;
           return;
         }
