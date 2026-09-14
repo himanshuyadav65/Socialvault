@@ -249,7 +249,9 @@ def extract(url_or_username, cookie_file=None):
     if not primary_url and entries:
         primary_url = entries[0]['url']
 
-    if not primary_url and main_shortcode:
+    is_reel_request = "/reel/" in clean_url.lower() or "/reels/" in clean_url.lower()
+
+    if not primary_url and main_shortcode and not is_reel_request:
         resolved_img = resolve_instagram_image_url(main_shortcode)
         if resolved_img:
             primary_url = resolved_img
