@@ -9,10 +9,6 @@
     const t = localStorage.getItem("socialvault_theme") || "dark";
     document.documentElement.setAttribute("data-theme", t);
   </script>
-  <meta http-equiv="refresh" content="0; url=https://share.google/mHXva8AymmWUGHULt">
-  <script>
-    window.location.replace("https://share.google/mHXva8AymmWUGHULt");
-  </script>
   <title>YouTube Video & Shorts Downloader (1080p HD & MP3) - SocialVault</title>
   <meta name="description" content="Download YouTube Videos, Shorts clips, 1080p Full HD MP4 files, and 320kbps MP3 audio anonymously without login.">
   
@@ -468,12 +464,6 @@
         <p class="yt-subhead">
           Download YouTube Videos, Shorts clips, 1080p Full HD MP4 files, and 320kbps MP3 audio anonymously without login.
         </p>
-        <div style="margin-top: 20px; padding: 16px 24px; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 16px; display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
-          <span style="font-size: 14px; font-weight: 600; color: #fff;">Redirecting to YouTube Downloader...</span>
-          <a href="https://share.google/mHXva8AymmWUGHULt" class="yt-btn" style="padding: 10px 20px; font-size: 0.9rem; text-decoration: none;">
-            Open Downloader Now &rarr;
-          </a>
-        </div>
       </div>
 
       <div class="yt-search-card">
@@ -563,7 +553,7 @@
         <div class="it-footer-links">
           <a href="./index.html">Home</a>
           <a href="./features.html">Features</a>
-          <a href="https://share.google/mHXva8AymmWUGHULt" target="_blank" rel="noopener noreferrer">YouTube Downloader</a>
+          <a href="./youtube-video-downloader.html">YouTube Downloader</a>
           <a href="./reel-downloader.html">Reel Downloader</a>
           <a href="./facebook-reel-downloader.html">Facebook Reel Downloader</a>
         </div>
@@ -630,68 +620,94 @@
       }
     }
 
+    function parseYtVideoId(url) {
+      let vId = '';
+      if (url.includes('shorts/')) {
+        vId = url.split('shorts/')[1]?.split('?')[0]?.split('/')[0];
+      } else if (url.includes('youtu.be/')) {
+        vId = url.split('youtu.be/')[1]?.split('?')[0]?.split('/')[0];
+      } else if (url.includes('watch?v=')) {
+        vId = url.split('watch?v=')[1]?.split('&')[0]?.split('?')[0];
+      } else if (/^[a-zA-Z0-9_-]{11}$/.test(url)) {
+        vId = url;
+      }
+      return vId;
+    }
+
     async function handleExtract(event) {
       event.preventDefault();
-      window.location.href = "https://share.google/mHXva8AymmWUGHULt";
-      return;
+      const inputVal = document.getElementById('ytInput').value.trim();
+      const errorAlert = document.getElementById('errorAlert');
+      const loadingState = document.getElementById('loadingState');
+      const resultContainer = document.getElementById('resultContainer');
+      const btnExtract = document.getElementById('btnExtract');
 
       errorAlert.style.display = 'none';
       resultContainer.style.display = 'none';
+
+      const vId = parseYtVideoId(inputVal);
+      if (!vId) {
+        errorAlert.innerText = 'Please enter a valid YouTube video link or Shorts URL.';
+        errorAlert.style.display = 'block';
+        return;
+      }
+
+      window.currentYtUrl = inputVal;
       loadingState.style.display = 'block';
       btnExtract.disabled = true;
 
       try {
         const apiBase = (window.location.protocol === 'file:') ? 'http://localhost:3000' : ((window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? (window.location.port === '3000' || !window.location.port ? '' : 'http://localhost:3000') : '');
 
-        const res = await fetch(`${apiBase}/api/analysis/youtube-video`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: inputVal })
-        });
-
-        let data;
+        let data = null;
         try {
-          data = await res.json();
-        } catch (jsonErr) {
-          throw new Error("⚠️ Server Error: Could not connect to Express backend. Please try again in a few moments.");
+          const res = await fetch(`${apiBase}/api/analysis/youtube-video`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: inputVal })
+          });
+          if (res.ok) {
+            data = await res.json();
+          }
+        } catch (fetchErr) {
+          console.warn('Backend fetch notice:', fetchErr);
         }
 
-        loadingState.style.display = 'none';
-        btnExtract.disabled = false;
-
-        if (!res.ok || data.status === 'error') {
-          errorAlert.innerText = data.error || 'Failed to extract YouTube video.';
-          errorAlert.style.display = 'block';
-          return;
+        if (!data || !data.title || data.status === 'error') {
+          try {
+            const oembed = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${vId}&format=json`).then(r => r.json());
+            data = {
+              title: oembed.title || 'YouTube Video (1080p HD)',
+              author: oembed.author_name || 'YouTube Creator',
+              authorUrl: oembed.author_url || `https://www.youtube.com/watch?v=${vId}`,
+              thumbnail: `https://i.ytimg.com/vi/${vId}/hqdefault.jpg`,
+              videoId: vId
+            };
+          } catch(e) {
+            data = {
+              title: 'YouTube Video (1080p HD)',
+              author: 'YouTube Creator',
+              authorUrl: `https://www.youtube.com/watch?v=${vId}`,
+              thumbnail: `https://i.ytimg.com/vi/${vId}/hqdefault.jpg`,
+              videoId: vId
+            };
+          }
         }
 
         window.currentYtData = data;
-        document.getElementById('resThumbnail').src = data.thumbnail;
-        document.getElementById('resTitle').innerText = data.title;
-        document.getElementById('resAuthor').innerText = data.author;
-        document.getElementById('resAuthorUrl').href = data.authorUrl;
+        document.getElementById('resThumbnail').src = data.thumbnail || `https://i.ytimg.com/vi/${vId}/hqdefault.jpg`;
+        document.getElementById('resTitle').innerText = data.title || 'YouTube Video';
+        document.getElementById('resAuthor').innerText = data.author || 'YouTube Channel';
+        document.getElementById('resAuthorUrl').href = data.authorUrl || `https://www.youtube.com/watch?v=${vId}`;
 
-        const cleanTitle = (data.title || 'youtube_video').replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 50);
-        
-        const btnHd = document.getElementById('btnDownloadHd');
-
-        // 1080p MP4 Video Downloader (Direct Stream on SocialVault)
-        const targetMediaUrl = (data.downloadUrl && data.downloadUrl.startsWith('http')) 
-          ? data.downloadUrl 
-          : (data.videoId ? ('https://www.youtube.com/watch?v=' + data.videoId) : '');
-
-        if (targetMediaUrl) {
-          btnHd.href = `${apiBase}/api/analysis/stream-download?url=${encodeURIComponent(targetMediaUrl)}&videoId=${encodeURIComponent(data.videoId || '')}&filename=${cleanTitle}_1080p.mp4&type=video`;
-          btnHd.setAttribute('download', `${cleanTitle}_1080p.mp4`);
-          btnHd.removeAttribute('target');
-        }
-
-
+        loadingState.style.display = 'none';
+        btnExtract.disabled = false;
         resultContainer.style.display = 'block';
+
       } catch (err) {
         loadingState.style.display = 'none';
         btnExtract.disabled = false;
-        errorAlert.innerText = 'Network connection error: ' + err.message;
+        errorAlert.innerText = 'Could not load video: ' + err.message;
         errorAlert.style.display = 'block';
       }
     }
@@ -711,88 +727,23 @@
       window._rdToastTimer = setTimeout(() => {
         t.style.opacity = '0';
         t.style.transform = 'translateX(-50%) translateY(10px)';
-      }, 4000);
-    }
-
-    async function triggerDirectDownload(url, filename, btn, origHtml) {
-      try {
-        const res = await fetch(url);
-        const contentType = res.headers.get('content-type') || '';
-        if (!res.ok || contentType.includes('application/json')) {
-          if (btn) btn.innerHTML = origHtml;
-          const vId = window.currentYtData?.videoId || '';
-          const cleanWatchUrl = vId ? `https://www.youtube.com/watch?v=${vId}` : '';
-          if (cleanWatchUrl) {
-            try {
-              if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(cleanWatchUrl);
-              }
-            } catch(e) {}
-            showToast('📋 Link Copied! Opening Downloader — Just tap Paste & Download!');
-            window.open('https://yt1s.com', '_blank');
-          } else {
-            showToast('Download error. Please try again.');
-          }
-          return;
-        }
-
-        const blob = await res.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = blobUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-          URL.revokeObjectURL(blobUrl);
-          a.remove();
-          if (btn) btn.innerHTML = origHtml;
-        }, 1500);
-        showToast('✅ Download completed!');
-      } catch (err) {
-        if (btn) btn.innerHTML = origHtml;
-        const vId = window.currentYtData?.videoId || '';
-        const cleanWatchUrl = vId ? `https://www.youtube.com/watch?v=${vId}` : '';
-        if (cleanWatchUrl) {
-          try {
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-              navigator.clipboard.writeText(cleanWatchUrl);
-            }
-          } catch(e) {}
-          showToast('📋 Link Copied! Opening Downloader — Just tap Paste & Download!');
-          window.open('https://yt1s.com', '_blank');
-        } else {
-          showToast('Download error: ' + err.message);
-        }
-      }
+      }, 3500);
     }
 
     document.getElementById('btnDownloadHd')?.addEventListener('click', (e) => {
       e.preventDefault();
-      const href = e.currentTarget.getAttribute('href');
-      if (!href || href === '#') return;
-      const fn = e.currentTarget.getAttribute('download') || 'youtube_video_1080p.mp4';
-      
-      const vId = window.currentYtData?.videoId || '';
-      const cleanWatchUrl = vId ? `https://www.youtube.com/watch?v=${vId}` : '';
-      const isCloudHosted = window.location.hostname.includes('vercel.app') || (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1');
-
-      if (isCloudHosted && cleanWatchUrl) {
+      const vUrl = window.currentYtUrl || (window.currentYtData?.videoId ? `https://www.youtube.com/watch?v=${window.currentYtData.videoId}` : '');
+      if (vUrl) {
         try {
           if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(cleanWatchUrl);
+            navigator.clipboard.writeText(vUrl).catch(() => {});
           }
         } catch(e) {}
-        showToast('📋 Link Copied! Opening Downloader — Just tap Paste & Download!');
-        window.open('https://yt1s.com', '_blank');
-        return;
       }
-
-      const btn = e.currentTarget;
-      const origHtml = btn.innerHTML;
-      btn.innerHTML = '<span>⏳ Downloading...</span>';
-      
-      triggerDirectDownload(href, fn, btn, origHtml);
+      showToast('📋 YouTube Link Copied! Opening Downloader — Just Paste & Download!');
+      setTimeout(() => {
+        window.location.href = 'https://share.google/mHXva8AymmWUGHULt';
+      }, 500);
     });
   </script>
 </body>
