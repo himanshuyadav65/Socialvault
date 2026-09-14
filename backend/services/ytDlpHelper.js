@@ -11,7 +11,7 @@ function prepareCookieFile(cookiesInput) {
     if (fs.existsSync(parentCookies)) return parentCookies;
 
     // Check .env INSTAGRAM_SESSION_ID if available or use default session ID
-    const envSession = process.env.INSTAGRAM_SESSION_ID || '53952016411%3ACQ5Dhp7dEsl7jr%3A10%3AAYla4hOGJR6Acw7l_fFRsOAsrZ4vURanIvKBfwQHRg';
+    const envSession = process.env.INSTAGRAM_SESSION_ID || '23557786728%3A2J4sv3K9A5mqnr%3A26%3AAYm6YdQDkCwXQh6ztVndPF4GpE3DClVdK0TXv20Lww';
     cookiesInput = envSession.trim();
   }
   let str = cookiesInput.trim();
@@ -90,12 +90,13 @@ async function fetchInstagramNodeFallback(url) {
     // Attempt 1: Try GraphQL / API for multi-photo / carousel items & single videos
     if (mediaId) {
       try {
-        const sessionVal = process.env.INSTAGRAM_SESSION_ID || '53952016411%3ACQ5Dhp7dEsl7jr%3A10%3AAYla4hOGJR6Acw7l_fFRsOAsrZ4vURanIvKBfwQHRg';
+        const sessionVal = process.env.INSTAGRAM_SESSION_ID || '23557786728%3A2J4sv3K9A5mqnr%3A26%3AAYm6YdQDkCwXQh6ztVndPF4GpE3DClVdK0TXv20Lww';
+        const dsUserId = sessionVal.split('%3A')[0] || '23557786728';
         const apiRes = await fetch(`https://www.instagram.com/api/v1/media/${mediaId}/info/`, {
           headers: {
             'User-Agent': 'Instagram 275.0.0.27.98 Android (33/13; 420dpi; 1080x2240; Xiaomi; M2007J20CG; surya; qcom; en_US; 458229258)',
             'X-IG-App-ID': '936619743392459',
-            'Cookie': `sessionid=${sessionVal}; ds_user_id=53952016411;`,
+            'Cookie': `sessionid=${sessionVal}; ds_user_id=${dsUserId};`,
             'Accept': '*/*'
           }
         });

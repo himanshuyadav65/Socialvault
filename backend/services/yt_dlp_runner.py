@@ -104,10 +104,11 @@ def extract(url_or_username, cookie_file=None):
             cookie_file = root_cookie
         else:
             import tempfile
-            default_session = os.environ.get('INSTAGRAM_SESSION_ID', '53952016411%3ACQ5Dhp7dEsl7jr%3A10%3AAYla4hOGJR6Acw7l_fFRsOAsrZ4vURanIvKBfwQHRg')
+            default_session = os.environ.get('INSTAGRAM_SESSION_ID', '23557786728%3A2J4sv3K9A5mqnr%3A26%3AAYm6YdQDkCwXQh6ztVndPF4GpE3DClVdK0TXv20Lww')
+            ds_uid = default_session.split('%3A')[0] if '%3A' in default_session else '23557786728'
             t_cookie = os.path.join(tempfile.gettempdir(), 'ig_session_cookies.txt')
             with open(t_cookie, 'w', encoding='utf-8') as f:
-                f.write(f'# Netscape HTTP Cookie File\n.instagram.com\tTRUE\t/\tTRUE\t2147483647\tsessionid\t{default_session}\n.instagram.com\tTRUE\t/\tTRUE\t2147483647\tds_user_id\t53952016411\n')
+                f.write(f'# Netscape HTTP Cookie File\n.instagram.com\tTRUE\t/\tTRUE\t2147483647\tsessionid\t{default_session}\n.instagram.com\tTRUE\t/\tTRUE\t2147483647\tds_user_id\t{ds_uid}\n')
             cookie_file = t_cookie
 
     user_agents = [

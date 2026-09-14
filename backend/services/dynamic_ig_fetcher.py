@@ -21,11 +21,12 @@ def get_env_var(key, default=""):
 def fetch_any_creator_dp(username):
     clean_user = username.replace('@', '').replace('https://www.instagram.com/', '').strip().split('/')[0].split('?')[0]
     
-    session_id = get_env_var('INSTAGRAM_SESSION_ID', '53952016411%3A9gyRzYEc9r7NnC%3A24%3AAYgxEB26OTsEX-M7e0ht_o-PhhwWop4a8Hz_NtOf1Q')
+    session_id = get_env_var('INSTAGRAM_SESSION_ID', '23557786728%3A2J4sv3K9A5mqnr%3A26%3AAYm6YdQDkCwXQh6ztVndPF4GpE3DClVdK0TXv20Lww')
+    ds_user_id = session_id.split('%3A')[0] if '%3A' in session_id else '23557786728'
     cookies = {
         'sessionid': session_id,
         'csrftoken': '0zOqFALAMd6w6yx5MEC9CiwHnDu4XiU7',
-        'ds_user_id': '53952016411',
+        'ds_user_id': ds_user_id,
         'mid': 'aokv9wALAAGrECN9DgD7TtiyU8Mg'
     }
     

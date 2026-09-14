@@ -14,7 +14,9 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap"
+    rel="stylesheet">
 
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -31,17 +33,17 @@
 
     [data-theme="dark"] .cs-page-wrapper {
       background: radial-gradient(circle at 15% 15%, rgba(147, 51, 234, 0.22) 0%, transparent 40%),
-                  radial-gradient(circle at 85% 35%, rgba(236, 72, 153, 0.18) 0%, transparent 45%),
-                  radial-gradient(circle at 50% 70%, rgba(147, 51, 234, 0.15) 0%, transparent 50%),
-                  radial-gradient(circle at 80% 90%, rgba(234, 88, 12, 0.15) 0%, transparent 45%),
-                  #080c16 !important;
+        radial-gradient(circle at 85% 35%, rgba(236, 72, 153, 0.18) 0%, transparent 45%),
+        radial-gradient(circle at 50% 70%, rgba(147, 51, 234, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 90%, rgba(234, 88, 12, 0.15) 0%, transparent 45%),
+        #080c16 !important;
       color: #f8fafc !important;
     }
 
     [data-theme="light"] .cs-page-wrapper {
       background: radial-gradient(circle at 15% 15%, rgba(6, 182, 212, 0.1) 0%, transparent 40%),
-                  radial-gradient(circle at 85% 35%, rgba(168, 85, 247, 0.1) 0%, transparent 45%),
-                  #f8fafc !important;
+        radial-gradient(circle at 85% 35%, rgba(168, 85, 247, 0.1) 0%, transparent 45%),
+        #f8fafc !important;
       color: #0f172a !important;
     }
 
@@ -134,10 +136,10 @@
       border: 1.5px solid #cbd5e1 !important;
     }
 
-    [data-theme="dark"] .cs-stat-card, 
-    [data-theme="dark"] .cs-sentiment-card, 
-    [data-theme="dark"] .cs-comments-box, 
-    [data-theme="dark"] .cs-giveaway-card, 
+    [data-theme="dark"] .cs-stat-card,
+    [data-theme="dark"] .cs-sentiment-card,
+    [data-theme="dark"] .cs-comments-box,
+    [data-theme="dark"] .cs-giveaway-card,
     [data-theme="dark"] .cs-comment-row {
       background: rgba(15, 23, 42, 0.75) !important;
       border-color: rgba(255, 255, 255, 0.12) !important;
@@ -145,10 +147,10 @@
       backdrop-filter: blur(16px);
     }
 
-    [data-theme="light"] .cs-stat-card, 
-    [data-theme="light"] .cs-sentiment-card, 
-    [data-theme="light"] .cs-comments-box, 
-    [data-theme="light"] .cs-giveaway-card, 
+    [data-theme="light"] .cs-stat-card,
+    [data-theme="light"] .cs-sentiment-card,
+    [data-theme="light"] .cs-comments-box,
+    [data-theme="light"] .cs-giveaway-card,
     [data-theme="light"] .cs-comment-row {
       background: #ffffff !important;
       border: 1px solid #e2e8f0 !important;
@@ -190,7 +192,7 @@
       padding: 0 90px 0 48px;
       border-radius: 14px;
       border: 1px solid var(--border-color);
-      background: var(--bg-input, rgba(0,0,0,0.03));
+      background: var(--bg-input, rgba(0, 0, 0, 0.03));
       color: var(--text-heading);
       font-size: 15px;
       font-weight: 600;
@@ -272,8 +274,15 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .cs-stats-grid {
@@ -287,9 +296,11 @@
       .cs-stats-grid {
         grid-template-columns: repeat(2, 1fr);
       }
+
       .cs-form {
         flex-direction: column;
       }
+
       .cs-submit-btn {
         width: 100%;
         justify-content: center;
@@ -301,7 +312,7 @@
       border: 1px solid rgba(255, 255, 255, 0.12) !important;
       border-radius: 16px;
       padding: 18px 20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     }
 
     [data-theme="dark"] .cs-stat-lbl {
@@ -518,8 +529,8 @@
       border-radius: 12px;
       font-size: 14px;
       font-weight: 700;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -535,7 +546,9 @@
     }
 
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
   </style>
   <link rel="icon" type="image/png" href="./assets/logo-icon.png">
@@ -547,15 +560,17 @@
     <!-- Top Navigation Bar -->
     <nav class="it-navbar">
       <div class="it-nav-container">
-        
+
         <!-- Logo -->
         <a href="./index.html" class="it-brand-logo">
           <div class="it-logo-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"
+              stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
             </svg>
           </div>
-          <span class="it-brand-title"><span class="it-title-pink">Social</span><span class="it-title-orange">Vault</span></span>
+          <span class="it-brand-title"><span class="it-title-pink">Social</span><span
+              class="it-title-orange">Vault</span></span>
         </a>
 
         <!-- Center Links -->
@@ -573,12 +588,17 @@
 
           <!-- Google Sign-In Button Container -->
           <div id="googleAuthBtnWrapper">
-            <button type="button" id="googleSignInBtn" class="it-google-signin-btn" style="cursor:pointer; display:flex; align-items:center; gap:6px;">
+            <button type="button" id="googleSignInBtn" class="it-google-signin-btn"
+              style="cursor:pointer; display:flex; align-items:center; gap:6px;">
               <svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:middle;">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                <path fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                <path fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
               </svg>
               <span class="it-google-text">Sign in with Google</span>
             </button>
@@ -586,20 +606,28 @@
 
           <!-- Logged In User Profile Menu -->
           <div id="loggedInUserMenu" class="hidden" style="position:relative;">
-            <div id="userProfileChip" style="display:flex; align-items:center; gap:8px; padding:4px 12px 4px 6px; border-radius:30px; cursor:pointer;">
-              <img id="userAvatarImg" src="" alt="Avatar" style="width:26px; height:26px; border-radius:50%; object-fit:cover; display:none;">
-              <div id="userAvatarPlaceholder" style="width:26px; height:26px; border-radius:50%; background:#9333ea; color:white; font-size:11px; font-weight:800; display:grid; place-items:center;">U</div>
-              <span id="userDisplayName" style="font-size:12px; font-weight:700; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">User</span>
+            <div id="userProfileChip"
+              style="display:flex; align-items:center; gap:8px; padding:4px 12px 4px 6px; border-radius:30px; cursor:pointer;">
+              <img id="userAvatarImg" src="" alt="Avatar"
+                style="width:26px; height:26px; border-radius:50%; object-fit:cover; display:none;">
+              <div id="userAvatarPlaceholder"
+                style="width:26px; height:26px; border-radius:50%; background:#9333ea; color:white; font-size:11px; font-weight:800; display:grid; place-items:center;">
+                U</div>
+              <span id="userDisplayName"
+                style="font-size:12px; font-weight:700; max-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">User</span>
               <span style="font-size:10px; color:#cbd5e1;">▼</span>
             </div>
 
             <!-- Profile Dropdown -->
-            <div id="userProfileDropdown" class="hidden" style="position:absolute; top:42px; right:0; width:230px; border-radius:14px; padding:14px; z-index:1000; text-align:left;">
+            <div id="userProfileDropdown" class="hidden"
+              style="position:absolute; top:42px; right:0; width:230px; border-radius:14px; padding:14px; z-index:1000; text-align:left;">
               <div style="padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:10px;">
                 <strong id="dropdownUserName" style="font-size:13px; display:block;">User</strong>
-                <div id="dropdownUserEmail" style="font-size:11px; word-break:break-all; margin-top:2px;">user@gmail.com</div>
+                <div id="dropdownUserEmail" style="font-size:11px; word-break:break-all; margin-top:2px;">user@gmail.com
+                </div>
               </div>
-              <button type="button" id="googleSignOutBtn" style="width:100%; background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:8px; font-size:12px; font-weight:700; cursor:pointer;">
+              <button type="button" id="googleSignOutBtn"
+                style="width:100%; background:rgba(239,68,68,0.15); color:#fca5a5; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:8px; font-size:12px; font-weight:700; cursor:pointer;">
                 Sign Out
               </button>
             </div>
@@ -611,7 +639,7 @@
 
     <!-- Main Container -->
     <main class="cs-container">
-      
+
       <!-- Hero -->
       <div class="cs-hero">
         <div class="cs-tool-pill">
@@ -621,7 +649,8 @@
           Instagram <span class="it-title-pink">Comment Scraper</span> &amp; Exporter
         </h1>
         <p class="cs-subhead">
-          Extract thousands of comments from any public Instagram Post or Reel. Analyze positive/negative sentiment, export CSV/JSON, and pick random giveaway winners.
+          Extract thousands of comments from any public Instagram Post or Reel. Analyze positive/negative sentiment,
+          export CSV/JSON, and pick random giveaway winners.
         </p>
       </div>
 
@@ -629,18 +658,12 @@
       <div class="cs-search-card">
         <form id="commentForm" class="cs-form">
           <div class="cs-input-wrap">
-            <svg class="cs-link-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <svg class="cs-link-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.2">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
-            <input 
-              type="text" 
-              id="postUrlInput" 
-              class="cs-input" 
-              style="padding: 0 20px 0 48px;"
-              placeholder="Paste Instagram Reel or Post link" 
-              autocomplete="off" 
-              required
-            />
+            <input type="text" id="postUrlInput" class="cs-input" style="padding: 0 20px 0 48px;"
+              placeholder="Paste Instagram Reel or Post link" autocomplete="off" required />
           </div>
 
           <button type="submit" id="scrapeCommentsBtn" class="cs-submit-btn">
@@ -677,14 +700,18 @@
 
       <!-- Loading State -->
       <div id="csLoadingState" class="hidden" style="text-align:center; padding:50px 20px;">
-        <div style="width:52px; height:52px; border:4px solid rgba(236,72,153,0.2); border-top-color:#ec4899; border-radius:50%; margin:0 auto 18px; animation:spin 0.8s linear infinite; box-shadow:0 0 25px rgba(236,72,153,0.4);"></div>
-        <h3 style="font-size:20px; font-weight:800; color:#ffffff !important;">Scraping Instagram Comment Threads...</h3>
-        <p style="font-size:14px; color:#94a3b8 !important; margin-top:6px;">Extracting user profiles, timestamps, emojis, and performing NLP sentiment analysis</p>
+        <div
+          style="width:52px; height:52px; border:4px solid rgba(236,72,153,0.2); border-top-color:#ec4899; border-radius:50%; margin:0 auto 18px; animation:spin 0.8s linear infinite; box-shadow:0 0 25px rgba(236,72,153,0.4);">
+        </div>
+        <h3 style="font-size:20px; font-weight:800; color:#ffffff !important;">Scraping Instagram Comment Threads...
+        </h3>
+        <p style="font-size:14px; color:#94a3b8 !important; margin-top:6px;">Extracting user profiles, timestamps,
+          emojis, and performing NLP sentiment analysis</p>
       </div>
 
       <!-- Results Section -->
       <div id="csResultsSection" class="cs-result-wrap hidden">
-        
+
         <!-- Stats Row -->
         <div class="cs-stats-grid">
           <div class="cs-stat-card">
@@ -728,7 +755,8 @@
 
         <!-- Comments Table Feed -->
         <div class="cs-table-card">
-          <div style="padding:16px 24px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+          <div
+            style="padding:16px 24px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
             <strong style="font-size:15px; color:var(--text-heading);">Extracted Comment Feed</strong>
             <span style="font-size:12px; color:var(--text-muted);" id="feedCountBadge">Showing 150 comments</span>
           </div>
@@ -741,21 +769,33 @@
       </div>
 
       <!-- 3 Feature Highlight Boxes -->
-      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:20px; max-width:960px; margin:36px auto 0; width:100%;">
-        <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
+      <div
+        style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:20px; max-width:960px; margin:36px auto 0; width:100%;">
+        <div
+          style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
           <div style="font-size:28px; margin-bottom:8px;">💬</div>
-          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Full Comment Telemetry</strong>
-          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Extract top comments, user handles, like counts, and reply threads from any public post.</span>
+          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Full
+            Comment Telemetry</strong>
+          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Extract top
+            comments, user handles, like counts, and reply threads from any public post.</span>
         </div>
-        <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
+        <div
+          style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
           <div style="font-size:28px; margin-bottom:8px;">🧠</div>
-          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Sentiment &amp; Keyword Insights</strong>
-          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Analyze audience sentiment, common feedback themes, and engagement keywords.</span>
+          <strong
+            style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Sentiment
+            &amp; Keyword Insights</strong>
+          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Analyze
+            audience sentiment, common feedback themes, and engagement keywords.</span>
         </div>
-        <div style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
+        <div
+          style="background:var(--card-bg, rgba(15,23,42,0.75)); border:1px solid var(--border-color, rgba(255,255,255,0.12)); border-radius:18px; padding:24px 20px; text-align:center; backdrop-filter:blur(16px); box-shadow:0 10px 30px rgba(0,0,0,0.12); transition:transform 0.3s ease;">
           <div style="font-size:28px; margin-bottom:8px;">📊</div>
-          <strong style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Giveaways &amp; Excel Export</strong>
-          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Export clean CSV/JSON spreadsheets in 1-click for giveaway pickers, CRM, or research.</span>
+          <strong
+            style="font-size:16px; color:var(--text-heading, #ffffff); display:block; margin-bottom:6px;">Giveaways
+            &amp; Excel Export</strong>
+          <span style="font-size:13px; color:var(--text-muted, #94a3b8); line-height:1.5; display:block;">Export clean
+            CSV/JSON spreadsheets in 1-click for giveaway pickers, CRM, or research.</span>
         </div>
       </div>
 
@@ -772,7 +812,8 @@
       <div class="it-footer-content">
         <div class="it-footer-left">
           <span style="font-weight:800; font-size:16px; color:var(--text-heading);">SocialVault</span>
-          <span style="font-size:12px; color:var(--text-muted); margin-left:12px;">&copy; 2026 SocialVault Systems Inc. All rights reserved.</span>
+          <span style="font-size:12px; color:var(--text-muted); margin-left:12px;">&copy; 2026 SocialVault Systems Inc.
+            All rights reserved.</span>
         </div>
         <div class="it-footer-links">
           <a href="./index.html">Home</a>
@@ -819,7 +860,7 @@
       }
     });
 
-    window.loadSamplePost = function(type) {
+    window.loadSamplePost = function (type) {
       postUrlInput.value = `https://www.instagram.com/p/C5v89x_${type}/`;
       doScrapeComments();
     };
@@ -927,7 +968,7 @@
     function renderCommentsFeed(list) {
       const total = list.length;
       const uniqueUsers = new Set(list.map(c => (c.username || '').toLowerCase())).size || Math.floor(total * 0.92);
-      
+
       let totalLikes = 0;
       let positiveCount = 0;
       list.forEach(c => {
@@ -1006,15 +1047,15 @@
     document.getElementById('btnPickWinner')?.addEventListener('click', () => {
       if (extractedComments.length === 0) return;
       const winner = extractedComments[Math.floor(Math.random() * extractedComments.length)];
-      
+
       document.getElementById('winnerHandle').textContent = winner.username;
       document.getElementById('winnerComment').textContent = `"${winner.text}"`;
       document.getElementById('winnerAvatar').textContent = winner.username.replace('@', '').slice(0, 2).toUpperCase();
-      
+
       document.getElementById('winnerModal').classList.remove('hidden');
     });
 
-    window.closeWinnerModal = function() {
+    window.closeWinnerModal = function () {
       const handle = document.getElementById('winnerHandle').textContent;
       navigator.clipboard.writeText(handle);
       document.getElementById('winnerModal').classList.add('hidden');
@@ -1023,4 +1064,5 @@
   </script>
   <script src="./auth-shared.js"></script>
 </body>
+
 </html>
