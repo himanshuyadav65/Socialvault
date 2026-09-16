@@ -1004,8 +1004,10 @@
           `;
         }
 
-        const authorName = post.author || 'Facebook User';
-        const authorHandle = post.authorHandle || ('@' + authorName.toLowerCase().replace(/[^a-z0-9_]/g, ''));
+        const decode = window.decodeHtmlEntities || (s => s);
+        const authorName = decode(post.author || 'Facebook User');
+        const authorHandle = decode(post.authorHandle || ('@' + authorName.toLowerCase().replace(/[^a-z0-9_]/g, '')));
+        const postText = decode(post.text || '');
         const authorAvatarUrl = post.authorPic || `https://ui-avatars.com/api/?name=${encodeURIComponent(authorName)}&background=1877F2&color=fff&bold=true`;
 
         postCard.innerHTML = `
@@ -1025,7 +1027,7 @@
             </a>
           </div>
 
-          ${post.text ? `<div class="fb-post-content">${escapeHtml(post.text)}</div>` : (post.audioTrack ? `<div class="fb-post-content" style="color:#60a5fa; font-size:13px; font-weight:600;">🎵 Audio: ${escapeHtml(post.audioTrack)}</div>` : '')}
+          ${postText ? `<div class="fb-post-content">${escapeHtml(postText)}</div>` : (post.audioTrack ? `<div class="fb-post-content" style="color:#60a5fa; font-size:13px; font-weight:600;">🎵 Audio: ${escapeHtml(post.audioTrack)}</div>` : '')}
 
           ${mediaHtml}
 

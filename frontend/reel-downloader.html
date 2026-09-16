@@ -1261,9 +1261,11 @@
     }
 
     function renderReelData(data) {
-      const uploader = data.uploader || data.author || 'creator';
+      const rawUploader = data.uploader || data.author || 'creator';
+      const uploader = (window.decodeHtmlEntities ? window.decodeHtmlEntities(rawUploader) : rawUploader);
       document.getElementById('reelAuthorHandle').textContent = uploader.startsWith('@') ? uploader : `@${uploader}`;
-      document.getElementById('reelCaptionText').textContent = data.title || data.caption || 'Instagram Media Post';
+      const rawCaption = data.title || data.caption || 'Instagram Media Post';
+      document.getElementById('reelCaptionText').textContent = (window.decodeHtmlEntities ? window.decodeHtmlEntities(rawCaption) : rawCaption);
 
       // Stats
       document.getElementById('reelLikesCount').textContent = data.like_count ? formatNumberAbbreviated(data.like_count) : formatNumberAbbreviated(data.likes);
@@ -1544,7 +1546,8 @@
     });
 
     window.copyCaption = function() {
-      const cap = (currentMediaData?.caption || currentMediaData?.title || document.getElementById('reelCaptionText')?.textContent || '').trim();
+      const rawCap = (currentMediaData?.caption || currentMediaData?.title || document.getElementById('reelCaptionText')?.textContent || '').trim();
+      const cap = (window.decodeHtmlEntities ? window.decodeHtmlEntities(rawCap) : rawCap).trim();
       if (!cap) {
         showToast('No caption found to copy.');
         return;

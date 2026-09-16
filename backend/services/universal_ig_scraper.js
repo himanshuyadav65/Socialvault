@@ -1,6 +1,7 @@
 const { execSync } = require('child_process');
 const https = require('https');
 const http = require('http');
+const { decodeHtmlEntities } = require('./htmlDecoder');
 
 function extractTargetProfile(username) {
   try {
@@ -27,7 +28,7 @@ function extractTargetProfile(username) {
     if (titleMatch && titleMatch[1]) {
       const nameMatch = titleMatch[1].match(/^(.*?)\s*\(@/);
       if (nameMatch && nameMatch[1]) {
-        displayName = nameMatch[1].trim();
+        displayName = decodeHtmlEntities(nameMatch[1].trim());
       }
     }
 
@@ -46,7 +47,7 @@ function extractTargetProfile(username) {
       }
       const bioMatch = desc.match(/on Instagram:\s*"(.*?)"/i);
       if (bioMatch) {
-        bio = bioMatch[1].trim();
+        bio = decodeHtmlEntities(bioMatch[1].trim());
       }
     }
 

@@ -334,4 +334,45 @@
     initAuth();
     initMobileNav();
   }
+
+  // --- 4. GLOBAL HTML ENTITY & UNICODE DECODER ---
+  window.decodeHtmlEntities = function (str) {
+    if (!str || typeof str !== 'string') return '';
+    let prev = '';
+    let curr = str;
+    let iterations = 0;
+    const namedEntities = {
+      'amp': '&', 'quot': '"', 'apos': "'", 'lt': '<', 'gt': '>',
+      'nbsp': ' ', 'copy': '©', 'reg': '®', 'trade': '™', 'hellip': '…',
+      'mdash': '—', 'ndash': '–', 'ldquo': '“', 'rdquo': '”',
+      'lsquo': '‘', 'rsquo': '’', 'bull': '•', 'middot': '·',
+      'permil': '‰', 'prime': '′', 'Prime': '″', 'hearts': '♥',
+      'clubs': '♣', 'diams': '♦', 'spades': '♠'
+    };
+    while (curr !== prev && iterations < 4) {
+      prev = curr;
+      iterations++;
+      curr = curr.replace(/&#x([0-9a-fA-F]+);/gi, function (match, hex) {
+        try {
+          const cp = parseInt(hex, 16);
+          return (cp >= 0 && cp <= 0x10FFFF) ? String.fromCodePoint(cp) : match;
+        } catch (e) {
+          return match;
+        }
+      });
+      curr = curr.replace(/&#([0-9]+);/g, function (match, dec) {
+        try {
+          const cp = parseInt(dec, 10);
+          return (cp >= 0 && cp <= 0x10FFFF) ? String.fromCodePoint(cp) : match;
+        } catch (e) {
+          return match;
+        }
+      });
+      curr = curr.replace(/&([a-zA-Z]+);/g, function (match, name) {
+        const lower = name.toLowerCase();
+        return namedEntities[lower] !== undefined ? namedEntities[lower] : match;
+      });
+    }
+    return curr;
+  };
 })();

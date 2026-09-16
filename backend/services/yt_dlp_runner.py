@@ -3,6 +3,7 @@ import json
 import os
 import re
 import base64
+import html
 import requests
 import yt_dlp
 
@@ -164,8 +165,10 @@ def extract(url_or_username, cookie_file=None):
     entries = []
 
     if info:
-        title = info.get('title') or info.get('description') or title
-        uploader = info.get('uploader') or info.get('uploader_id') or uploader
+        raw_title = info.get('title') or info.get('description') or title
+        title = html.unescape(raw_title) if raw_title else title
+        raw_uploader = info.get('uploader') or info.get('uploader_id') or uploader
+        uploader = html.unescape(raw_uploader) if raw_uploader else uploader
         thumbnail = info.get('thumbnail') or ""
 
         # Fetch highlight trays if user ID present

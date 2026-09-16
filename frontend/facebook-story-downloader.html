@@ -908,8 +908,10 @@
     }
 
     function copyCaption() {
-      if (!currentData || !currentData.caption) return;
-      navigator.clipboard.writeText(currentData.caption);
+      const cap = window.decodeHtmlEntities ? window.decodeHtmlEntities(currentData?.caption || '') : (currentData?.caption || '');
+      if (!cap) return;
+      navigator.clipboard.writeText(cap);
+      showToast('Caption copied to clipboard!');
     }
   </script>
   <script src="./auth-shared.js"></script>

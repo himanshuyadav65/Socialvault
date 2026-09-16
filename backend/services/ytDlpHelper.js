@@ -2,6 +2,7 @@ const { execFile } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const tempfile = require('os').tmpdir();
+const { decodeHtmlEntities } = require('./htmlDecoder');
 
 function prepareCookieFile(cookiesInput) {
   if (!cookiesInput || !cookiesInput.trim()) {
@@ -104,8 +105,8 @@ async function fetchInstagramNodeFallback(url) {
           const apiJson = await apiRes.json();
           const item = apiJson?.items?.[0];
           if (item) {
-            author = item.user?.username || author;
-            caption = item.caption?.text || caption;
+            author = decodeHtmlEntities(item.user?.username || author);
+            caption = decodeHtmlEntities(item.caption?.text || caption);
             
             if (item.carousel_media && Array.isArray(item.carousel_media) && item.carousel_media.length > 0) {
               item.carousel_media.forEach((c, idx) => {
@@ -167,11 +168,11 @@ async function fetchInstagramNodeFallback(url) {
       if (embedRes.ok) {
         const html = await embedRes.text();
         const uMatch = html.match(/class="UsernameText"[^>]*>([^<]+)<\/span>/) || html.match(/class="Username"[^>]*>([^<]+)<\/a>/);
-        if (uMatch) author = uMatch[1].trim();
+        if (uMatch) author = decodeHtmlEntities(uMatch[1].trim());
 
         const cMatch = html.match(/class="Caption"[^>]*>([\s\S]*?)<\/div>/);
         if (cMatch) {
-          caption = cMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+          caption = decodeHtmlEntities(cMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
         }
 
         const imgMatch = html.match(/class="EmbeddedMediaImage"[^>]*src="([^"]+)"/);
@@ -426,8 +427,8 @@ async function extractMediaInfo(url, cookies = '') {
               id: item.id || `entry_${idx + 1}`,
               url: itemUrl,
               thumbnail: item.thumbnail,
-              title: item.title || item.description || `Media #${idx + 1}`,
-              uploader: item.uploader || item.uploader_id || 'creator',
+              title: decodeHtmlEntities(item.title || item.description || `Media #${idx + 1}`),
+              uploader: decodeHtmlEntities(item.uploader || item.uploader_id || 'creator'),
               ext: item.ext || (item.is_video ? 'mp4' : 'jpg'),
               is_video: Boolean(item.is_video || item.ext === 'mp4' || item.ext === 'm4v' || item.vcodec !== 'none')
             });
@@ -441,8 +442,8 @@ async function extractMediaInfo(url, cookies = '') {
         resolve({
           status: 'success',
           url: primaryUrl,
-          title: info.title || info.description || 'Social Media Post',
-          uploader: info.uploader || info.uploader_id || 'creator',
+          title: decodeHtmlEntities(info.title || info.description || 'Social Media Post'),
+          uploader: decodeHtmlEntities(info.uploader || info.uploader_id || 'creator'),
           thumbnail: info.thumbnail || entries[0]?.thumbnail || '',
           duration: info.duration_string || (info.duration ? `${Math.round(info.duration)}s` : null),
           is_video: isVideo,

@@ -11,6 +11,7 @@ const { getProfile } = require('../services/mockDatabase');
 const { saveProfileToDb, logSearchToDb, getProfileFromDb, isDbConnected } = require('../config/db');
 const { extractMediaInfo } = require('../services/ytDlpHelper');
 const { extractTargetProfile, downloadImageAsBase64 } = require('../services/universal_ig_scraper');
+const { decodeHtmlEntities, cleanSocialHandle } = require('../services/htmlDecoder');
 
 const profileCache = new Map();
 
@@ -200,8 +201,8 @@ router.post('/hashtag', async (req, res) => {
         });
       }
 
-      const realAuthor = data.uploader;
-      const realCaption = data.title || '';
+      const realAuthor = decodeHtmlEntities(data.uploader || '');
+      const realCaption = decodeHtmlEntities(data.title || '');
       const realLikes = (data.like_count || 0).toLocaleString();
       const realComments = (data.comment_count || 0).toLocaleString();
 
@@ -411,11 +412,21 @@ const handleFacebookReel = async (req, res) => {
         const ogImageMatch = html.match(/<meta property="og:image" content="([^"]+)"/);
 
         if (ogTitleMatch) {
-          authorName = ogTitleMatch[1].replace(/&amp;/g, '&').split(' - ')[0].split(' | ')[0].trim() || 'Facebook Creator';
-          title = ogTitleMatch[1].replace(/&amp;/g, '&').trim() || title;
+          const rawTitle = decodeHtmlEntities(ogTitleMatch[1]);
+          const titleParts = rawTitle.split(/\s+[-–—|•/]\s+|\n+/);
+          authorName = titleParts[0]?.trim() || 'Facebook Creator';
+          title = rawTitle.trim() || title;
         }
         if (ogDescMatch) {
-          caption = ogDescMatch[1].replace(/&amp;/g, '&').replace(/&#x2019;/g, "'").replace(/&#x2018;/g, "'").trim();
+          caption = decodeHtmlEntities(ogDescMatch[1]).trim();
+        }
+
+        // Try extracting real username from Facebook link or HTML
+        const profileUrlMatch = html.match(/facebook\.com\/([a-zA-Z0-9._-]+)\/(?:posts|photos|videos|share|reel)\//i)
+          || url.match(/facebook\.com\/([a-zA-Z0-9._-]+)\/(?:posts|photos|videos|share|reel)/i);
+        const fbUsername = profileUrlMatch ? profileUrlMatch[1] : '';
+        if (fbUsername && !['share', 'reel', 'reels', 'watch', 'groups', 'stories', 'story.php', 'profile.php', 'photo', 'photos'].includes(fbUsername.toLowerCase())) {
+          authorHandle = `@${fbUsername}`;
         }
 
         // Check if there is an actual video stream in the post HTML
@@ -514,8 +525,11 @@ const handleFacebookReel = async (req, res) => {
       });
     }
 
-    authorHandle = `@${authorName.toLowerCase().replace(/[^a-z0-9_]/g, '') || 'facebook_creator'}`;
-    const displayCaption = caption || title || 'Facebook Post';
+    if (!authorHandle || authorHandle === '@facebook_user') {
+      authorHandle = cleanSocialHandle(authorName, 'facebook_creator');
+    }
+    authorName = decodeHtmlEntities(authorName);
+    const displayCaption = decodeHtmlEntities(caption || title || 'Facebook Post');
 
     // Assemble entries for multi-slide carousel
     let entries = [];
@@ -605,9 +619,10 @@ const handleInstagramReel = async (req, res) => {
     const data = await extractMediaInfo(cleanUrl, cookies);
 
     if (data && (data.url || data.status === 'success')) {
-      const authorName = data.uploader || data.author || 'Instagram Creator';
-      const authorHandle = authorName.startsWith('@') ? authorName : `@${authorName}`;
-      const title = data.title || data.caption || 'Instagram Post';
+      const rawAuthor = data.uploader || data.author || 'Instagram Creator';
+      const authorName = decodeHtmlEntities(rawAuthor);
+      const authorHandle = cleanSocialHandle(rawAuthor, 'instagram_creator');
+      const title = decodeHtmlEntities(data.title || data.caption || 'Instagram Post');
       const isVideo = Boolean(data.is_video || (data.ext === 'mp4') || (data.url && (data.url.includes('.mp4') || data.url.includes('/v/t50.'))));
       const isReelRequested = cleanUrl.includes('/reel/') || cleanUrl.includes('/reels/');
 
@@ -1588,8 +1603,9 @@ const handleFacebookPost = async (req, res) => {
         // Author Name
         const ogTitleMatch = html.match(/<meta property="og:title" content="([^"]+)"/);
         if (ogTitleMatch) {
-          const rawTitle = ogTitleMatch[1].replace(/&amp;/g, '&').replace(/&#x26f3;&#xfe0f;/g, '').replace(/&#x[0-9a-fA-F]+;/g, ' ').trim();
-          authorName = rawTitle.split(' - ')[0].split(' | ')[0].split('\n')[0].trim() || 'Facebook User';
+          const rawTitle = decodeHtmlEntities(ogTitleMatch[1]);
+          const titleParts = rawTitle.split(/\s+[-–—|•/]\s+|\n+/);
+          authorName = titleParts[0]?.trim() || 'Facebook User';
         }
 
         // Extract Facebook Username / Handle from URL or HTML
@@ -1616,13 +1632,13 @@ const handleFacebookPost = async (req, res) => {
             console.warn('[Facebook DP Fetch Notice]:', dpErr.message);
           }
         } else {
-          authorHandle = `@${authorName.toLowerCase().replace(/[^a-z0-9_]/g, '') || 'facebook'}`;
+          authorHandle = cleanSocialHandle(authorName, 'facebook');
         }
 
         // Caption Text
         const ogDescMatch = html.match(/<meta property="og:description" content="([^"]+)"/);
         if (ogDescMatch) {
-          captionText = ogDescMatch[1].replace(/&amp;/g, '&').replace(/&#x[0-9a-fA-F]+;/g, ' ').trim();
+          captionText = decodeHtmlEntities(ogDescMatch[1]).trim();
         }
 
         // Image URL

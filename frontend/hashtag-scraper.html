@@ -1094,7 +1094,10 @@
         if (hsPostCard) {
           hsPostCard.classList.remove('hidden');
           hsPostCard.style.display = 'block';
-          if (hsCaptionText) hsCaptionText.textContent = data.reelInfo.caption || data.reelInfo.text || '';
+          if (hsCaptionText) {
+            const rawCap = data.reelInfo.caption || data.reelInfo.text || '';
+            hsCaptionText.textContent = (window.decodeHtmlEntities ? window.decodeHtmlEntities(rawCap) : rawCap);
+          }
           
           const mediaUrl = data.reelInfo.displayUrl || data.reelInfo.videoUrl || '';
           const isVid = Boolean(data.reelInfo.isVideo || (data.reelInfo.videoUrl && data.reelInfo.videoUrl.includes('.mp4')));

@@ -923,6 +923,45 @@
   <script>
     let currentData = null;
 
+    function decodeHtmlEntities(str) {
+      if (!str || typeof str !== 'string') return '';
+      if (window.decodeHtmlEntities && typeof window.decodeHtmlEntities === 'function') {
+        return window.decodeHtmlEntities(str);
+      }
+      let prev = '';
+      let curr = str;
+      let iterations = 0;
+      const named = {
+        'amp': '&', 'quot': '"', 'apos': "'", 'lt': '<', 'gt': '>',
+        'nbsp': ' ', 'copy': '©', 'reg': '®', 'trade': '™', 'hellip': '…',
+        'mdash': '—', 'ndash': '–', 'ldquo': '“', 'rdquo': '”',
+        'lsquo': '‘', 'rsquo': '’', 'bull': '•', 'middot': '·',
+        'permil': '‰', 'prime': '′', 'Prime': '″', 'hearts': '♥',
+        'clubs': '♣', 'diams': '♦', 'spades': '♠'
+      };
+      while (curr !== prev && iterations < 4) {
+        prev = curr;
+        iterations++;
+        curr = curr.replace(/&#x([0-9a-fA-F]+);/gi, (m, hex) => {
+          try {
+            const cp = parseInt(hex, 16);
+            return (cp >= 0 && cp <= 0x10FFFF) ? String.fromCodePoint(cp) : m;
+          } catch (e) { return m; }
+        });
+        curr = curr.replace(/&#([0-9]+);/g, (m, dec) => {
+          try {
+            const cp = parseInt(dec, 10);
+            return (cp >= 0 && cp <= 0x10FFFF) ? String.fromCodePoint(cp) : m;
+          } catch (e) { return m; }
+        });
+        curr = curr.replace(/&([a-zA-Z]+);/g, (m, name) => {
+          const l = name.toLowerCase();
+          return named[l] !== undefined ? named[l] : m;
+        });
+      }
+      return curr;
+    }
+
     function updatePasteBtnState(inputId = 'fbUrl', btnId = 'btnPasteCut') {
       const input = document.getElementById(inputId);
       const btn = document.getElementById(btnId);
@@ -1216,8 +1255,8 @@
       const postTime = document.getElementById('postTime');
       const mediaQuality = document.getElementById('mediaQuality');
 
-      const displayName = data.authorName || data.author || 'Facebook Creator';
-      const handle = data.authorHandle || data.author || '@facebook_creator';
+      const displayName = decodeHtmlEntities(data.authorName || data.author || 'Facebook Creator');
+      const handle = decodeHtmlEntities(data.authorHandle || data.author || '@facebook_creator');
       authorName.textContent = displayName;
       authorHandle.textContent = handle;
 
@@ -1233,7 +1272,7 @@
         authorAvatar.src = FB_ICON_DATA;
       }
 
-      mediaCaption.textContent = data.caption || 'Facebook HD Media Stream';
+      mediaCaption.textContent = decodeHtmlEntities(data.caption || 'Facebook HD Media Stream');
       postTime.textContent = data.timestamp || 'Live';
 
       updateCarouselState();
@@ -1450,8 +1489,12 @@
     }
 
     function copyCaption() {
-      if (!currentData || !currentData.caption) return;
-      navigator.clipboard.writeText(currentData.caption);
+      const cap = decodeHtmlEntities((currentData && currentData.caption) ? currentData.caption : (document.getElementById('mediaCaption')?.textContent || ''));
+      if (!cap) {
+        showToast('No caption found to copy.');
+        return;
+      }
+      navigator.clipboard.writeText(cap);
       showToast('Caption copied to clipboard!');
     }
   </script>
