@@ -14,6 +14,28 @@ const { extractTargetProfile, downloadImageAsBase64 } = require('../services/uni
 const { decodeHtmlEntities, cleanSocialHandle } = require('../services/htmlDecoder');
 
 const profileCache = new Map();
+const mediaCache = new Map();
+const MEDIA_CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes TTL
+
+function getFromMediaCache(key) {
+  if (!key) return null;
+  const entry = mediaCache.get(key);
+  if (!entry) return null;
+  if (Date.now() - entry.timestamp > MEDIA_CACHE_TTL_MS) {
+    mediaCache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
+function setToMediaCache(key, data) {
+  if (!key || !data) return;
+  if (mediaCache.size > 500) {
+    const firstKey = mediaCache.keys().next().value;
+    mediaCache.delete(firstKey);
+  }
+  mediaCache.set(key, { timestamp: Date.now(), data });
+}
 
 // Helper to convert remote image URL to base64 data URI
 function fetchImageAsBase64(url) {
@@ -371,12 +393,43 @@ const handleFacebookReel = async (req, res) => {
       return res.status(400).json({ status: 'error', error: 'Facebook Reel or Video URL is required.' });
     }
 
-    const isFbUrl = url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.com');
-    if (!isFbUrl) {
-      return res.status(400).json({ status: 'error', error_type: 'invalid_link', error: '❌ Wrong Link: Please enter a valid Facebook Reel or Video link.' });
+    const cleanUrl = url.trim();
+
+    // Cross-platform link rejection
+    if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+      return res.status(400).json({
+        status: 'error',
+        error_type: 'wrong_platform',
+        platform: 'youtube',
+        error: '❌ Wrong Link: Yeh YouTube ka video/shorts link hai! Kripya Facebook Reel ya Video ka link enter karein.'
+      });
+    }
+    if (cleanUrl.includes('instagram.com') || cleanUrl.includes('instagr.am')) {
+      return res.status(400).json({
+        status: 'error',
+        error_type: 'wrong_platform',
+        platform: 'instagram',
+        error: '❌ Wrong Link: Yeh Instagram ka Reel/Post link hai! Kripya Facebook Reel ya Video ka link enter karein.'
+      });
     }
 
-    console.log(`[Facebook Media] Fetching media info for: ${url}...`);
+    const isFbUrl = cleanUrl.includes('facebook.com') || cleanUrl.includes('fb.watch') || cleanUrl.includes('fb.com');
+    if (!isFbUrl) {
+      return res.status(400).json({
+        status: 'error',
+        error_type: 'invalid_link',
+        error: '❌ Wrong Link: Yeh Facebook ka valid Reel ya Video link nahi hai. Kripya sahi Facebook link dalein.'
+      });
+    }
+
+    // Check in-memory fast cache (15-minute TTL)
+    const cacheKey = `fb:${cleanUrl.split('?')[0]}`;
+    const cachedData = getFromMediaCache(cacheKey);
+    if (cachedData) {
+      return res.json({ ...cachedData, cached: true });
+    }
+
+    console.log(`[Facebook Media] Fetching media info for: ${cleanUrl}...`);
 
     let authorName = 'Facebook Creator';
     let authorHandle = '@facebook_user';
@@ -521,7 +574,8 @@ const handleFacebookReel = async (req, res) => {
       return res.status(403).json({
         status: 'error',
         isPrivate: true,
-        error: '🔒 Private Post / Login Required: This Facebook post is from a Private account, restricted group, or requires Facebook login. Please paste a link from a Public Reel, Photo Post, or Video.'
+        error_type: 'private_account',
+        error: '🔒 Private Post / Account: Yeh Facebook post ek Private account, closed group ya restricted profile se hai! Private posts bina login/permission download nahi kiye ja sakte. Kripya kisi Public Facebook Reel ya Video ka link dalein.'
       });
     }
 
@@ -551,7 +605,7 @@ const handleFacebookReel = async (req, res) => {
       }));
     }
 
-    return res.json({
+    const payload = {
       status: 'success',
       author: authorName,
       authorHandle: authorHandle,
@@ -570,7 +624,10 @@ const handleFacebookReel = async (req, res) => {
       fileSize: isVideo ? "4.2 MB" : `${(entries.length * 1.5).toFixed(1)} MB`,
       expiresIn: "Permanent Stream",
       timestamp: "Live"
-    });
+    };
+
+    setToMediaCache(cacheKey, payload);
+    return res.json(payload);
   } catch (err) {
     console.error('[Facebook Handler Error]:', err.message);
     return res.status(500).json({
@@ -592,15 +649,45 @@ const handleInstagramReel = async (req, res) => {
 
     // Clean URL (strip tracking params like ?igsh=... & format properly)
     let cleanUrl = url.trim();
+
+    // Cross-platform link rejection
+    if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+      return res.status(400).json({
+        status: 'error',
+        error_type: 'wrong_platform',
+        platform: 'youtube',
+        error: '❌ Wrong Link: Yeh YouTube ka video/shorts link hai! Kripya Instagram Reel ya Post ka link enter karein.'
+      });
+    }
+    if (cleanUrl.includes('facebook.com') || cleanUrl.includes('fb.watch') || cleanUrl.includes('fb.com')) {
+      return res.status(400).json({
+        status: 'error',
+        error_type: 'wrong_platform',
+        platform: 'facebook',
+        error: '❌ Wrong Link: Yeh Facebook ka link hai! Kripya Instagram Reel ya Post ka link enter karein.'
+      });
+    }
+
     const shortcodeMatch = cleanUrl.match(/\/(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/i);
     if (!shortcodeMatch && !cleanUrl.includes('instagram.com/')) {
-      return res.status(400).json({ status: 'error', error_type: 'invalid_link', error: '❌ Wrong Link: Please enter a valid Instagram Reel or Post link.' });
+      return res.status(400).json({
+        status: 'error',
+        error_type: 'invalid_link',
+        error: '❌ Wrong Link: Yeh Instagram ka valid Reel ya Post link nahi hai. Kripya sahi Instagram link dalein.'
+      });
     }
 
     const shortcode = shortcodeMatch ? shortcodeMatch[1] : '';
     if (shortcode) {
       const isReel = cleanUrl.includes('/reel/') || cleanUrl.includes('/reels/');
       cleanUrl = `https://www.instagram.com/${isReel ? 'reel' : 'p'}/${shortcode}/`;
+    }
+
+    // Check in-memory fast cache (15-minute TTL)
+    const cacheKey = `ig:${cleanUrl.split('?')[0]}`;
+    const cachedData = getFromMediaCache(cacheKey);
+    if (cachedData) {
+      return res.json({ ...cachedData, cached: true });
     }
 
     console.log(`[Instagram Media] Fetching media info for: ${cleanUrl}...`);
@@ -652,7 +739,7 @@ const handleInstagramReel = async (req, res) => {
         ? data.images 
         : entries.map(e => e.url || e.thumbnail).filter(Boolean);
 
-      return res.json({
+      const payload = {
         status: 'success',
         author: authorName,
         authorName: authorName,
@@ -672,19 +759,22 @@ const handleInstagramReel = async (req, res) => {
         like_count: data.like_count || 12400,
         comment_count: data.comment_count || 280,
         timestamp: "Live"
-      });
+      };
+
+      setToMediaCache(cacheKey, payload);
+      return res.json(payload);
     }
 
     // Check specific error reasons
     const errText = (data && data.error) ? String(data.error).toLowerCase() : '';
-    const isPrivate = data && (data.is_private || data.isPrivate || errText.includes('private'));
+    const isPrivate = data && (data.is_private || data.isPrivate || errText.includes('private') || errText.includes('this account is private'));
 
     if (isPrivate) {
       return res.status(403).json({
         status: 'error',
         isPrivate: true,
         error_type: 'private_account',
-        error: '🔒 Private Account: This Instagram Reel or Post is from a Private account. Media cannot be extracted from private profiles without permission.'
+        error: '🔒 Private Account: Yeh Instagram account ya post PRIVATE hai! Private accounts ke Reels, photos ya videos bina permission download nahi kiye ja sakte. Kripya kisi Public account ka link dalein.'
       });
     }
 
@@ -1438,8 +1528,26 @@ const handleYoutubeVideo = async (req, res) => {
     }
 
     let inputUrl = url.trim();
-    let videoId = '';
 
+    // Cross-platform link rejection
+    if (inputUrl.includes('instagram.com') || inputUrl.includes('instagr.am')) {
+      return res.status(400).json({
+        status: 'error',
+        error_type: 'wrong_platform',
+        platform: 'instagram',
+        error: '❌ Wrong Link: Yeh Instagram ka link hai! Kripya YouTube Video ya Shorts ka link enter karein.'
+      });
+    }
+    if (inputUrl.includes('facebook.com') || inputUrl.includes('fb.watch') || inputUrl.includes('fb.com')) {
+      return res.status(400).json({
+        status: 'error',
+        error_type: 'wrong_platform',
+        platform: 'facebook',
+        error: '❌ Wrong Link: Yeh Facebook ka link hai! Kripya YouTube Video ya Shorts ka link enter karein.'
+      });
+    }
+
+    let videoId = '';
     if (inputUrl.includes('shorts/')) {
       videoId = inputUrl.split('shorts/')[1]?.split('?')[0]?.split('/')[0];
     } else if (inputUrl.includes('youtu.be/')) {
@@ -1448,6 +1556,21 @@ const handleYoutubeVideo = async (req, res) => {
       videoId = inputUrl.split('watch?v=')[1]?.split('&')[0]?.split('?')[0];
     } else if (/^[a-zA-Z0-9_-]{11}$/.test(inputUrl)) {
       videoId = inputUrl;
+    }
+
+    if (!videoId) {
+      return res.status(400).json({
+        status: 'error',
+        error_type: 'invalid_link',
+        error: '❌ Wrong Link: Yeh YouTube ka valid video ya Shorts link nahi hai. Kripya valid YouTube URL dalein.'
+      });
+    }
+
+    // Check in-memory fast cache (15-minute TTL)
+    const cacheKey = `yt:${videoId}`;
+    const cachedData = getFromMediaCache(cacheKey);
+    if (cachedData) {
+      return res.json({ ...cachedData, cached: true });
     }
 
     const targetWatchUrl = videoId ? `https://www.youtube.com/watch?v=${videoId}` : inputUrl;
@@ -1465,11 +1588,19 @@ const handleYoutubeVideo = async (req, res) => {
 
     if (videoId && apiKey) {
       try {
-        const ytApiRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${videoId}&key=${apiKey}`);
+        const ytApiRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics,status&id=${videoId}&key=${apiKey}`);
         if (ytApiRes.ok) {
           const ytData = await ytApiRes.json();
           if (ytData.items && ytData.items[0]) {
             const item = ytData.items[0];
+            if (item.status && item.status.privacyStatus === 'private') {
+              return res.status(403).json({
+                status: 'error',
+                isPrivate: true,
+                error_type: 'private_video',
+                error: '🔒 Private Video: Yeh YouTube video Private hai aur download nahi kiya ja sakta. Kripya public video ka link dalein.'
+              });
+            }
             title = item.snippet?.title || title;
             author = item.snippet?.channelTitle || author;
             if (item.snippet?.channelId) {
@@ -1547,7 +1678,7 @@ const handleYoutubeVideo = async (req, res) => {
 
     const embedUrl = videoId ? `https://www.youtube.com/embed/${videoId}` : "";
 
-    return res.json({
+    const payload = {
       status: "success",
       source: "official_youtube_api_v3_engine",
       videoId: videoId,
@@ -1561,7 +1692,10 @@ const handleYoutubeVideo = async (req, res) => {
       duration: duration,
       downloadUrl: downloadUrl,
       audioUrl: audioUrl
-    });
+    };
+
+    setToMediaCache(cacheKey, payload);
+    return res.json(payload);
 
   } catch (error) {
     console.error("[YouTube Video Downloader] Error:", error.message);
@@ -1945,6 +2079,12 @@ router.post('/instagram-story', handleInstagramStory);
 router.post('/youtube-video', handleYoutubeVideo);
 router.post('/youtube-shorts', handleYoutubeVideo);
 router.post('/youtube-thumbnail', handleYoutubeVideo);
+
+router.getFromMediaCache = getFromMediaCache;
+router.setToMediaCache = setToMediaCache;
+router.handleFacebookReel = handleFacebookReel;
+router.handleInstagramReel = handleInstagramReel;
+router.handleYoutubeVideo = handleYoutubeVideo;
 
 module.exports = router;
 

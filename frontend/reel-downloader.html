@@ -286,6 +286,15 @@
       grid-template-columns: 380px 1fr;
       gap: 32px;
       align-items: center;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .rd-media-grid > div {
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     @media (max-width: 900px) {
@@ -493,6 +502,9 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .rd-btn-download-hd {
@@ -782,20 +794,20 @@
               </span>
             </div>
 
-            <div>
+            <div style="min-width: 0; width: 100%; box-sizing: border-box;">
               <h2 id="reelAuthorHandle"
-                style="font-size:22px; font-weight:900; color:#ffffff !important; margin-bottom:6px;">
+                style="font-size:22px; font-weight:900; color:#ffffff !important; margin-bottom:6px; word-break:break-word; overflow-wrap:anywhere;">
                 @nature.explorers
               </h2>
               <p id="reelCaptionText"
-                style="font-size:14px; line-height:1.6; color:#e2e8f0 !important; font-weight:500;">
+                style="font-size:14px; line-height:1.6; color:#e2e8f0 !important; font-weight:500; word-break:break-word; overflow-wrap:anywhere; white-space:pre-wrap; max-height:180px; overflow-y:auto; padding-right:4px;">
                 Golden hour in the Norwegian Fjords 🏔️ Experience pure serenity. #travel #nature #norway #reels
               </p>
             </div>
 
             <!-- Stats Bar -->
             <div
-              style="display:flex; gap:24px; padding:14px 18px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:14px;">
+              style="display:flex; flex-wrap:wrap; gap:14px 20px; padding:14px 18px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); border-radius:14px; box-sizing:border-box;">
               <div>
                 <span
                   style="font-size:11px; color:#94a3b8 !important; font-weight:700; display:block; letter-spacing:0.5px;">LIKES</span>
@@ -1045,24 +1057,83 @@
       const cookiesVal = reelCookiesInput ? reelCookiesInput.value.trim() : '';
       if (!rawVal) return;
 
+      // Cross-Platform Checks Upfront
+      const isYt = rawVal.includes('youtube.com') || rawVal.includes('youtu.be');
+      if (isYt) {
+        showToast("⚠️ YouTube Link Detected!");
+        if (reelNotFoundAlert) {
+          reelNotFoundAlert.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; text-align:left; flex-wrap:wrap;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:26px;">▶️</span>
+                <div>
+                  <strong style="font-size:15px; display:block; color:#fbbf24; margin-bottom:4px;">YouTube Link Detected</strong>
+                  <span style="font-size:13px; color:#fde68a; line-height:1.5;">Aapne Instagram Downloader par YouTube ka link paste kiya hai. YouTube video/shorts download karne ke liye hamara YouTube Downloader use karein.</span>
+                </div>
+              </div>
+              <a href="./youtube-video-downloader.html" style="background:#f59e0b; color:#1e1b4b; padding:10px 18px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; white-space:nowrap; display:inline-block;">Open YouTube Downloader →</a>
+            </div>
+          `;
+          reelNotFoundAlert.style.background = 'rgba(245, 158, 11, 0.16)';
+          reelNotFoundAlert.style.border = '1px solid rgba(245, 158, 11, 0.4)';
+          reelNotFoundAlert.classList.remove('hidden');
+          reelNotFoundAlert.style.display = 'block';
+        }
+        reelResultCard.classList.add('hidden');
+        reelResultCard.style.display = 'none';
+        return;
+      }
+
+      const isFb = rawVal.includes('facebook.com') || rawVal.includes('fb.watch') || rawVal.includes('fb.com');
+      if (isFb) {
+        showToast("⚠️ Facebook Link Detected!");
+        if (reelNotFoundAlert) {
+          reelNotFoundAlert.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; text-align:left; flex-wrap:wrap;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:26px;">📘</span>
+                <div>
+                  <strong style="font-size:15px; display:block; color:#38bdf8; margin-bottom:4px;">Facebook Link Detected</strong>
+                  <span style="font-size:13px; color:#bae6fd; line-height:1.5;">Aapne Instagram Downloader par Facebook ka link paste kiya hai. Facebook Reel/Video download karne ke liye hamara Facebook Downloader use karein.</span>
+                </div>
+              </div>
+              <a href="./facebook-reel-downloader.html" style="background:#0284c7; color:#ffffff; padding:10px 18px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; white-space:nowrap; display:inline-block;">Open Facebook Downloader →</a>
+            </div>
+          `;
+          reelNotFoundAlert.style.background = 'rgba(14, 165, 233, 0.16)';
+          reelNotFoundAlert.style.border = '1px solid rgba(14, 165, 233, 0.4)';
+          reelNotFoundAlert.classList.remove('hidden');
+          reelNotFoundAlert.style.display = 'block';
+        }
+        reelResultCard.classList.add('hidden');
+        reelResultCard.style.display = 'none';
+        return;
+      }
+
       // Restrict Story & Highlight links in this section
       const isStoryOrHighlight = rawVal.includes('/stories/') || rawVal.includes('/s/') || rawVal.includes('/highlights/');
       if (isStoryOrHighlight) {
         showToast("⚠️ Story/Highlight link detected!");
         if (reelNotFoundAlert) {
           reelNotFoundAlert.innerHTML = `
-            <div style="display:flex; align-items:center; gap:12px; text-align:left;">
-              <span style="font-size:26px;">🎬</span>
-              <div>
-                <strong style="font-size:15px; display:block; color:#fbbf24; margin-bottom:4px;">Instagram Story or Highlight Link Detected</strong>
-                <span style="font-size:13px; color:#fde68a; line-height:1.5;">This tool is dedicated for Instagram Reels, Photos, IGTV &amp; Video Posts. Please paste a public Instagram Reel or Post link.</span>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; text-align:left; flex-wrap:wrap;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:26px;">🎬</span>
+                <div>
+                  <strong style="font-size:15px; display:block; color:#fbbf24; margin-bottom:4px;">Instagram Story or Highlight Link Detected</strong>
+                  <span style="font-size:13px; color:#fde68a; line-height:1.5;">This tool is dedicated for Instagram Reels, Photos, IGTV &amp; Video Posts. Story download karne ke liye Story Downloader use karein.</span>
+                </div>
               </div>
+              <a href="./instagram-story-downloader.html" style="background:#f59e0b; color:#1e1b4b; padding:10px 18px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; white-space:nowrap; display:inline-block;">Open Story Downloader →</a>
             </div>
           `;
           reelNotFoundAlert.style.background = 'rgba(245, 158, 11, 0.16)';
           reelNotFoundAlert.style.border = '1px solid rgba(245, 158, 11, 0.4)';
           reelNotFoundAlert.classList.remove('hidden');
+          reelNotFoundAlert.style.display = 'block';
         }
+        reelResultCard.classList.add('hidden');
+        reelResultCard.style.display = 'none';
         return;
       }
 
@@ -1073,14 +1144,14 @@
       // Validate Instagram URL format
       const isIgUrl = val.includes('instagram.com/reel/') || val.includes('instagram.com/p/') || val.includes('instagram.com/tv/') || val.includes('instagram.com/share/');
       if (!isIgUrl) {
-        showToast("❌ Wrong Link: Please enter a valid Instagram Reel or Post link.");
+        showToast("❌ Wrong Link: Please enter a valid Instagram link.");
         if (reelNotFoundAlert) {
           reelNotFoundAlert.innerHTML = `
             <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
               <span style="font-size:26px;">❌</span>
               <div>
                 <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">Invalid / Wrong Link Entered</strong>
-                <span style="font-size:13.5px; color:#fca5a5; line-height:1.6;">The URL you entered is not a valid Instagram Reel or Post link. Please check your link and paste a valid Instagram URL (e.g., https://www.instagram.com/reel/... or https://www.instagram.com/p/...).</span>
+                <span style="font-size:13.5px; color:#fca5a5; line-height:1.6;">Yeh sahi Instagram link nahi hai! Kripya valid public Instagram Reel ya Post ka link paste karein (e.g. https://www.instagram.com/reel/...).</span>
               </div>
             </div>
           `;
@@ -1164,8 +1235,8 @@
           return;
         }
 
-        if (res.status === 403 || data.is_private || data.isPrivate || (data.error && data.error.toLowerCase().includes('private'))) {
-          showToast(data.error || "🔒 Private Account: Media cannot be extracted from private profiles.");
+        if (res.status === 403 || data.is_private || data.isPrivate || data.error_type === 'private_account' || (data.error && data.error.toLowerCase().includes('private'))) {
+          showToast("🔒 Private Account: Media cannot be extracted.");
           if (cookiesInputWrap) {
             cookiesInputWrap.classList.remove('hidden');
             if (cookiesToggleIcon) cookiesToggleIcon.textContent = '▲';
@@ -1173,10 +1244,10 @@
           if (reelNotFoundAlert) {
             reelNotFoundAlert.innerHTML = `
               <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
-                <span style="font-size:26px;">🔒</span>
+                <span style="font-size:28px;">🔒</span>
                 <div>
-                  <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">Private Account Detected</strong>
-                  <span style="font-size:13.5px; color:#fca5a5; line-height:1.6;">${data.error || 'This Instagram reel or post is from a Private account. Media cannot be extracted from private profiles without permission. Please paste a link from a Public account.'}</span>
+                  <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">Private Account Link Detected</strong>
+                  <span style="font-size:13.5px; color:#fca5a5; line-height:1.6;">${data.error || 'Yeh Instagram account ya post <strong>PRIVATE</strong> hai! Instagram privacy policies ke tehat private accounts ke Reels ya photos bina permission download nahi kiye ja sakte. Kripya kisi <strong>Public account</strong> ka link paste karein.'}</span>
                 </div>
               </div>
             `;
@@ -1196,13 +1267,13 @@
           reelResultCard.classList.remove('hidden');
           reelResultCard.style.display = 'block';
         } else {
-          showToast(data.error || "❌ Media Not Found: Please check the link and try again.");
+          showToast(data.error || "❌ Media Not Found: Please check the link.");
           if (reelNotFoundAlert) {
             reelNotFoundAlert.innerHTML = `
               <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
                 <span style="font-size:26px;">❌</span>
                 <div>
-                  <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">Media Not Found</strong>
+                  <strong style="font-size:16px; display:block; color:#f87171; margin-bottom:6px; font-weight:800;">${data.error_type === 'wrong_platform' ? 'Wrong Platform Link' : 'Media Not Found'}</strong>
                   <span style="font-size:13.5px; color:#fca5a5; line-height:1.6;">${data.error || 'Could not extract media from the provided link. Please ensure the link is from a public post.'}</span>
                 </div>
               </div>

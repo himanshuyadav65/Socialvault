@@ -37,11 +37,37 @@ app.post('/api/download', async (req, res) => {
 
   // Clean Instagram URL
   let cleanUrl = url.trim();
+
+  // Cross-platform link rejection
+  if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+    return res.status(400).json({
+      status: 'error',
+      error_type: 'wrong_platform',
+      platform: 'youtube',
+      error: '❌ Wrong Link: Yeh YouTube ka video/shorts link hai! Kripya Instagram Reel ya Post ka link enter karein.'
+    });
+  }
+  if (cleanUrl.includes('facebook.com') || cleanUrl.includes('fb.watch') || cleanUrl.includes('fb.com')) {
+    return res.status(400).json({
+      status: 'error',
+      error_type: 'wrong_platform',
+      platform: 'facebook',
+      error: '❌ Wrong Link: Yeh Facebook ka link hai! Kripya Instagram Reel ya Post ka link enter karein.'
+    });
+  }
+
   const shortcodeMatch = cleanUrl.match(/\/(?:reel|reels|p|tv)\/([A-Za-z0-9_-]+)/i);
   if (shortcodeMatch) {
     const sc = shortcodeMatch[1];
     const isReel = cleanUrl.includes('/reel/') || cleanUrl.includes('/reels/');
     cleanUrl = `https://www.instagram.com/${isReel ? 'reel' : 'p'}/${sc}/`;
+  }
+
+  // Check fast in-memory cache
+  const cacheKey = `ig:${cleanUrl.split('?')[0]}`;
+  const cachedData = analysisRoutes.getFromMediaCache ? analysisRoutes.getFromMediaCache(cacheKey) : null;
+  if (cachedData) {
+    return res.json({ ...cachedData, cached: true });
   }
 
   // Auto-save cookies if passed in body
@@ -70,18 +96,21 @@ app.post('/api/download', async (req, res) => {
           error: '⚠️ Instagram Video Stream Restricted: Instagram requires account authentication to stream this reel. Automated direct MP4 download is currently restricted for this reel.'
         });
       }
+      if (analysisRoutes.setToMediaCache) {
+        analysisRoutes.setToMediaCache(cacheKey, data);
+      }
       return res.json(data);
     }
 
     const errText = (data && data.error) ? String(data.error).toLowerCase() : '';
-    const isPrivate = Boolean(data && (data.is_private || data.isPrivate || errText.includes('this account is private')));
+    const isPrivate = Boolean(data && (data.is_private || data.isPrivate || errText.includes('private') || errText.includes('this account is private')));
 
     if (isPrivate) {
       return res.status(403).json({
         status: 'error',
         isPrivate: true,
         error_type: 'private_account',
-        error: '🔒 Private Account: This Instagram reel, photo, or post is from a Private account. Media cannot be extracted from private profiles without permission. Please paste a link from a Public account.'
+        error: '🔒 Private Account: Yeh Instagram account ya post PRIVATE hai! Private accounts ke Reels, photos ya videos bina permission download nahi kiye ja sakte. Kripya kisi Public account ka link dalein.'
       });
     }
 

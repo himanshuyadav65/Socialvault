@@ -240,6 +240,15 @@
       grid-template-columns: 1.2fr 1fr;
       gap: 28px;
       align-items: center;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    .result-grid > div {
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .video-box {
@@ -259,11 +268,19 @@
       display: block;
     }
 
+    .info-box {
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
     .info-box h3 {
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       font-weight: 800;
       margin-bottom: 8px;
-      line-height: 1.35;
+      line-height: 1.4;
+      word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     .author-badge {
@@ -577,7 +594,8 @@
       }
     }
 
-    updateThemeUI(t);
+    const savedTheme = localStorage.getItem('socialvault_theme') || 'dark';
+    updateThemeUI(savedTheme);
 
     themeBtn?.addEventListener('click', () => {
       const current = document.documentElement.getAttribute('data-theme') || 'dark';
@@ -645,9 +663,58 @@
       errorAlert.style.display = 'none';
       resultContainer.style.display = 'none';
 
+      // Cross-platform checks upfront
+      if (inputVal.includes('instagram.com') || inputVal.includes('instagr.am')) {
+        errorAlert.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; text-align:left; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:26px;">📸</span>
+              <div>
+                <strong style="font-size:15px; display:block; color:#fbbf24; margin-bottom:4px;">Instagram Link Detected</strong>
+                <span style="font-size:13px; color:#fde68a; line-height:1.5;">Aapne YouTube Downloader par Instagram ka link paste kiya hai. Instagram Reel download karne ke liye Reel Downloader use karein.</span>
+              </div>
+            </div>
+            <a href="./reel-downloader.html" style="background:#f59e0b; color:#1e1b4b; padding:10px 18px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; white-space:nowrap; display:inline-block;">Open Reel Downloader →</a>
+          </div>
+        `;
+        errorAlert.style.background = 'rgba(245, 158, 11, 0.16)';
+        errorAlert.style.border = '1px solid rgba(245, 158, 11, 0.4)';
+        errorAlert.style.display = 'block';
+        return;
+      }
+
+      if (inputVal.includes('facebook.com') || inputVal.includes('fb.watch') || inputVal.includes('fb.com')) {
+        errorAlert.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; text-align:left; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:26px;">📘</span>
+              <div>
+                <strong style="font-size:15px; display:block; color:#38bdf8; margin-bottom:4px;">Facebook Link Detected</strong>
+                <span style="font-size:13px; color:#bae6fd; line-height:1.5;">Aapne YouTube Downloader par Facebook ka link paste kiya hai. Facebook video/reel download karne ke liye Facebook Downloader use karein.</span>
+              </div>
+            </div>
+            <a href="./facebook-reel-downloader.html" style="background:#0284c7; color:#ffffff; padding:10px 18px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; white-space:nowrap; display:inline-block;">Open Facebook Downloader →</a>
+          </div>
+        `;
+        errorAlert.style.background = 'rgba(14, 165, 233, 0.16)';
+        errorAlert.style.border = '1px solid rgba(14, 165, 233, 0.4)';
+        errorAlert.style.display = 'block';
+        return;
+      }
+
       const vId = parseYtVideoId(inputVal);
       if (!vId) {
-        errorAlert.innerText = 'Please enter a valid YouTube video link or Shorts URL.';
+        errorAlert.innerHTML = `
+          <div style="display:flex; align-items:flex-start; gap:12px; text-align:left;">
+            <span style="font-size:24px;">❌</span>
+            <div>
+              <strong style="font-size:15px; display:block; color:#f87171; margin-bottom:4px;">Wrong / Invalid Link Entered</strong>
+              <span style="font-size:13px; color:#fca5a5; line-height:1.5;">Yeh valid YouTube video ya Shorts link nahi hai. Kripya sahi YouTube link dalein (jaise youtube.com/watch?v=... ya youtu.be/...).</span>
+            </div>
+          </div>
+        `;
+        errorAlert.style.background = 'rgba(239, 68, 68, 0.16)';
+        errorAlert.style.border = '1px solid rgba(239, 68, 68, 0.4)';
         errorAlert.style.display = 'block';
         return;
       }
@@ -666,10 +733,17 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: inputVal })
           });
+          if (res.status === 403) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || '🔒 Private Video: Yeh YouTube video Private ya restricted hai.');
+          }
           if (res.ok) {
             data = await res.json();
           }
         } catch (fetchErr) {
+          if (fetchErr.message && fetchErr.message.includes('Private')) {
+            throw fetchErr;
+          }
           console.warn('Backend fetch notice:', fetchErr);
         }
 
@@ -707,7 +781,18 @@
       } catch (err) {
         loadingState.style.display = 'none';
         btnExtract.disabled = false;
-        errorAlert.innerText = 'Could not load video: ' + err.message;
+        const isPriv = err.message && err.message.includes('Private');
+        errorAlert.innerHTML = `
+          <div style="display:flex; align-items:flex-start; gap:12px; text-align:left;">
+            <span style="font-size:24px;">${isPriv ? '🔒' : '❌'}</span>
+            <div>
+              <strong style="font-size:15px; display:block; color:#f87171; margin-bottom:4px;">${isPriv ? 'Private / Restricted Video' : 'Could Not Load Video'}</strong>
+              <span style="font-size:13px; color:#fca5a5; line-height:1.5;">${err.message || 'Could not load video. Please verify link.'}</span>
+            </div>
+          </div>
+        `;
+        errorAlert.style.background = 'rgba(239, 68, 68, 0.16)';
+        errorAlert.style.border = '1px solid rgba(239, 68, 68, 0.4)';
         errorAlert.style.display = 'block';
       }
     }

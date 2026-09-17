@@ -240,6 +240,15 @@
       grid-template-columns: 280px 1fr;
       gap: 32px;
       align-items: center;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .result-grid-shorts > div {
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .shorts-preview-box {
@@ -275,11 +284,23 @@
       backdrop-filter: blur(4px);
     }
 
+    .info-box {
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
     .info-box h3 {
-      font-size: 1.4rem;
+      font-size: 1.35rem;
       font-weight: 800;
       margin-bottom: 10px;
-      line-height: 1.35;
+      line-height: 1.4;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 4px;
     }
 
     .author-badge {
@@ -596,7 +617,8 @@
       }
     }
 
-    updateThemeUI(t);
+    const savedTheme = localStorage.getItem('socialvault_theme') || 'dark';
+    updateThemeUI(savedTheme);
 
     themeBtn?.addEventListener('click', () => {
       const current = document.documentElement.getAttribute('data-theme') || 'dark';
@@ -664,9 +686,58 @@
       errorAlert.style.display = 'none';
       resultContainer.style.display = 'none';
 
+      // Cross-platform checks upfront
+      if (inputVal.includes('instagram.com') || inputVal.includes('instagr.am')) {
+        errorAlert.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; text-align:left; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:26px;">📸</span>
+              <div>
+                <strong style="font-size:15px; display:block; color:#fbbf24; margin-bottom:4px;">Instagram Link Detected</strong>
+                <span style="font-size:13px; color:#fde68a; line-height:1.5;">Aapne YouTube Shorts Downloader par Instagram ka link paste kiya hai. Instagram Reel download karne ke liye Reel Downloader use karein.</span>
+              </div>
+            </div>
+            <a href="./reel-downloader.html" style="background:#f59e0b; color:#1e1b4b; padding:10px 18px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; white-space:nowrap; display:inline-block;">Open Reel Downloader →</a>
+          </div>
+        `;
+        errorAlert.style.background = 'rgba(245, 158, 11, 0.16)';
+        errorAlert.style.border = '1px solid rgba(245, 158, 11, 0.4)';
+        errorAlert.style.display = 'block';
+        return;
+      }
+
+      if (inputVal.includes('facebook.com') || inputVal.includes('fb.watch') || inputVal.includes('fb.com')) {
+        errorAlert.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; text-align:left; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:26px;">📘</span>
+              <div>
+                <strong style="font-size:15px; display:block; color:#38bdf8; margin-bottom:4px;">Facebook Link Detected</strong>
+                <span style="font-size:13px; color:#bae6fd; line-height:1.5;">Aapne YouTube Shorts Downloader par Facebook ka link paste kiya hai. Facebook video/reel download karne ke liye Facebook Downloader use karein.</span>
+              </div>
+            </div>
+            <a href="./facebook-reel-downloader.html" style="background:#0284c7; color:#ffffff; padding:10px 18px; border-radius:10px; font-size:13px; font-weight:800; text-decoration:none; white-space:nowrap; display:inline-block;">Open Facebook Downloader →</a>
+          </div>
+        `;
+        errorAlert.style.background = 'rgba(14, 165, 233, 0.16)';
+        errorAlert.style.border = '1px solid rgba(14, 165, 233, 0.4)';
+        errorAlert.style.display = 'block';
+        return;
+      }
+
       const vId = parseYtVideoId(inputVal);
       if (!vId) {
-        errorAlert.innerText = 'Please enter a valid YouTube Shorts link (e.g. youtube.com/shorts/...).';
+        errorAlert.innerHTML = `
+          <div style="display:flex; align-items:flex-start; gap:12px; text-align:left;">
+            <span style="font-size:24px;">❌</span>
+            <div>
+              <strong style="font-size:15px; display:block; color:#f87171; margin-bottom:4px;">Wrong / Invalid Link Entered</strong>
+              <span style="font-size:13px; color:#fca5a5; line-height:1.5;">Yeh valid YouTube Shorts link nahi hai. Kripya sahi link dalein (jaise youtube.com/shorts/... ya youtu.be/...).</span>
+            </div>
+          </div>
+        `;
+        errorAlert.style.background = 'rgba(239, 68, 68, 0.16)';
+        errorAlert.style.border = '1px solid rgba(239, 68, 68, 0.4)';
         errorAlert.style.display = 'block';
         return;
       }
@@ -685,10 +756,17 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: inputVal })
           });
+          if (res.status === 403) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || '🔒 Private Video: Yeh YouTube Shorts video Private ya restricted hai.');
+          }
           if (res.ok) {
             data = await res.json();
           }
         } catch (fetchErr) {
+          if (fetchErr.message && fetchErr.message.includes('Private')) {
+            throw fetchErr;
+          }
           console.warn('Backend fetch notice:', fetchErr);
         }
 
@@ -726,7 +804,29 @@
       } catch (err) {
         loadingState.style.display = 'none';
         btnExtract.disabled = false;
-        errorAlert.innerText = 'Could not load Shorts video: ' + err.message;
+        const isPrivate = err.message && (err.message.includes('Private') || err.message.includes('restricted'));
+        if (isPrivate) {
+          errorAlert.innerHTML = `
+            <div style="display:flex; align-items:flex-start; gap:14px; text-align:left;">
+              <div style="background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.4); border-radius:12px; width:44px; height:44px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:22px;">🔒</div>
+              <div>
+                <strong style="font-size:15px; color:#fca5a5; display:block; margin-bottom:4px;">Private / Restricted Video Link</strong>
+                <span style="font-size:13px; color:#fecaca; line-height:1.5; display:block;">Yeh YouTube video private ya restricted hai. Private video ko download nahi kiya ja sakta kyonki iska access YouTube par restricted hai.</span>
+              </div>
+            </div>
+          `;
+          errorAlert.style.background = 'rgba(239, 68, 68, 0.16)';
+          errorAlert.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+        } else {
+          errorAlert.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:20px;">⚠️</span>
+              <span>${err.message || 'Could not load Shorts video.'}</span>
+            </div>
+          `;
+          errorAlert.style.background = 'rgba(239, 68, 68, 0.12)';
+          errorAlert.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+        }
         errorAlert.style.display = 'block';
       }
     }
